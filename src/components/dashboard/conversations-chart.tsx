@@ -27,6 +27,11 @@ const VB_W = 760
 const VB_H = 240
 const PADDING = { top: 16, right: 16, bottom: 28, left: 40 }
 
+// Theme-driven series colors (resolve per light/dark via the CSS vars
+// defined in globals.css). Outgoing = brand emerald, incoming = blue.
+const C_OUTGOING = "var(--chart-1)"
+const C_INCOMING = "var(--chart-3)"
+
 export function ConversationsChart({ series, loading, range, onRangeChange }: ConversationsChartProps) {
   const data = series[range]
 
@@ -46,13 +51,13 @@ export function ConversationsChart({ series, loading, range, onRangeChange }: Co
   }, [data])
 
   return (
-    <section className="flex h-full flex-col rounded-xl border border-slate-800 bg-slate-900">
-      <header className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+    <section className="flex h-full flex-col rounded-xl border border-border bg-card shadow-card">
+      <header className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
-          <h2 className="text-sm font-semibold text-white">Conversations Over Time</h2>
-          <p className="mt-0.5 text-xs text-slate-500">Daily message volume by direction</p>
+          <h2 className="text-sm font-semibold text-foreground">Conversations Over Time</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">Daily message volume by direction</p>
         </div>
-        <div className="flex items-center gap-1 rounded-lg bg-slate-800/60 p-1">
+        <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
           {[7, 30, 90].map((r) => (
             <button
               key={r}
@@ -61,8 +66,8 @@ export function ConversationsChart({ series, loading, range, onRangeChange }: Co
               className={cn(
                 'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
                 range === r
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-400 hover:text-white',
+                  ? 'bg-card text-foreground shadow-card'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {r} days
@@ -85,9 +90,9 @@ export function ConversationsChart({ series, loading, range, onRangeChange }: Co
         )}
       </div>
 
-      <footer className="flex items-center gap-4 border-t border-slate-800 px-5 py-3 text-xs text-slate-400">
-        <LegendDot color="#3b82f6" label="Incoming" />
-        <LegendDot color="#7c3aed" label="Outgoing" />
+      <footer className="flex items-center gap-4 border-t border-border px-5 py-3 text-xs text-muted-foreground">
+        <LegendDot color={C_INCOMING} label="Incoming" />
+        <LegendDot color={C_OUTGOING} label="Outgoing" />
       </footer>
     </section>
   )
@@ -207,7 +212,7 @@ function LineSvg({
                 x2={VB_W - PADDING.right}
                 y1={y}
                 y2={y}
-                stroke="rgb(30 41 59)"
+                className="stroke-border"
                 strokeDasharray="3 3"
               />
               <text
@@ -215,7 +220,7 @@ function LineSvg({
                 y={y}
                 textAnchor="end"
                 dominantBaseline="middle"
-                className="fill-slate-500 text-[10px]"
+                className="fill-muted-foreground text-[10px]"
               >
                 {t}
               </text>
@@ -231,18 +236,18 @@ function LineSvg({
               x={xFor(i)}
               y={VB_H - 8}
               textAnchor="middle"
-              className="fill-slate-500 text-[10px]"
+              className="fill-muted-foreground text-[10px]"
             >
               {shortDayLabel(p.day)}
             </text>
           ) : null,
         )}
 
-        {/* Outgoing polyline (violet) */}
+        {/* Outgoing polyline (brand emerald) */}
         <path
           d={outgoingPath}
           fill="none"
-          stroke="#7c3aed"
+          stroke={C_OUTGOING}
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -251,7 +256,7 @@ function LineSvg({
         <path
           d={incomingPath}
           fill="none"
-          stroke="#3b82f6"
+          stroke={C_INCOMING}
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -265,11 +270,11 @@ function LineSvg({
               x2={hoverX}
               y1={PADDING.top}
               y2={PADDING.top + chartH}
-              stroke="rgb(71 85 105)"
+              className="stroke-muted-foreground"
               strokeDasharray="3 3"
             />
-            <circle cx={hoverX} cy={yFor(data[hover.idx].incoming)} r={3.5} fill="#3b82f6" />
-            <circle cx={hoverX} cy={yFor(data[hover.idx].outgoing)} r={3.5} fill="#7c3aed" />
+            <circle cx={hoverX} cy={yFor(data[hover.idx].incoming)} r={3.5} fill={C_INCOMING} />
+            <circle cx={hoverX} cy={yFor(data[hover.idx].outgoing)} r={3.5} fill={C_OUTGOING} />
           </g>
         )}
       </svg>
@@ -280,17 +285,17 @@ function LineSvg({
           letterboxed viewBox percentage. */}
       {hovered && hover !== null && (
         <div
-          className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-[11px] shadow-lg"
+          className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-md border border-border bg-popover px-2.5 py-1.5 text-[11px] text-popover-foreground shadow-elevate"
           style={{ left: `${hover.tooltipLeftPx}px` }}
         >
-          <div className="font-medium text-white">{longDayLabel(hovered.day)}</div>
+          <div className="font-medium text-foreground">{longDayLabel(hovered.day)}</div>
           <div className="mt-1 flex flex-col gap-0.5">
-            <span className="flex items-center gap-1.5 text-blue-300">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: C_INCOMING }} />
               {hovered.incoming} incoming
             </span>
-            <span className="flex items-center gap-1.5 text-primary">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: C_OUTGOING }} />
               {hovered.outgoing} outgoing
             </span>
           </div>

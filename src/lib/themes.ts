@@ -1,81 +1,29 @@
 /**
- * Single source of truth for the color-theme catalog.
+ * Light/dark MODE catalog (Drwintech design system).
  *
- * The CSS variables themselves live in `src/app/globals.css` under
- * `html[data-theme="..."]` blocks — that file is the one we paste
- * theme tokens into. This module only carries the metadata the UI
- * (settings picker, no-flash boot script) needs.
+ * The product has ONE proprietary accent (emerald) — there is no
+ * accent picker. The only user-facing axis is light vs dark, with a
+ * "system" option that follows the OS.
  *
- * Adding a new theme is a two-step change:
- *   1. Append the new `html[data-theme="<id>"]` block in globals.css
- *      with every token from an existing theme (use violet as the
- *      shape reference).
- *   2. Add an entry below. The order here drives the picker grid.
+ * Mode is applied by toggling the `.dark` class on <html> (see the
+ * boot script in layout.tsx and use-theme.tsx). The token values for
+ * each mode live in `src/app/globals.css` (`:root` = light, `.dark` =
+ * dark).
  */
 
-export const THEME_IDS = [
-  "violet",
-  "emerald",
-  "cobalt",
-  "amber",
-  "rose",
-] as const;
+export const MODES = ["light", "dark", "system"] as const;
 
-export type ThemeId = (typeof THEME_IDS)[number];
+export type Mode = (typeof MODES)[number];
 
-export const DEFAULT_THEME: ThemeId = "violet";
+/** Concrete mode after resolving "system" against the OS preference. */
+export type ResolvedMode = "light" | "dark";
 
-export const STORAGE_KEY = "wacrm.theme";
+export const DEFAULT_MODE: Mode = "light";
 
-export interface ThemeMeta {
-  id: ThemeId;
-  name: string;
-  tagline: string;
-  /**
-   * Static swatch color for the picker chip. Hard-coded so the boot
-   * script / picker cards don't need a getComputedStyle round trip
-   * before the page settles. Must mirror `--primary` of the same
-   * theme in globals.css.
-   */
-  swatch: string;
-}
+export const STORAGE_KEY = "drwintech.mode";
 
-export const THEMES: ReadonlyArray<ThemeMeta> = [
-  {
-    id: "violet",
-    name: "Violet",
-    tagline: "The default — confident, slightly playful.",
-    swatch: "oklch(0.526 0.247 293)",
-  },
-  {
-    id: "emerald",
-    name: "Emerald",
-    tagline: "Growth-coded, nods at messaging without copying WhatsApp green.",
-    swatch: "oklch(0.62 0.16 162)",
-  },
-  {
-    id: "cobalt",
-    name: "Cobalt",
-    tagline: "Clean B2B-SaaS blue — calm and product-y.",
-    swatch: "oklch(0.585 0.2 254)",
-  },
-  {
-    id: "amber",
-    name: "Amber",
-    tagline: "Warm and friendly — feels good for SMB teams.",
-    swatch: "oklch(0.745 0.16 65)",
-  },
-  {
-    id: "rose",
-    name: "Rose",
-    tagline: "Bold and modern — D2C, creator-economy, lifestyle.",
-    swatch: "oklch(0.645 0.22 16)",
-  },
-];
-
-export function isThemeId(value: unknown): value is ThemeId {
+export function isMode(value: unknown): value is Mode {
   return (
-    typeof value === "string" &&
-    (THEME_IDS as ReadonlyArray<string>).includes(value)
+    typeof value === "string" && (MODES as ReadonlyArray<string>).includes(value)
   );
 }

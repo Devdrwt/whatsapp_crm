@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import { useTotalUnread } from "@/hooks/use-total-unread";
 import {
   LayoutDashboard,
@@ -16,8 +17,12 @@ import {
   Workflow,
   Settings,
   LogOut,
+  Moon,
+  Sun,
   User,
   X,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import {
   Avatar,
@@ -31,15 +36,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Brand } from "@/components/layout/brand";
 
 interface NavItem {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
-  /**
-   * When true, the nav row renders a small "Beta" chip after the label.
-   * Purely informational — doesn't affect routing or access.
-   */
   beta?: boolean;
 }
 
@@ -57,6 +59,8 @@ const bottomNavItems = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
+const COLLAPSE_STORAGE_KEY = "drwintech.sidebar-collapsed";
+
 interface SidebarProps {
   /** Controlled on mobile by the Header's hamburger button. Ignored on lg+. */
   open?: boolean;
@@ -66,18 +70,42 @@ interface SidebarProps {
 export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { profile, signOut } = useAuth();
+  const { resolved, toggle } = useTheme();
   const totalUnread = useTotalUnread();
+
+  // Desktop-only collapsed state. Persists across reloads via
+  // localStorage. The mobile drawer always renders full-width — `lg:`
+  // gates everywhere ensure `collapsed` only takes effect on desktop.
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(COLLAPSE_STORAGE_KEY);
+      if (v === "1") setCollapsed(true);
+    } catch {
+      // private-browsing / sandbox — ignore.
+    }
+  }, []);
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(COLLAPSE_STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        // ignore.
+      }
+      return next;
+    });
+  };
 
   // Close the drawer when route changes — users opened it to navigate,
   // so once they pick a destination the drawer should get out of the way.
   useEffect(() => {
     onClose?.();
-    // Only pathname drives this — onClose identity doesn't need to re-run it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Lock body scroll and allow Escape to close while the drawer is open on
-  // mobile. No-ops on desktop because the sidebar isn't positioned there.
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -92,17 +120,21 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
     };
   }, [open, onClose]);
 
+  // Reusable classes: hide on lg+ when collapsed (mobile drawer never collapses).
+  const hideOnCollapse = collapsed ? "lg:hidden" : "";
+  // Nav rows: when collapsed on desktop, center the icon and drop the gap.
+  const collapsedRowClass = collapsed
+    ? "lg:justify-center lg:gap-0 lg:px-0"
+    : "";
+
   return (
     <>
-      {/* Backdrop — only exists on mobile and only when open. Clicking
-          it closes the drawer. Hidden from lg+ since the sidebar is
-          part of the main flex row there. */}
       <button
         type="button"
         aria-label="Close menu"
         onClick={onClose}
         className={cn(
-          "fixed inset-0 z-30 bg-slate-950/70 backdrop-blur-sm transition-opacity lg:hidden",
+          "fixed inset-0 z-30 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden",
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0",
@@ -111,38 +143,49 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          // Mobile: fixed drawer that slides in from the left.
-          "fixed inset-y-0 left-0 z-40 flex h-full w-64 flex-col border-r border-slate-800 bg-slate-900",
+          "fixed inset-y-0 left-0 z-40 flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar",
           "transition-transform duration-200 ease-out will-change-transform",
           open ? "translate-x-0" : "-translate-x-full",
-          // Desktop: static, always visible — reset all the mobile framing.
-          "lg:static lg:z-0 lg:w-60 lg:translate-x-0 lg:transition-none",
+          // Desktop: static + width depends on collapsed.
+          "lg:static lg:z-0 lg:translate-x-0 lg:transition-[width] lg:duration-200 lg:ease-out",
+          collapsed ? "lg:w-16" : "lg:w-60",
         )}
         aria-label="Primary"
       >
-        {/* Logo row. On mobile we put a close button here; on desktop the
-            close button is hidden since the sidebar is always-visible. */}
-        <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-slate-800 px-4">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <MessageSquare className="h-4 w-4" />
-            </div>
-            <span className="text-sm font-semibold text-white">
-              CRM Template for WhatsApp
-            </span>
+        {/* Logo row */}
+        <div
+          className={cn(
+            "flex h-14 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-4",
+            collapsed && "lg:justify-center lg:px-2",
+          )}
+        >
+          <Link
+            href="/dashboard"
+            aria-label="Drwintech — Dashboard"
+            className="flex items-center"
+          >
+            {/* On mobile the drawer is full width so the wordmark always
+                shows. On desktop, when the sidebar is collapsed, only the
+                mark stays — the wordmark hides via lg:hidden. */}
+            <Brand wordmarkClassName={cn(collapsed && "lg:hidden")} />
           </Link>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="flex h-9 w-9 items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Main navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <nav
+          className={cn(
+            "flex-1 overflow-y-auto py-4",
+            collapsed ? "lg:px-2 px-3" : "px-3",
+          )}
+        >
           <ul className="flex flex-col gap-1">
             {navItems.map((item) => {
               const isActive =
@@ -156,20 +199,26 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    title={collapsed ? item.label : undefined}
                     className={cn(
-                      // Taller on mobile so fingers can hit the row reliably (≥44px).
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:py-2",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-slate-400 hover:bg-slate-800 hover:text-white",
+                        ? "bg-primary-soft text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      collapsedRowClass,
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span className="flex-1">{item.label}</span>
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    <span className={cn("flex-1", hideOnCollapse)}>
+                      {item.label}
+                    </span>
                     {item.beta && (
                       <span
                         aria-label="Beta feature"
-                        className="rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-amber-300"
+                        className={cn(
+                          "rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-300",
+                          hideOnCollapse,
+                        )}
                       >
                         Beta
                       </span>
@@ -177,7 +226,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     {showUnreadDot && (
                       <span
                         aria-label={`${totalUnread} unread conversation${totalUnread === 1 ? "" : "s"}`}
-                        className="relative flex h-2 w-2"
+                        className={cn(
+                          "relative flex h-2 w-2",
+                          hideOnCollapse,
+                        )}
                       >
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                         <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
@@ -189,7 +241,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             })}
           </ul>
 
-          <div className="my-4 border-t border-slate-800" />
+          <div className="my-4 border-t border-sidebar-border" />
 
           <ul className="flex flex-col gap-1">
             {bottomNavItems.map((item) => {
@@ -198,26 +250,103 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    title={collapsed ? item.label : undefined}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:py-2",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-slate-400 hover:bg-slate-800 hover:text-white",
+                        ? "bg-primary-soft text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      collapsedRowClass,
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    <span className={cn("flex-1", hideOnCollapse)}>
+                      {item.label}
+                    </span>
                   </Link>
                 </li>
               );
             })}
+            <li>
+              <button
+                type="button"
+                onClick={toggle}
+                aria-label={
+                  resolved === "dark"
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+                }
+                title={
+                  collapsed
+                    ? resolved === "dark"
+                      ? "Light mode"
+                      : "Dark mode"
+                    : undefined
+                }
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground lg:py-2",
+                  collapsedRowClass,
+                )}
+              >
+                {resolved === "dark" ? (
+                  <Sun className="h-4 w-4 shrink-0" />
+                ) : (
+                  <Moon className="h-4 w-4 shrink-0" />
+                )}
+                <span
+                  className={cn(
+                    "flex-1 text-left",
+                    hideOnCollapse,
+                  )}
+                >
+                  {resolved === "dark" ? "Light mode" : "Dark mode"}
+                </span>
+              </button>
+            </li>
+            {/* Desktop-only collapse / expand toggle. Mobile drawer
+                doesn't need it (the X close button handles dismiss). */}
+            <li className="hidden lg:block">
+              <button
+                type="button"
+                onClick={toggleCollapsed}
+                aria-label={
+                  collapsed ? "Expand sidebar" : "Collapse sidebar"
+                }
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-pressed={collapsed}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  collapsedRowClass,
+                )}
+              >
+                {collapsed ? (
+                  <ChevronsRight className="h-4 w-4 shrink-0" />
+                ) : (
+                  <ChevronsLeft className="h-4 w-4 shrink-0" />
+                )}
+                <span className={cn("flex-1 text-left", hideOnCollapse)}>
+                  Collapse
+                </span>
+              </button>
+            </li>
           </ul>
         </nav>
 
         {/* User section */}
-        <div className="shrink-0 border-t border-slate-800 p-3">
+        <div
+          className={cn(
+            "shrink-0 border-t border-sidebar-border p-3",
+            collapsed && "lg:px-2",
+          )}
+        >
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-slate-800/60 focus:bg-slate-800/60 focus:outline-none data-popup-open:bg-slate-800/60">
+            <DropdownMenuTrigger
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-accent focus:bg-accent focus:outline-none data-popup-open:bg-accent",
+                collapsed && "lg:justify-center lg:gap-0 lg:px-0",
+              )}
+              title={collapsed ? (profile?.full_name ?? "Account") : undefined}
+            >
               <Avatar className="size-8 shrink-0">
                 {profile?.avatar_url ? (
                   <AvatarImage
@@ -225,17 +354,17 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     alt={profile.full_name ?? "Avatar"}
                   />
                 ) : null}
-                <AvatarFallback className="bg-primary/10 text-sm font-medium text-primary">
+                <AvatarFallback className="bg-primary-soft text-sm font-medium text-primary">
                   {profile?.full_name?.charAt(0)?.toUpperCase() ??
                     profile?.email?.charAt(0)?.toUpperCase() ??
                     "U"}
                 </AvatarFallback>
               </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">
+              <div className={cn("min-w-0 flex-1", hideOnCollapse)}>
+                <p className="truncate text-sm font-medium text-foreground">
                   {profile?.full_name ?? "User"}
                 </p>
-                <p className="truncate text-xs text-slate-400">
+                <p className="truncate text-xs text-muted-foreground">
                   {profile?.email ?? ""}
                 </p>
               </div>
@@ -244,15 +373,11 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               align="end"
               side="top"
               sideOffset={6}
-              className="min-w-56 bg-slate-900 text-slate-100 ring-slate-700"
+              className="min-w-56"
             >
               <DropdownMenuItem
                 render={
-                  <Link
-                    href="/settings?tab=profile"
-                    onClick={onClose}
-                    className="text-slate-200 focus:bg-slate-800 focus:text-white"
-                  />
+                  <Link href="/settings?tab=profile" onClick={onClose} />
                 }
               >
                 <User className="size-4" />
@@ -260,21 +385,14 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={
-                  <Link
-                    href="/settings?tab=whatsapp"
-                    onClick={onClose}
-                    className="text-slate-200 focus:bg-slate-800 focus:text-white"
-                  />
+                  <Link href="/settings?tab=whatsapp" onClick={onClose} />
                 }
               >
                 <Settings className="size-4" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-slate-800" />
-              <DropdownMenuItem
-                onClick={signOut}
-                className="text-slate-200 focus:bg-slate-800 focus:text-white"
-              >
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut}>
                 <LogOut className="size-4" />
                 Sign out
               </DropdownMenuItem>

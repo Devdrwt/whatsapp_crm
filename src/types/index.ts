@@ -42,6 +42,61 @@ export interface ContactTag {
   tag_id: string;
 }
 
+export type OrgRole = 'owner' | 'admin' | 'agent';
+export type OrgPlan = 'trial' | 'starter' | 'pro' | 'suspended';
+
+export interface Organization {
+  id: string;
+  name: string;
+  owner_id: string;
+  plan: OrgPlan;
+  max_agents: number;
+  max_contacts: number;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrgMember {
+  org_id: string;
+  user_id: string;
+  role: OrgRole;
+  created_at: string;
+}
+
+export interface OrgInvitation {
+  id: string;
+  org_id: string;
+  email: string;
+  role: 'admin' | 'agent';
+  token: string;
+  accepted_at: string | null;
+  expires_at: string;
+  created_at: string;
+}
+
+/** Organization row joined with the current user's role in it — used by the
+ *  org switcher and `useAuth`. */
+export interface OrganizationWithRole extends Organization {
+  role: OrgRole;
+}
+
+export type AiAgentModel = 'claude-sonnet-4-6' | 'claude-haiku-4-5-20251001';
+
+export interface AiAgentConfig {
+  id: string;
+  user_id: string;
+  enabled: boolean;
+  agent_name: string;
+  persona: string;
+  knowledge_base: string;
+  model: AiAgentModel;
+  fallback_message: string;
+  max_history: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CustomField {
   id: string;
   user_id: string;

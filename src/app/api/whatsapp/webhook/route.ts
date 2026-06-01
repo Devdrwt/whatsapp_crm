@@ -6,6 +6,7 @@ import { normalizePhone, phonesMatch } from '@/lib/whatsapp/phone-utils'
 import { verifyMetaWebhookSignature } from '@/lib/whatsapp/webhook-signature'
 import { runAutomationsForTrigger } from '@/lib/automations/engine'
 import { dispatchInboundToFlows } from '@/lib/flows/engine'
+import { maybeRunAiAgent } from '@/lib/ai-agent/responder'
 
 // Lazy-initialized to avoid build-time crash when env vars are missing
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -559,6 +560,8 @@ async function processMessage(
     .eq('sender_type', 'customer')
   const isFirstInboundMessage = (priorCustomerMsgCount ?? 0) === 0
 
+  const inboundCreatedAt = new Date(parseInt(message.timestamp) * 1000).toISOString()
+
   const { error: msgError } = await supabaseAdmin().from('messages').insert({
     conversation_id: conversation.id,
     sender_type: 'customer',
@@ -567,7 +570,7 @@ async function processMessage(
     media_url: mediaUrl,
     message_id: message.id,
     status: 'delivered',
-    created_at: new Date(parseInt(message.timestamp) * 1000).toISOString(),
+    created_at: inboundCreatedAt,
     reply_to_message_id: replyToInternalId,
     // Only populated for content_type='interactive'. Migration 010 added
     // the column; null for every other content_type so existing inserts
@@ -665,16 +668,38 @@ async function processMessage(
   // listens to only one trigger runs only when that trigger matches.
   if (contactOutcome.wasCreated) automationTriggers.unshift('new_contact_created')
   if (isFirstInboundMessage) automationTriggers.unshift('first_inbound_message')
-  for (const triggerType of automationTriggers) {
-    runAutomationsForTrigger({
-      userId,
-      triggerType,
-      contactId: contactRecord.id,
-      context: {
-        message_text: inboundText,
-        conversation_id: conversation.id,
-      },
-    }).catch((err) => console.error('[automations] dispatch failed:', err))
+  // Awaited (was fire-and-forget) so the AI responder below can tell whether an
+  // automation already replied before deciding to answer. This whole handler
+  // runs after the 200 OK is returned to Meta, so awaiting doesn't delay the ack.
+  await Promise.allSettled(
+    automationTriggers.map((triggerType) =>
+      runAutomationsForTrigger({
+        userId,
+        triggerType,
+        contactId: contactRecord.id,
+        context: {
+          message_text: inboundText,
+          conversation_id: conversation.id,
+        },
+      }).catch((err) => console.error('[automations] dispatch failed:', err)),
+    ),
+  )
+
+  // Last-resort AI responder: replies in natural language when no flow or
+  // automation handled this inbound text. Only fires when the flow runner
+  // didn't consume the message and nobody else replied (gate lives inside
+  // maybeRunAiAgent). Never throws — a failure here must not break the webhook.
+  if (!flowConsumed && inboundText.trim()) {
+    try {
+      await maybeRunAiAgent({
+        userId,
+        conversationId: conversation.id,
+        contactId: contactRecord.id,
+        inboundCreatedAt,
+      })
+    } catch (err) {
+      console.error('[ai-agent] responder failed:', err)
+    }
   }
 }
 

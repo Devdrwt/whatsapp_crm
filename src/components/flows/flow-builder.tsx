@@ -114,11 +114,11 @@ const NODE_META: Record<
   NodeType,
   { label: string; icon: typeof Workflow; color: string }
 > = {
-  start: { label: "Start", icon: PlayCircle, color: "text-emerald-400" },
+  start: { label: "Start", icon: PlayCircle, color: "text-emerald-600 dark:text-emerald-400" },
   send_message: {
     label: "Send message",
     icon: MessageCircle,
-    color: "text-sky-400",
+    color: "text-sky-600 dark:text-sky-400",
   },
   send_buttons: {
     label: "Send buttons",
@@ -128,29 +128,29 @@ const NODE_META: Record<
   send_list: {
     label: "Send list",
     icon: ListPlus,
-    color: "text-indigo-400",
+    color: "text-indigo-600 dark:text-indigo-400",
   },
   collect_input: {
     label: "Collect input",
     icon: Inbox,
-    color: "text-teal-400",
+    color: "text-teal-600 dark:text-teal-400",
   },
   condition: {
     label: "If / else",
     icon: GitFork,
-    color: "text-fuchsia-400",
+    color: "text-fuchsia-600 dark:text-fuchsia-400",
   },
   set_tag: {
     label: "Tag contact",
     icon: Tag,
-    color: "text-pink-400",
+    color: "text-pink-600 dark:text-pink-400",
   },
   handoff: {
     label: "Handoff to agent",
     icon: UserPlus,
-    color: "text-amber-400",
+    color: "text-amber-600 dark:text-amber-400",
   },
-  end: { label: "End", icon: Flag, color: "text-slate-400" },
+  end: { label: "End", icon: Flag, color: "text-muted-foreground" },
 };
 
 // ============================================================
@@ -620,14 +620,14 @@ export function FlowBuilder({ initialFlow, initialNodes }: FlowBuilderProps) {
 
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">
+          <h2 className="text-sm font-semibold text-foreground">
             Nodes ({state.nodes.length})
           </h2>
           <AddNodeButton onAdd={addNode} />
         </div>
 
         {state.nodes.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-700 bg-slate-900/50 p-8 text-center text-sm text-slate-400">
+          <div className="rounded-lg border border-dashed border-border bg-muted/40 p-8 text-center text-sm text-muted-foreground">
             Add a <strong>Start</strong> node, then a <strong>Send buttons</strong>
             {" "}node, then a <strong>Handoff</strong> — that&apos;s the welcome-menu
             shape from the brief.
@@ -662,7 +662,7 @@ export function FlowBuilder({ initialFlow, initialNodes }: FlowBuilderProps) {
           dashboard shell is the scroll container; this stays pinned
           to the viewport bottom (with a 1rem gap) until the page
           naturally ends, at which point it falls back into flow. */}
-      <div className="sticky bottom-4 z-10 shadow-xl shadow-slate-950/60">
+      <div className="sticky bottom-4 z-10 shadow-xl">
         <ValidationPanel issues={issues} onJump={jumpToNode} />
       </div>
     </div>
@@ -700,11 +700,11 @@ function Header({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 text-xs text-slate-500">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1 hover:text-slate-300"
+          className="inline-flex items-center gap-1 hover:text-foreground"
         >
           <ArrowLeft className="h-3 w-3" />
           Flows
@@ -719,16 +719,16 @@ function Header({
               setState((s) => ({ ...s, name: e.target.value }))
             }
             placeholder="Flow name"
-            className="max-w-md bg-slate-900 text-lg font-semibold"
+            className="max-w-md text-lg font-semibold"
           />
           <StatusBadge status={state.status} />
           {dirty && (
             <span
-              className="inline-flex shrink-0 items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-amber-300"
+              className="inline-flex shrink-0 items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-amber-600 dark:text-amber-400"
               title="Unsaved changes — hit Save to persist"
               aria-live="polite"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-400" />
               Edited
             </span>
           )}
@@ -746,7 +746,7 @@ function Header({
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete
@@ -801,7 +801,7 @@ function Header({
           setState((s) => ({ ...s, description: e.target.value }))
         }
         placeholder="Optional description (internal — customers don't see this)"
-        className="bg-slate-900 text-sm"
+        className="text-sm"
       />
     </div>
   );
@@ -809,9 +809,9 @@ function Header({
 
 function StatusBadge({ status }: { status: BuilderState["status"] }) {
   const cls = {
-    draft: "border-slate-700 bg-slate-800 text-slate-300",
-    active: "border-emerald-600/40 bg-emerald-500/10 text-emerald-300",
-    archived: "border-slate-700 bg-slate-800/50 text-slate-500",
+    draft: "border-border bg-muted text-muted-foreground",
+    active: "border-emerald-600/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    archived: "border-border bg-muted/50 text-muted-foreground",
   }[status];
   return (
     <Badge variant="outline" className={cn("shrink-0", cls)}>
@@ -834,11 +834,11 @@ function TriggerPanel({
   triggerIssues: ValidationIssue[];
 }) {
   return (
-    <section className="rounded-lg border border-slate-800 bg-slate-900 p-4">
-      <h2 className="mb-3 text-sm font-semibold text-white">Trigger</h2>
+    <section className="rounded-lg border border-border bg-card p-4 shadow-card">
+      <h2 className="mb-3 text-sm font-semibold text-foreground">Trigger</h2>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs text-slate-400">When…</label>
+          <label className="mb-1 block text-xs text-muted-foreground">When…</label>
           <Select
             value={state.trigger_type}
             onValueChange={(v) =>
@@ -850,7 +850,7 @@ function TriggerPanel({
               }))
             }
           >
-            <SelectTrigger className="bg-slate-800">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -868,7 +868,7 @@ function TriggerPanel({
         </div>
         {state.trigger_type === "keyword" && (
           <div>
-            <label className="mb-1 block text-xs text-slate-400">
+            <label className="mb-1 block text-xs text-muted-foreground">
               Keywords (comma-separated)
             </label>
             <Input
@@ -890,7 +890,6 @@ function TriggerPanel({
                 }))
               }
               placeholder="support, help, hi"
-              className="bg-slate-800"
             />
           </div>
         )}
@@ -919,9 +918,9 @@ function EntryPicker({
 }) {
   if (state.nodes.length === 0) return null;
   return (
-    <section className="flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-900 p-3">
+    <section className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-card">
       <CornerDownRight className="h-4 w-4 shrink-0 text-primary" />
-      <span className="text-xs text-slate-400">Entry node:</span>
+      <span className="text-xs text-muted-foreground">Entry node:</span>
       <NodeKeySelect
         value={state.entry_node_id}
         nodes={state.nodes}
@@ -973,14 +972,14 @@ function NodeCard({
     <div
       ref={cardRef}
       className={cn(
-        "rounded-lg border bg-slate-900 transition-shadow duration-500",
+        "rounded-lg border bg-card shadow-card transition-shadow duration-500",
         hasError
-          ? "border-red-500/40"
+          ? "border-destructive/40"
           : isEntry
             ? "border-primary/50"
-            : "border-slate-800",
+            : "border-border",
         isFlashed &&
-          "ring-2 ring-primary ring-offset-2 ring-offset-slate-950",
+          "ring-2 ring-primary ring-offset-2 ring-offset-background",
       )}
     >
       <button
@@ -991,10 +990,10 @@ function NodeCard({
         <meta.icon className={cn("h-4 w-4 shrink-0", meta.color)} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium text-white">
+            <span className="truncate text-sm font-medium text-foreground">
               {meta.label}
             </span>
-            <code className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">
+            <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
               {node.node_key}
             </code>
             {isEntry && (
@@ -1007,29 +1006,29 @@ function NodeCard({
             )}
           </div>
           {!expanded && preview && (
-            <p className="mt-0.5 truncate text-xs text-slate-500">
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {preview}
             </p>
           )}
         </div>
         {hasError && (
-          <CircleAlert className="h-3.5 w-3.5 shrink-0 text-red-400" />
+          <CircleAlert className="h-3.5 w-3.5 shrink-0 text-destructive" />
         )}
         {expanded ? (
-          <ChevronUp className="h-4 w-4 text-slate-500" />
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-slate-500" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
       {expanded && (
-        <div className="border-t border-slate-800 px-4 py-4">
+        <div className="border-t border-border px-4 py-4">
           <NodeConfigForm
             node={node}
             allNodes={allNodes}
             onUpdate={onUpdate}
             onUpdateConfig={onUpdateConfig}
           />
-          <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
+          <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
             <div className="flex items-center gap-2">
               {!isEntry && (
                 <Button variant="ghost" size="sm" onClick={onSetEntry}>
@@ -1041,14 +1040,14 @@ function NodeCard({
               variant="ghost"
               size="sm"
               onClick={onRemove}
-              className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Remove node
             </Button>
           </div>
           {issues.length > 0 && (
-            <div className="mt-3 flex flex-col gap-1 rounded-md bg-red-500/5 p-2">
+            <div className="mt-3 flex flex-col gap-1 rounded-md bg-destructive/5 p-2">
               {issues.map((i, ix) => (
                 <IssueLine key={ix} issue={i} />
               ))}
@@ -1142,7 +1141,7 @@ function NodeConfigForm({
             rows={2}
           />
           <div>
-            <label className="mb-1 block text-xs text-slate-400">
+            <label className="mb-1 block text-xs text-muted-foreground">
               Variable key (stored in flow_runs.vars; alphanumeric + underscore)
             </label>
             <Input
@@ -1153,11 +1152,11 @@ function NodeConfigForm({
                 })
               }
               placeholder="e.g. name, email, company"
-              className="bg-slate-800 font-mono text-xs"
+              className="font-mono text-xs"
             />
-            <p className="mt-1 text-[10px] text-slate-500">
+            <p className="mt-1 text-[10px] text-muted-foreground">
               Interpolate in downstream prompts and handoff notes with{" "}
-              <code className="rounded bg-slate-800 px-1">
+              <code className="rounded bg-muted px-1">
                 {"{{vars."}
                 {(cfg as { var_key?: string }).var_key || "name"}
                 {"}}"}
@@ -1203,17 +1202,17 @@ function NodeConfigForm({
       )}
 
       {node.node_type === "end" && (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-muted-foreground">
           Terminal node. When the runner reaches this node the run is marked
           complete. No config needed.
         </p>
       )}
 
-      <div className="border-t border-slate-800 pt-3">
+      <div className="border-t border-border pt-3">
         <button
           type="button"
           onClick={() => setShowAdvanced((v) => !v)}
-          className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
           {showAdvanced ? (
             <ChevronUp className="h-3 w-3" />
@@ -1225,7 +1224,7 @@ function NodeConfigForm({
         {showAdvanced && (
           <div className="mt-3 flex flex-col gap-3">
             <div>
-              <label className="mb-1 block text-xs text-slate-400">
+              <label className="mb-1 block text-xs text-muted-foreground">
                 Node key (internal identifier — keep stable for analytics)
               </label>
               <Input
@@ -1233,11 +1232,11 @@ function NodeConfigForm({
                 onChange={(e) =>
                   onUpdate({ node_key: slugify(e.target.value, node.node_key) })
                 }
-                className="bg-slate-800 font-mono text-xs"
+                className="font-mono text-xs"
               />
             </div>
             {hasReplyIds && (
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[10px] text-muted-foreground">
                 Reply IDs for each option are shown inline above. They&apos;re
                 returned by WhatsApp when a customer taps; you usually don&apos;t
                 need to touch them.
@@ -1309,7 +1308,7 @@ function SendButtonsForm({
       />
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs text-slate-400">
+          <label className="text-xs text-muted-foreground">
             Buttons (1–3) — each one routes to a different next node
           </label>
         </div>
@@ -1318,7 +1317,7 @@ function SendButtonsForm({
             <div
               key={i}
               className={cn(
-                "grid grid-cols-1 gap-2 rounded-md border border-slate-800 bg-slate-800/40 p-3",
+                "grid grid-cols-1 gap-2 rounded-md border border-border bg-muted/40 p-3",
                 showAdvanced
                   ? "md:grid-cols-[1fr_2fr_2fr_auto]"
                   : "md:grid-cols-[2fr_2fr_auto]",
@@ -1333,14 +1332,13 @@ function SendButtonsForm({
                     })
                   }
                   placeholder="reply_id"
-                  className="bg-slate-800 font-mono text-xs"
+                  className="font-mono text-xs"
                 />
               )}
               <Input
                 value={b.title}
                 onChange={(e) => updateButton(i, { title: e.target.value })}
                 placeholder="Visible title (≤20 chars)"
-                className="bg-slate-800"
                 maxLength={20}
               />
               <NodeKeySelect
@@ -1354,7 +1352,7 @@ function SendButtonsForm({
                 variant="ghost"
                 size="sm"
                 onClick={() => removeButton(i)}
-                className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -1503,13 +1501,13 @@ function SendListForm({
       </div>
 
       <div className="mt-2">
-        <label className="mb-2 block text-xs text-slate-400">
+        <label className="mb-2 block text-xs text-muted-foreground">
           Rows (1–10 total across all sections)
         </label>
         {sections.map((section, sIdx) => (
           <div
             key={sIdx}
-            className="mb-3 rounded-md border border-slate-800 bg-slate-800/40 p-3"
+            className="mb-3 rounded-md border border-border bg-muted/40 p-3"
           >
             <div className="mb-2 flex items-center gap-2">
               <Input
@@ -1518,14 +1516,14 @@ function SendListForm({
                   updateSection(sIdx, { title: e.target.value })
                 }
                 placeholder={`Section ${sIdx + 1} title (optional)`}
-                className="bg-slate-800 text-xs"
+                className="text-xs"
               />
               {sections.length > 1 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => removeSection(sIdx)}
-                  className="shrink-0 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                  className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                   aria-label="Remove section"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -1554,7 +1552,7 @@ function SendListForm({
                       })
                     }
                     placeholder="reply_id"
-                    className="bg-slate-800 font-mono text-xs"
+                    className="font-mono text-xs"
                   />
                 )}
                 <Input
@@ -1563,7 +1561,6 @@ function SendListForm({
                     updateRow(sIdx, rIdx, { title: e.target.value })
                   }
                   placeholder="Row title (≤24)"
-                  className="bg-slate-800"
                   maxLength={24}
                 />
                 <NodeKeySelect
@@ -1579,7 +1576,7 @@ function SendListForm({
                   variant="ghost"
                   size="sm"
                   onClick={() => removeRow(sIdx, rIdx)}
-                  className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
@@ -1671,14 +1668,14 @@ function ConditionForm({
     <>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <div>
-          <label className="mb-1 block text-xs text-slate-400">If</label>
+          <label className="mb-1 block text-xs text-muted-foreground">If</label>
           <Select
             value={subject}
             onValueChange={(v) =>
               onUpdateConfig({ subject: v as ConditionCfg["subject"] })
             }
           >
-            <SelectTrigger className="bg-slate-800">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1689,7 +1686,7 @@ function ConditionForm({
           </Select>
         </div>
         <div className="md:col-span-2">
-          <label className="mb-1 block text-xs text-slate-400">
+          <label className="mb-1 block text-xs text-muted-foreground">
             {subject === "var"
               ? "var name"
               : subject === "tag"
@@ -1701,7 +1698,7 @@ function ConditionForm({
               value={cfg.subject_key ?? ""}
               onValueChange={(v) => onUpdateConfig({ subject_key: v })}
             >
-              <SelectTrigger className="bg-slate-800">
+              <SelectTrigger>
                 <SelectValue placeholder="Pick a tag…" />
               </SelectTrigger>
               <SelectContent>
@@ -1717,7 +1714,7 @@ function ConditionForm({
               value={cfg.subject_key ?? ""}
               onValueChange={(v) => onUpdateConfig({ subject_key: v })}
             >
-              <SelectTrigger className="bg-slate-800">
+              <SelectTrigger>
                 <SelectValue placeholder="Pick a field…" />
               </SelectTrigger>
               <SelectContent>
@@ -1732,7 +1729,7 @@ function ConditionForm({
               value={cfg.subject_key ?? ""}
               onChange={(e) => onUpdateConfig({ subject_key: e.target.value })}
               placeholder={subject === "var" ? "e.g. email" : "tag UUID"}
-              className="bg-slate-800 font-mono text-xs"
+              className="font-mono text-xs"
             />
           )}
         </div>
@@ -1745,14 +1742,14 @@ function ConditionForm({
         )}
       >
         <div>
-          <label className="mb-1 block text-xs text-slate-400">Operator</label>
+          <label className="mb-1 block text-xs text-muted-foreground">Operator</label>
           <Select
             value={operator}
             onValueChange={(v) =>
               onUpdateConfig({ operator: v as ConditionCfg["operator"] })
             }
           >
-            <SelectTrigger className="bg-slate-800">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1765,11 +1762,10 @@ function ConditionForm({
         </div>
         {showValue && (
           <div>
-            <label className="mb-1 block text-xs text-slate-400">Value</label>
+            <label className="mb-1 block text-xs text-muted-foreground">Value</label>
             <Input
               value={cfg.value ?? ""}
               onChange={(e) => onUpdateConfig({ value: e.target.value })}
-              className="bg-slate-800"
             />
           </div>
         )}
@@ -1836,14 +1832,14 @@ function SetTagForm({
     <>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs text-slate-400">Action</label>
+          <label className="mb-1 block text-xs text-muted-foreground">Action</label>
           <Select
             value={cfg.mode ?? "add"}
             onValueChange={(v) =>
               onUpdateConfig({ mode: v as SetTagCfg["mode"] })
             }
           >
-            <SelectTrigger className="bg-slate-800">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1853,13 +1849,13 @@ function SetTagForm({
           </Select>
         </div>
         <div>
-          <label className="mb-1 block text-xs text-slate-400">Tag</label>
+          <label className="mb-1 block text-xs text-muted-foreground">Tag</label>
           {tags.length > 0 ? (
             <Select
               value={cfg.tag_id ?? ""}
               onValueChange={(v) => onUpdateConfig({ tag_id: v })}
             >
-              <SelectTrigger className="bg-slate-800">
+              <SelectTrigger>
                 <SelectValue placeholder="Pick a tag…" />
               </SelectTrigger>
               <SelectContent>
@@ -1875,7 +1871,7 @@ function SetTagForm({
               value={cfg.tag_id ?? ""}
               onChange={(e) => onUpdateConfig({ tag_id: e.target.value })}
               placeholder="Tag UUID"
-              className="bg-slate-800 font-mono text-xs"
+              className="font-mono text-xs"
             />
           )}
         </div>
@@ -1906,19 +1902,17 @@ function TextRow({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-slate-400">{label}</label>
+      <label className="mb-1 block text-xs text-muted-foreground">{label}</label>
       {rows > 1 ? (
         <Textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={rows}
-          className="bg-slate-800"
         />
       ) : (
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="bg-slate-800"
         />
       )}
     </div>
@@ -1940,7 +1934,7 @@ function NextNodeRow({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-slate-400">{label}</label>
+      <label className="mb-1 block text-xs text-muted-foreground">{label}</label>
       <NodeKeySelect
         value={value || null}
         nodes={allNodes}
@@ -1973,7 +1967,7 @@ function NodeKeySelect({
       value={value ?? "__none__"}
       onValueChange={(v) => onChange(v === "__none__" ? null : v)}
     >
-      <SelectTrigger className={cn("bg-slate-800", className)}>
+      <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder ?? "—"} />
       </SelectTrigger>
       <SelectContent>
@@ -2015,13 +2009,13 @@ function AddNodeButton({ onAdd }: { onAdd: (type: NodeType) => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="inline-flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:bg-slate-800"
+        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
         aria-label="Add node"
       >
         <Plus className="h-3.5 w-3.5" />
         Add node
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="border-slate-700 bg-slate-900">
+      <DropdownMenuContent align="end">
         {types.map((t) => {
           const meta = NODE_META[t];
           return (
@@ -2052,7 +2046,7 @@ function ValidationPanel({
     // sticky-positioned over scrolled-behind node cards (a translucent
     // bg-emerald-500/10 would bleed through ugly).
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-emerald-600/50 bg-slate-950 p-3 text-sm font-medium text-emerald-300">
+      <div className="flex items-center gap-2 rounded-lg border border-emerald-600/50 bg-background p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
         <CircleCheck className="h-4 w-4 shrink-0" />
         No issues. Ready to activate.
       </div>
@@ -2063,15 +2057,15 @@ function ValidationPanel({
   return (
     <div
       className={cn(
-        "rounded-lg border bg-slate-950 p-3",
-        errors.length > 0 ? "border-red-500/40" : "border-amber-500/40",
+        "rounded-lg border bg-background p-3",
+        errors.length > 0 ? "border-destructive/40" : "border-amber-500/40",
       )}
     >
-      <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
+      <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
         {errors.length > 0 ? (
-          <CircleAlert className="h-4 w-4 text-red-400" />
+          <CircleAlert className="h-4 w-4 text-destructive" />
         ) : (
-          <CircleAlert className="h-4 w-4 text-amber-400" />
+          <CircleAlert className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         )}
         {errors.length} error{errors.length === 1 ? "" : "s"},{" "}
         {warnings.length} warning{warnings.length === 1 ? "" : "s"}
@@ -2093,15 +2087,15 @@ function IssueLine({
   onJump?: (key: string) => void;
 }) {
   const tone =
-    issue.severity === "error" ? "text-red-300" : "text-amber-300";
+    issue.severity === "error" ? "text-destructive" : "text-amber-600 dark:text-amber-400";
   const iconTone =
-    issue.severity === "error" ? "text-red-400" : "text-amber-400";
+    issue.severity === "error" ? "text-destructive" : "text-amber-600 dark:text-amber-400";
   const body = (
     <>
       <CircleAlert className={cn("mt-0.5 h-3 w-3 shrink-0", iconTone)} />
       <span className="min-w-0 flex-1">
         {issue.node_key && (
-          <code className="mr-1 rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-400">
+          <code className="mr-1 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground">
             {issue.node_key}
           </code>
         )}
@@ -2118,7 +2112,7 @@ function IssueLine({
         type="button"
         onClick={() => onJump(issue.node_key!)}
         className={cn(
-          "flex w-full items-start gap-2 rounded-md px-2 py-1 text-left text-xs transition-colors hover:bg-slate-800/60",
+          "flex w-full items-start gap-2 rounded-md px-2 py-1 text-left text-xs transition-colors hover:bg-accent",
           tone,
         )}
         aria-label={`Jump to node ${issue.node_key}`}
