@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 export async function POST(
   _request: Request,
@@ -13,12 +14,17 @@ export async function POST(
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
+
   const admin = supabaseAdmin()
   const { data: original, error: origErr } = await admin
     .from('automations')
     .select('*')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('org_id', orgId)
     .maybeSingle()
   if (origErr) return NextResponse.json({ error: origErr.message }, { status: 500 })
   if (!original) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -27,6 +33,7 @@ export async function POST(
     .from('automations')
     .insert({
       user_id: user.id,
+      org_id: orgId,
       name: `${original.name} (Copy)`,
       description: original.description,
       trigger_type: original.trigger_type,

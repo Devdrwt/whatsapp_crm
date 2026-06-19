@@ -54,7 +54,7 @@ export async function GET(request: Request) {
   const { data: runs, error } = await admin
     .from('flow_runs')
     .select(
-      'id, flow_id, user_id, contact_id, last_advanced_at, flows ( fallback_policy )',
+      'id, flow_id, user_id, org_id, contact_id, last_advanced_at, flows ( fallback_policy )',
     )
     .eq('status', 'active')
 
@@ -68,6 +68,7 @@ export async function GET(request: Request) {
     id: string
     flow_id: string
     user_id: string
+    org_id: string
     contact_id: string | null
     last_advanced_at: string
     flows: { fallback_policy: unknown } | { fallback_policy: unknown }[] | null
@@ -98,6 +99,7 @@ export async function GET(request: Request) {
     if (Array.isArray(updated) && updated.length > 0) {
       await admin.from('flow_run_events').insert({
         flow_run_id: r.id,
+        org_id: r.org_id,
         event_type: 'timeout',
         payload: {
           age_hours: Math.round(ageHours * 10) / 10,

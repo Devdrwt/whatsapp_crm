@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { getFlowTemplate } from '@/lib/flows/templates'
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 /**
  * GET /api/flows — list the caller's flows.
@@ -34,9 +35,15 @@ export async function GET() {
   }
   const { supabase } = guard
 
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
+
   const { data, error } = await supabase
     .from('flows')
     .select('*')
+    .eq('org_id', orgId)
     .order('created_at', { ascending: false })
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -50,6 +57,11 @@ export async function POST(request: Request) {
     return NextResponse.json(guard.body, { status: guard.status })
   }
   const { userId } = guard
+
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
 
   const body = (await request.json().catch(() => null)) as
     | {
@@ -85,6 +97,7 @@ export async function POST(request: Request) {
       .from('flows')
       .insert({
         user_id: userId,
+        org_id: orgId,
         name: body.name?.trim() || template.name,
         description: template.description,
         status: 'draft',
@@ -133,6 +146,7 @@ export async function POST(request: Request) {
     .from('flows')
     .insert({
       user_id: userId,
+      org_id: orgId,
       name: body.name.trim(),
       description: body.description ?? null,
       status: 'draft',

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
 import { Contact, MessageTemplate } from '@/types';
 
 export type CustomFieldOperator = 'is' | 'is_not' | 'contains';
@@ -142,14 +143,19 @@ async function fetchCustomValueIndex(
 export function useBroadcastSending(): UseBroadcastSendingReturn {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { activeOrgId } = useAuth();
 
   async function resolveAudience(audience: AudienceConfig): Promise<Contact[]> {
     const supabase = createClient();
+    if (!activeOrgId) throw new Error('No active organization');
 
     let contacts: Contact[] = [];
 
     if (audience.type === 'all') {
-      const { data, error } = await supabase.from('contacts').select('*');
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('org_id', activeOrgId);
       if (error) throw new Error(`Failed to fetch contacts: ${error.message}`);
       contacts = data ?? [];
     } else if (
@@ -172,14 +178,15 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
         const { data, error } = await supabase
           .from('contacts')
           .select('*')
+          .eq('org_id', activeOrgId)
           .in('id', uniqueContactIds);
         if (error) throw new Error(`Failed to fetch contacts: ${error.message}`);
         contacts = data ?? [];
       }
     } else if (audience.type === 'custom_field' && audience.customField) {
-      contacts = await resolveCustomFieldAudience(supabase, audience.customField);
+      contacts = await resolveCustomFieldAudience(supabase, audience.customField, activeOrgId);
     } else if (audience.type === 'csv' && audience.csvContacts) {
-      contacts = await upsertCsvContacts(supabase, audience.csvContacts);
+      contacts = await upsertCsvContacts(supabase, audience.csvContacts, activeOrgId);
     }
 
     // Apply exclude tags (works across all contact-derived audience
@@ -210,6 +217,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
   async function upsertCsvContacts(
     supabase: ReturnType<typeof createClient>,
     csvRows: { phone: string; name?: string }[],
+    orgId: string,
   ): Promise<Contact[]> {
     if (csvRows.length === 0) return [];
 
@@ -232,7 +240,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
     const { data: existing, error: lookupErr } = await supabase
       .from('contacts')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('org_id', orgId)
       .in('phone', phones);
     if (lookupErr) {
       throw new Error(`Failed to look up CSV contacts: ${lookupErr.message}`);
@@ -249,6 +257,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
       .filter((p) => !byPhone.has(p))
       .map((phone) => ({
         user_id: user.id,
+        org_id: orgId,
         phone,
         name: uniqueByPhone.get(phone)?.name ?? null,
       }));
@@ -277,6 +286,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
   async function resolveCustomFieldAudience(
     supabase: ReturnType<typeof createClient>,
     filter: CustomFieldFilter,
+    orgId: string,
   ): Promise<Contact[]> {
     const { fieldId, operator, value } = filter;
 
@@ -302,6 +312,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
     const { data, error } = await supabase
       .from('contacts')
       .select('*')
+      .eq('org_id', orgId)
       .in('id', contactIds);
     if (error) throw new Error(`Failed to fetch contacts: ${error.message}`);
     return data ?? [];
@@ -326,6 +337,9 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
       if (!user) {
         throw new Error('You are not signed in.');
       }
+      if (!activeOrgId) {
+        throw new Error('No active organization.');
+      }
 
       // ── Step 1: Resolve audience contacts ─────────────────────────
       setProgress(5);
@@ -341,6 +355,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
         .from('broadcasts')
         .insert({
           user_id: user.id,
+          org_id: activeOrgId,
           name: payload.name,
           template_name: payload.template.name,
           template_language: payload.template.language ?? 'en_US',
@@ -373,6 +388,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
       const recipientRows = contacts.map((contact) => ({
         broadcast_id: broadcast.id,
         contact_id: contact.id,
+        org_id: activeOrgId,
         status: 'pending' as const,
       }));
 

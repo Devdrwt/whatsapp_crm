@@ -33,7 +33,7 @@ const MODEL_OPTIONS: { value: AiAgentModel; label: string }[] = [
 
 export function AiAgentPanel() {
   const supabase = createClient();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, activeOrgId, orgsLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,22 +46,22 @@ export function AiAgentPanel() {
   const [model, setModel] = useState<AiAgentModel>('claude-sonnet-4-6');
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
+    if (authLoading || orgsLoading) return;
+    if (!user || !activeOrgId) {
       setLoading(false);
       return;
     }
-    fetchConfig(user.id);
+    fetchConfig(user.id, activeOrgId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, user?.id]);
+  }, [authLoading, orgsLoading, user?.id, activeOrgId]);
 
-  async function fetchConfig(userId: string) {
+  async function fetchConfig(_userId: string, orgId: string) {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('ai_agent_configs')
         .select('*')
-        .eq('user_id', userId)
+        .eq('org_id', orgId)
         .maybeSingle();
 
       if (error) throw error;
@@ -82,7 +82,7 @@ export function AiAgentPanel() {
   }
 
   async function handleSave() {
-    if (!user) {
+    if (!user || !activeOrgId) {
       toast.error('Not authenticated');
       return;
     }
@@ -95,6 +95,7 @@ export function AiAgentPanel() {
       const { error } = await supabase.from('ai_agent_configs').upsert(
         {
           user_id: user.id,
+          org_id: activeOrgId,
           enabled,
           agent_name: agentName.trim(),
           persona,

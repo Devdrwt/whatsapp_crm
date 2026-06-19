@@ -13,6 +13,7 @@ import {
   rateLimitResponse,
   RATE_LIMITS,
 } from '@/lib/rate-limit'
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 interface BroadcastResult {
   phone: string
@@ -59,6 +60,11 @@ export async function POST(request: Request) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const orgId = await getActiveOrgIdFromCookies()
+    if (!orgId) {
+      return NextResponse.json({ error: 'No active organization' }, { status: 400 })
     }
 
     // Per-user broadcast budget. Note: this limits how often a user
@@ -110,7 +116,7 @@ export async function POST(request: Request) {
     const { data: config, error: configError } = await supabase
       .from('whatsapp_config')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('org_id', orgId)
       .single()
 
     if (configError || !config) {

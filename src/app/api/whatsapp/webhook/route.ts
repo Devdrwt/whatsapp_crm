@@ -242,6 +242,18 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
 
       const config = configRows[0]
 
+      // PR2: org_id is now on whatsapp_config (migration 016). The backfill
+      // populates it for every existing row, but be defensive — a missing
+      // org_id means the row predates the backfill or the backfill failed,
+      // and we must not stamp NULL across the downstream tenant tables.
+      if (!config.org_id) {
+        console.error(
+          '[webhook] whatsapp_config row is missing org_id; dropping inbound for phone_number_id:',
+          phoneNumberId,
+        )
+        continue
+      }
+
       const decryptedAccessToken = decrypt(config.access_token)
 
       for (let i = 0; i < value.messages.length; i++) {
@@ -252,6 +264,7 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
           message,
           contact,
           config.user_id,
+          config.org_id,
           decryptedAccessToken
         )
       }
@@ -476,6 +489,7 @@ async function processMessage(
   message: WhatsAppMessage,
   contact: { profile: { name: string }; wa_id: string },
   userId: string,
+  orgId: string,
   accessToken: string
 ) {
   const senderPhone = normalizePhone(message.from)
@@ -484,6 +498,7 @@ async function processMessage(
   // Find or create contact
   const contactOutcome = await findOrCreateContact(
     userId,
+    orgId,
     senderPhone,
     contactName
   )
@@ -493,6 +508,7 @@ async function processMessage(
   // Find or create conversation
   const conversation = await findOrCreateConversation(
     userId,
+    orgId,
     contactRecord.id
   )
   if (!conversation) return
@@ -564,6 +580,7 @@ async function processMessage(
 
   const { error: msgError } = await supabaseAdmin().from('messages').insert({
     conversation_id: conversation.id,
+    org_id: orgId,
     sender_type: 'customer',
     content_type: contentType,
     content_text: contentText,
@@ -624,6 +641,7 @@ async function processMessage(
   // ============================================================
   const flowResult = await dispatchInboundToFlows({
     userId,
+    orgId,
     contactId: contactRecord.id,
     conversationId: conversation.id,
     message:
@@ -675,6 +693,7 @@ async function processMessage(
     automationTriggers.map((triggerType) =>
       runAutomationsForTrigger({
         userId,
+        orgId,
         triggerType,
         contactId: contactRecord.id,
         context: {
@@ -693,6 +712,7 @@ async function processMessage(
     try {
       await maybeRunAiAgent({
         userId,
+        orgId,
         conversationId: conversation.id,
         contactId: contactRecord.id,
         inboundCreatedAt,
@@ -860,14 +880,15 @@ interface ContactOutcome {
 
 async function findOrCreateContact(
   userId: string,
+  orgId: string,
   phone: string,
   name: string
 ): Promise<ContactOutcome | null> {
-  // Look up existing contacts for this user
+  // Look up existing contacts for this org
   const { data: contacts, error: contactsError } = await supabaseAdmin()
     .from('contacts')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', orgId)
 
   if (contactsError) {
     console.error('Error fetching contacts:', contactsError)
@@ -893,6 +914,7 @@ async function findOrCreateContact(
     .from('contacts')
     .insert({
       user_id: userId,
+      org_id: orgId,
       phone,
       name: name || phone,
     })
@@ -907,12 +929,12 @@ async function findOrCreateContact(
   return { contact: newContact, wasCreated: true }
 }
 
-async function findOrCreateConversation(userId: string, contactId: string) {
+async function findOrCreateConversation(userId: string, orgId: string, contactId: string) {
   // Look for existing conversation
   const { data: existing, error: findError } = await supabaseAdmin()
     .from('conversations')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', orgId)
     .eq('contact_id', contactId)
     .single()
 
@@ -925,6 +947,7 @@ async function findOrCreateConversation(userId: string, contactId: string) {
     .from('conversations')
     .insert({
       user_id: userId,
+      org_id: orgId,
       contact_id: contactId,
     })
     .select()

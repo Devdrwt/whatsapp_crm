@@ -7,6 +7,7 @@ import {
   validateStepsForActivation,
   validateTriggerForActivation,
 } from '@/lib/automations/validate'
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 export async function GET() {
   const supabase = await createClient()
@@ -15,9 +16,15 @@ export async function GET() {
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
+
   const { data, error } = await supabase
     .from('automations')
     .select('*')
+    .eq('org_id', orgId)
     .order('created_at', { ascending: false })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ automations: data ?? [] })
@@ -29,6 +36,11 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
 
   const body = await request.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
@@ -83,6 +95,7 @@ export async function POST(request: Request) {
     .from('automations')
     .insert({
       user_id: user.id,
+      org_id: orgId,
       name: effectiveName,
       description: effectiveDescription ?? null,
       trigger_type: effectiveTriggerType,

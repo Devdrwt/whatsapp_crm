@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import type {
   Contact,
   Conversation,
@@ -51,6 +52,7 @@ export function DealForm({
   onSaved,
 }: DealFormProps) {
   const supabase = createClient();
+  const { activeOrgId } = useAuth();
 
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");
@@ -105,10 +107,11 @@ export function DealForm({
   // Load supporting data once the sheet is open
   useEffect(() => {
     if (!open) return;
+    if (!activeOrgId) return;
     let cancelled = false;
     (async () => {
       const [c, p] = await Promise.all([
-        supabase.from("contacts").select("*").order("name"),
+        supabase.from("contacts").select("*").eq("org_id", activeOrgId).order("name"),
         supabase.from("profiles").select("*").order("full_name"),
       ]);
       if (cancelled) return;
@@ -118,7 +121,7 @@ export function DealForm({
     return () => {
       cancelled = true;
     };
-  }, [open, supabase]);
+  }, [open, supabase, activeOrgId]);
 
   // Fetch linked conversation for the selected contact (newest open one).
   // Clearing on no-selection is sync with prop state; the populated
@@ -185,9 +188,14 @@ export function DealForm({
         setSaving(false);
         return;
       }
+      if (!activeOrgId) {
+        toast.error("No active organization");
+        setSaving(false);
+        return;
+      }
       const { error } = await supabase
         .from("deals")
-        .insert({ ...payload, user_id: user.id, status: "open" });
+        .insert({ ...payload, user_id: user.id, org_id: activeOrgId, status: "open" });
       if (error) {
         toast.error("Failed to create deal");
         setSaving(false);

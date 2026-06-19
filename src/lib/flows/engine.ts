@@ -170,7 +170,7 @@ type AdminClient = ReturnType<typeof supabaseAdmin>;
 
 async function loadActiveRunForContact(
   db: AdminClient,
-  userId: string,
+  orgId: string,
   contactId: string,
 ): Promise<FlowRunRow | null> {
   // The partial unique index `idx_one_active_run_per_contact` makes
@@ -182,7 +182,7 @@ async function loadActiveRunForContact(
   const { data, error } = await db
     .from("flow_runs")
     .select("*")
-    .eq("user_id", userId)
+    .eq("org_id", orgId)
     .eq("contact_id", contactId)
     .eq("status", "active")
     .order("started_at", { ascending: false })
@@ -279,7 +279,7 @@ async function logEvent(
  */
 async function isDuplicateInbound(
   db: AdminClient,
-  userId: string,
+  orgId: string,
   contactId: string,
   metaMessageId: string,
 ): Promise<boolean> {
@@ -288,7 +288,7 @@ async function isDuplicateInbound(
   const { data: runs } = await db
     .from("flow_runs")
     .select("id")
-    .eq("user_id", userId)
+    .eq("org_id", orgId)
     .eq("contact_id", contactId);
   if (!runs?.length) return false;
   const runIds = runs.map((r) => (r as { id: string }).id);
@@ -304,7 +304,7 @@ async function isDuplicateInbound(
 
 async function findEntryFlow(
   db: AdminClient,
-  userId: string,
+  orgId: string,
   message: ParsedInbound,
   isFirstInbound: boolean,
 ): Promise<FlowRow | null> {
@@ -312,13 +312,13 @@ async function findEntryFlow(
   // are responses to existing prompts; they never start a new flow.
   if (message.kind !== "text") return null;
 
-  // Pull all active flows for this user. Active set is bounded (the
+  // Pull all active flows for this org. Active set is bounded (the
   // builder discourages double-trigger overlap; partial index makes
   // the lookup index-supported).
   const { data: flows, error } = await db
     .from("flows")
     .select("*")
-    .eq("user_id", userId)
+    .eq("org_id", orgId)
     .eq("status", "active")
     .order("created_at", { ascending: true });
   if (error || !flows) return null;
@@ -354,6 +354,7 @@ async function sendButtonsAndSuspend(
   const cfg = node.config as unknown as SendButtonsNodeConfig;
   const { whatsapp_message_id } = await engineSendInteractiveButtons({
     userId: run.user_id,
+    orgId: run.org_id,
     conversationId: run.conversation_id!,
     contactId: run.contact_id!,
     bodyText: cfg.text,
@@ -389,6 +390,7 @@ async function sendListAndSuspend(
   const cfg = node.config as unknown as SendListNodeConfig;
   const { whatsapp_message_id } = await engineSendInteractiveList({
     userId: run.user_id,
+    orgId: run.org_id,
     conversationId: run.conversation_id!,
     contactId: run.contact_id!,
     bodyText: cfg.text,
@@ -574,6 +576,7 @@ async function advanceFromNodeKey(
       try {
         const { whatsapp_message_id } = await engineSendText({
           userId: run.user_id,
+          orgId: run.org_id,
           conversationId: run.conversation_id!,
           contactId: run.contact_id!,
           text: interpolateVars(cfg.text, run.vars),
@@ -600,6 +603,7 @@ async function advanceFromNodeKey(
       try {
         const { whatsapp_message_id } = await engineSendText({
           userId: run.user_id,
+          orgId: run.org_id,
           conversationId: run.conversation_id!,
           contactId: run.contact_id!,
           text: interpolateVars(cfg.prompt_text, run.vars),
@@ -792,7 +796,7 @@ export async function dispatchInboundToFlows(
   try {
     const activeRun = await loadActiveRunForContact(
       db,
-      input.userId,
+      input.orgId,
       input.contactId,
     );
 
@@ -802,7 +806,7 @@ export async function dispatchInboundToFlows(
     if (activeRun) {
       const dupe = await isDuplicateInbound(
         db,
-        input.userId,
+        input.orgId,
         input.contactId,
         input.message.meta_message_id,
       );
@@ -822,7 +826,7 @@ export async function dispatchInboundToFlows(
     // No active run → look for a flow whose entry trigger matches.
     const flow = await findEntryFlow(
       db,
-      input.userId,
+      input.orgId,
       input.message,
       input.isFirstInboundMessage,
     );
@@ -975,6 +979,7 @@ async function handleReplyForActiveRun(
       try {
         await engineSendText({
           userId: run.user_id,
+          orgId: run.org_id,
           conversationId: run.conversation_id!,
           contactId: run.contact_id!,
           text: interpolateVars(cfg.prompt_text, run.vars),
@@ -1020,6 +1025,7 @@ async function startNewRun(
     .insert({
       flow_id: flow.id,
       user_id: flow.user_id,
+      org_id: input.orgId,
       contact_id: input.contactId,
       conversation_id: input.conversationId,
       status: "active",

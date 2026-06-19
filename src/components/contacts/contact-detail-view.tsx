@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import type { Contact, Tag, ContactTag, ContactNote, CustomField, ContactCustomValue, Deal } from '@/types';
 import {
@@ -47,6 +48,7 @@ export function ContactDetailView({
   onUpdated,
 }: ContactDetailViewProps) {
   const supabase = createClient();
+  const { activeOrgId } = useAuth();
 
   const [contact, setContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(false);
@@ -101,10 +103,10 @@ export function ContactDetailView({
   }, [contactId, supabase]);
 
   const fetchTags = useCallback(async () => {
-    if (!contactId) return;
+    if (!contactId || !activeOrgId) return;
 
     const [tagsRes, contactTagsRes] = await Promise.all([
-      supabase.from('tags').select('*').order('name'),
+      supabase.from('tags').select('*').eq('org_id', activeOrgId).order('name'),
       supabase.from('contact_tags').select('tag_id').eq('contact_id', contactId),
     ]);
 
@@ -112,7 +114,7 @@ export function ContactDetailView({
     if (contactTagsRes.data) {
       setContactTagIds(contactTagsRes.data.map((ct) => ct.tag_id));
     }
-  }, [contactId, supabase]);
+  }, [contactId, supabase, activeOrgId]);
 
   const fetchNotes = useCallback(async () => {
     if (!contactId) return;
@@ -129,11 +131,11 @@ export function ContactDetailView({
   }, [contactId, supabase]);
 
   const fetchCustomFields = useCallback(async () => {
-    if (!contactId) return;
+    if (!contactId || !activeOrgId) return;
     setLoadingCustom(true);
 
     const [fieldsRes, valuesRes] = await Promise.all([
-      supabase.from('custom_fields').select('*').order('field_name'),
+      supabase.from('custom_fields').select('*').eq('org_id', activeOrgId).order('field_name'),
       supabase
         .from('contact_custom_values')
         .select('*')
@@ -149,7 +151,7 @@ export function ContactDetailView({
       setCustomValues(map);
     }
     setLoadingCustom(false);
-  }, [contactId, supabase]);
+  }, [contactId, supabase, activeOrgId]);
 
   const fetchDeals = useCallback(async () => {
     if (!contactId) return;
@@ -225,9 +227,13 @@ export function ContactDetailView({
         onUpdated();
       }
     } else {
+      if (!activeOrgId) {
+        setSavingTags(false);
+        return;
+      }
       const { error } = await supabase
         .from('contact_tags')
-        .insert({ contact_id: contactId, tag_id: tagId });
+        .insert({ contact_id: contactId, tag_id: tagId, org_id: activeOrgId });
       if (!error) {
         setContactTagIds((prev) => [...prev, tagId]);
         onUpdated();
@@ -244,7 +250,7 @@ export function ContactDetailView({
       data: { session },
     } = await supabase.auth.getSession();
     const user = session?.user;
-    if (!user) {
+    if (!user || !activeOrgId) {
       toast.error('Not authenticated');
       setSavingNote(false);
       return;
@@ -253,6 +259,7 @@ export function ContactDetailView({
     const { error } = await supabase.from('contact_notes').insert({
       contact_id: contactId,
       user_id: user.id,
+      org_id: activeOrgId,
       note_text: newNote.trim(),
     });
 
@@ -281,7 +288,7 @@ export function ContactDetailView({
   }
 
   async function saveCustomFields() {
-    if (!contactId) return;
+    if (!contactId || !activeOrgId) return;
     setSavingCustom(true);
 
     try {
@@ -296,6 +303,7 @@ export function ContactDetailView({
         .map(([fieldId, val]) => ({
           contact_id: contactId,
           custom_field_id: fieldId,
+          org_id: activeOrgId,
           value: val.trim(),
         }));
 

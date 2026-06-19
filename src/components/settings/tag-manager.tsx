@@ -32,7 +32,7 @@ const PRESET_COLORS = [
 
 export function TagManager() {
   const supabase = createClient();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, activeOrgId, orgsLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -45,23 +45,23 @@ export function TagManager() {
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[3].value);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
+    if (authLoading || orgsLoading) return;
+    if (!user || !activeOrgId) {
       setLoading(false);
       return;
     }
-    fetchTags(user.id);
+    fetchTags(user.id, activeOrgId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, user?.id]);
+  }, [authLoading, orgsLoading, user?.id, activeOrgId]);
 
-  async function fetchTags(userId: string) {
+  async function fetchTags(_userId: string, orgId: string) {
     try {
       setLoading(true);
 
       const { data, error } = await supabase
         .from('tags')
         .select('*')
-        .eq('user_id', userId)
+        .eq('org_id', orgId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -82,7 +82,7 @@ export function TagManager() {
 
     try {
       setSaving(true);
-      if (!user) {
+      if (!user || !activeOrgId) {
         toast.error('Not authenticated');
         return;
       }
@@ -91,6 +91,7 @@ export function TagManager() {
         .from('tags')
         .insert({
           user_id: user.id,
+          org_id: activeOrgId,
           name: newTagName.trim(),
           color: selectedColor,
         });
@@ -101,7 +102,7 @@ export function TagManager() {
       setDialogOpen(false);
       setNewTagName('');
       setSelectedColor(PRESET_COLORS[3].value);
-      if (user) await fetchTags(user.id);
+      if (user && activeOrgId) await fetchTags(user.id, activeOrgId);
     } catch (err) {
       console.error('Create error:', err);
       toast.error('Failed to create tag');

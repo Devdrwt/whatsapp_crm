@@ -16,6 +16,7 @@ import type { AiAgentModel } from "@/types";
 
 interface MaybeRunAiAgentArgs {
   userId: string;
+  orgId: string;
   conversationId: string;
   contactId: string;
   /** ISO timestamp of the inbound customer message that triggered this. */
@@ -30,7 +31,7 @@ export async function maybeRunAiAgent(args: MaybeRunAiAgentArgs): Promise<void> 
     .select(
       "enabled, agent_name, persona, knowledge_base, model, fallback_message, max_history",
     )
-    .eq("user_id", args.userId)
+    .eq("org_id", args.orgId)
     .maybeSingle();
 
   if (!config?.enabled) return;
@@ -79,6 +80,7 @@ export async function maybeRunAiAgent(args: MaybeRunAiAgentArgs): Promise<void> 
 
   await engineSendText({
     userId: args.userId,
+    orgId: args.orgId,
     conversationId: args.conversationId,
     contactId: args.contactId,
     text: reply,

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import type { Pipeline, PipelineStage, Deal } from "@/types";
 import { PipelineBoard } from "@/components/pipelines/pipeline-board";
 import { PipelineSettings } from "@/components/pipelines/pipeline-settings";
@@ -38,6 +39,7 @@ const SPEC_DEFAULT_STAGES = [
 
 export default function PipelinesPage() {
   const supabase = createClient();
+  const { activeOrgId, orgsLoading } = useAuth();
 
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [selectedPipelineId, setSelectedPipelineId] = useState<string>("");
@@ -61,16 +63,18 @@ export default function PipelinesPage() {
   const seedAttempted = useRef(false);
 
   const loadPipelines = useCallback(async () => {
+    if (!activeOrgId) return [];
     const { data, error } = await supabase
       .from("pipelines")
       .select("*")
+      .eq("org_id", activeOrgId)
       .order("created_at");
     if (error) {
       console.error("Failed to load pipelines:", error.message);
       return [];
     }
     return data ?? [];
-  }, [supabase]);
+  }, [supabase, activeOrgId]);
 
   const loadStages = useCallback(
     async (pipelineId: string) => {
@@ -102,10 +106,11 @@ export default function PipelinesPage() {
     } = await supabase.auth.getSession();
     const user = session?.user;
     if (!user) return null;
+    if (!activeOrgId) return null;
 
     const { data: pipeline, error } = await supabase
       .from("pipelines")
-      .insert({ user_id: user.id, name: "Sales Pipeline" })
+      .insert({ user_id: user.id, org_id: activeOrgId, name: "Sales Pipeline" })
       .select()
       .single();
 
@@ -116,6 +121,7 @@ export default function PipelinesPage() {
 
     const stagesPayload = SPEC_DEFAULT_STAGES.map((s) => ({
       pipeline_id: pipeline.id,
+      org_id: activeOrgId,
       name: s.name,
       color: s.color,
       position: s.position,
@@ -123,10 +129,19 @@ export default function PipelinesPage() {
     await supabase.from("pipeline_stages").insert(stagesPayload);
 
     return pipeline as Pipeline;
-  }, [supabase]);
+  }, [supabase, activeOrgId]);
 
   // Initial load + seed-if-empty
   useEffect(() => {
+    if (orgsLoading) return;
+    if (!activeOrgId) {
+      // No active org → nothing to fetch, drop the spinner. React 19
+      // flags this synchronous setState in an effect but the path is
+      // exactly the "skip" branch the gate is designed to handle.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -152,7 +167,7 @@ export default function PipelinesPage() {
     return () => {
       cancelled = true;
     };
-  }, [loadPipelines, seedDefaultPipeline]);
+  }, [loadPipelines, seedDefaultPipeline, orgsLoading, activeOrgId]);
 
   // Load stages + deals whenever selected pipeline changes.
   // Clearing on no-selection is a legitimate sync with URL/prop
@@ -245,10 +260,15 @@ export default function PipelinesPage() {
       setCreating(false);
       return;
     }
+    if (!activeOrgId) {
+      toast.error("No active organization");
+      setCreating(false);
+      return;
+    }
 
     const { data: pipeline, error } = await supabase
       .from("pipelines")
-      .insert({ user_id: user.id, name })
+      .insert({ user_id: user.id, org_id: activeOrgId, name })
       .select()
       .single();
 
@@ -260,6 +280,7 @@ export default function PipelinesPage() {
 
     const stagesPayload = SPEC_DEFAULT_STAGES.map((s) => ({
       pipeline_id: pipeline.id,
+      org_id: activeOrgId,
       name: s.name,
       color: s.color,
       position: s.position,

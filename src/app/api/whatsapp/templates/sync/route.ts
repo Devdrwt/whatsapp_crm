@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { decrypt } from '@/lib/whatsapp/encryption'
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 /**
  * Sync message templates from Meta → local message_templates table.
@@ -96,11 +97,16 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const orgId = await getActiveOrgIdFromCookies()
+    if (!orgId) {
+      return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+    }
+
     // whatsapp_config holds waba_id + encrypted access_token.
     const { data: config, error: configError } = await supabase
       .from('whatsapp_config')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('org_id', orgId)
       .single()
 
     if (configError || !config) {
@@ -174,6 +180,7 @@ export async function POST() {
 
       const row = {
         user_id: user.id,
+        org_id: orgId,
         name: t.name,
         category: normalizeCategory(t.category),
         language: t.language,
@@ -188,7 +195,7 @@ export async function POST() {
       const { data: existing, error: lookupErr } = await supabase
         .from('message_templates')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('org_id', orgId)
         .eq('name', t.name)
         .eq('language', t.language)
         .maybeSingle()

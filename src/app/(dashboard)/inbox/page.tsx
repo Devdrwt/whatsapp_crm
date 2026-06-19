@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Conversation, Message, Contact, ConversationStatus } from "@/types";
 import { useRealtime } from "@/hooks/use-realtime";
+import { useAuth } from "@/hooks/use-auth";
 import { ConversationList } from "@/components/inbox/conversation-list";
 import { MessageThread } from "@/components/inbox/message-thread";
 import { ContactSidebar } from "@/components/inbox/contact-sidebar";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 export default function InboxPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { activeOrgId, orgsLoading } = useAuth();
   /**
    * `?c=<id>` deep-link support. Used when landing here from the
    * dashboard's recent-conversations list so the right thread opens
@@ -123,6 +125,9 @@ export default function InboxPage() {
 
   // Check WhatsApp connection status on mount
   useEffect(() => {
+    if (orgsLoading) return;
+    if (!activeOrgId) return;
+    const orgId = activeOrgId;
     const checkConnection = async () => {
       const supabase = createClient();
       const {
@@ -137,14 +142,14 @@ export default function InboxPage() {
       const { data } = await supabase
         .from("whatsapp_config")
         .select("status")
-        .eq("user_id", user.id)
+        .eq("org_id", orgId)
         .maybeSingle();
 
       setWhatsappConnected(data?.status === "connected");
     };
 
     checkConnection();
-  }, []);
+  }, [orgsLoading, activeOrgId]);
 
   // Handle realtime message events
   const handleMessageEvent = useCallback(

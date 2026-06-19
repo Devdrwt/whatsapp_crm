@@ -10,6 +10,7 @@ import {
   validateStepsForActivation,
   validateTriggerForActivation,
 } from '@/lib/automations/validate'
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 async function requireUser() {
   const supabase = await createClient()
@@ -27,12 +28,17 @@ export async function GET(
   const user = await requireUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
+
   const admin = supabaseAdmin()
   const { data: automation, error } = await admin
     .from('automations')
     .select('*')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('org_id', orgId)
     .maybeSingle()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -50,6 +56,11 @@ export async function PATCH(
   const user = await requireUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
+
   const body = await request.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
 
@@ -59,10 +70,10 @@ export async function PATCH(
   // to compute the post-patch "effective" state for validation.
   const { data: existing } = await admin
     .from('automations')
-    .select('id, user_id, is_active, trigger_type, trigger_config')
+    .select('id, user_id, org_id, is_active, trigger_type, trigger_config')
     .eq('id', id)
     .maybeSingle()
-  if (!existing || existing.user_id !== user.id) {
+  if (!existing || existing.org_id !== orgId) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
@@ -128,11 +139,16 @@ export async function DELETE(
   const user = await requireUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const orgId = await getActiveOrgIdFromCookies()
+  if (!orgId) {
+    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
+  }
+
   const { error } = await supabaseAdmin()
     .from('automations')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('org_id', orgId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

@@ -36,6 +36,7 @@ export interface AutomationContext {
 
 export interface DispatchInput {
   userId: string
+  orgId: string
   triggerType: AutomationTriggerType
   contactId?: string | null
   context?: AutomationContext
@@ -54,7 +55,7 @@ export async function runAutomationsForTrigger(input: DispatchInput): Promise<vo
     const { data: automations, error } = await db
       .from('automations')
       .select('*')
-      .eq('user_id', input.userId)
+      .eq('org_id', input.orgId)
       .eq('trigger_type', input.triggerType)
       .eq('is_active', true)
 
@@ -85,6 +86,7 @@ export async function resumePendingExecution(pending: {
   id: string
   automation_id: string
   user_id: string
+  org_id: string
   contact_id: string | null
   log_id: string | null
   parent_step_id: string | null
@@ -108,6 +110,7 @@ export async function resumePendingExecution(pending: {
   try {
     await executeStepsFrom({
       automation: automation as Automation,
+      orgId: pending.org_id,
       contactId: pending.contact_id,
       context: pending.context ?? {},
       parentStepId: pending.parent_step_id,
@@ -135,6 +138,7 @@ async function executeAutomation(automation: Automation, input: DispatchInput) {
     .insert({
       automation_id: automation.id,
       user_id: automation.user_id,
+      org_id: input.orgId,
       contact_id: input.contactId ?? null,
       trigger_event: input.triggerType,
       steps_executed: [],
@@ -150,6 +154,7 @@ async function executeAutomation(automation: Automation, input: DispatchInput) {
 
   await executeStepsFrom({
     automation,
+    orgId: input.orgId,
     contactId: input.contactId ?? null,
     context: input.context ?? {},
     parentStepId: null,
@@ -173,6 +178,7 @@ async function executeAutomation(automation: Automation, input: DispatchInput) {
 
 interface ExecuteArgs {
   automation: Automation
+  orgId: string
   contactId: string | null
   context: AutomationContext
   parentStepId: string | null
@@ -223,6 +229,7 @@ async function executeStepsFrom(args: ExecuteArgs): Promise<void> {
       await db.from('automation_pending_executions').insert({
         automation_id: args.automation.id,
         user_id: args.automation.user_id,
+        org_id: args.orgId,
         contact_id: args.contactId,
         log_id: args.logId,
         parent_step_id: args.parentStepId,
@@ -306,6 +313,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
       const conversationId = await resolveConversationId(args)
       const { whatsapp_message_id } = await engineSendText({
         userId: args.automation.user_id,
+        orgId: args.orgId,
         conversationId,
         contactId: args.contactId,
         text,
@@ -338,6 +346,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
         : []
       const { whatsapp_message_id } = await engineSendTemplate({
         userId: args.automation.user_id,
+        orgId: args.orgId,
         conversationId,
         contactId: args.contactId,
         templateName: cfg.template_name,
@@ -386,7 +395,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
       await db
         .from('conversations')
         .update({ assigned_agent_id: agentId })
-        .eq('user_id', args.automation.user_id)
+        .eq('org_id', args.orgId)
         .eq('contact_id', args.contactId)
       return `assigned to ${agentId}`
     }
@@ -410,6 +419,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
       if (!cfg.pipeline_id || !cfg.stage_id) throw new Error('create_deal needs pipeline + stage')
       await db.from('deals').insert({
         user_id: args.automation.user_id,
+        org_id: args.orgId,
         pipeline_id: cfg.pipeline_id,
         stage_id: cfg.stage_id,
         contact_id: args.contactId,
@@ -438,7 +448,7 @@ async function runStep(step: AutomationStep, args: ExecuteArgs): Promise<string>
       await db
         .from('conversations')
         .update({ status: 'closed', updated_at: new Date().toISOString() })
-        .eq('user_id', args.automation.user_id)
+        .eq('org_id', args.orgId)
         .eq('contact_id', args.contactId)
       return 'conversation closed'
     }
@@ -466,7 +476,7 @@ async function resolveConversationId(args: ExecuteArgs): Promise<string> {
   const { data, error } = await supabaseAdmin()
     .from('conversations')
     .select('id')
-    .eq('user_id', args.automation.user_id)
+    .eq('org_id', args.orgId)
     .eq('contact_id', args.contactId)
     .maybeSingle()
   if (error) throw new Error(`conversation lookup failed: ${error.message}`)

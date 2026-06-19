@@ -21,6 +21,7 @@ import { supabaseAdmin } from './admin-client'
 
 interface SendTextArgs {
   userId: string
+  orgId: string
   conversationId: string
   contactId: string
   text: string
@@ -28,6 +29,7 @@ interface SendTextArgs {
 
 interface SendTemplateArgs {
   userId: string
+  orgId: string
   conversationId: string
   contactId: string
   templateName: string
@@ -64,7 +66,7 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
     .from('contacts')
     .select('id, phone')
     .eq('id', input.contactId)
-    .eq('user_id', input.userId)
+    .eq('org_id', input.orgId)
     .maybeSingle()
   if (contactErr || !contact?.phone) {
     throw new Error('contact not found for this user')
@@ -78,7 +80,7 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
   const { data: config, error: configErr } = await db
     .from('whatsapp_config')
     .select('*')
-    .eq('user_id', input.userId)
+    .eq('org_id', input.orgId)
     .single()
   if (configErr || !config) {
     throw new Error('WhatsApp not configured for this account')
@@ -141,6 +143,7 @@ async function sendViaMeta(input: SendInput): Promise<{ whatsapp_message_id: str
 
   const { error: msgErr } = await db.from('messages').insert({
     conversation_id: input.conversationId,
+    org_id: input.orgId,
     sender_type: 'bot',
     content_type,
     content_text,

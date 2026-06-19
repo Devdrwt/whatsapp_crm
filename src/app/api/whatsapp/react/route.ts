@@ -8,6 +8,7 @@ import {
   rateLimitResponse,
   RATE_LIMITS,
 } from '@/lib/rate-limit';
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org';
 
 /**
  * POST /api/whatsapp/react
@@ -29,6 +30,11 @@ export async function POST(request: Request) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const orgId = await getActiveOrgIdFromCookies();
+    if (!orgId) {
+      return NextResponse.json({ error: 'No active organization' }, { status: 400 });
     }
 
     const limit = checkRateLimit(`react:${user.id}`, RATE_LIMITS.react);
@@ -73,7 +79,7 @@ export async function POST(request: Request) {
       .from('conversations')
       .select('id, user_id, contact:contacts(phone)')
       .eq('id', targetMessage.conversation_id)
-      .eq('user_id', user.id)
+      .eq('org_id', orgId)
       .maybeSingle();
 
     if (convError || !conversation) {
@@ -97,7 +103,7 @@ export async function POST(request: Request) {
     const { data: config, error: configError } = await supabase
       .from('whatsapp_config')
       .select('phone_number_id, access_token')
-      .eq('user_id', user.id)
+      .eq('org_id', orgId)
       .single();
 
     if (configError || !config) {

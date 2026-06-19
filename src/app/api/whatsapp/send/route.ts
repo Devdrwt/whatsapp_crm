@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { sendTextMessage, sendTemplateMessage } from '@/lib/whatsapp/meta-api'
 import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption'
 import { supabaseAdmin } from '@/lib/flows/admin-client'
+import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 import {
   sanitizePhoneForMeta,
   isValidE164,
@@ -29,6 +30,11 @@ export async function POST(request: Request) {
         { error: 'Unauthorized' },
         { status: 401 }
       )
+    }
+
+    const orgId = await getActiveOrgIdFromCookies()
+    if (!orgId) {
+      return NextResponse.json({ error: 'No active organization' }, { status: 400 })
     }
 
     // Per-user rate limit. Bucket key is scoped to this route so
@@ -75,7 +81,7 @@ export async function POST(request: Request) {
       .from('conversations')
       .select('*, contact:contacts(*)')
       .eq('id', conversation_id)
-      .eq('user_id', user.id)
+      .eq('org_id', orgId)
       .single()
 
     if (convError || !conversation) {
@@ -106,7 +112,7 @@ export async function POST(request: Request) {
     const { data: config, error: configError } = await supabase
       .from('whatsapp_config')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('org_id', orgId)
       .single()
 
     if (configError || !config) {
@@ -297,7 +303,7 @@ export async function POST(request: Request) {
           ended_at: new Date().toISOString(),
           end_reason: 'agent_replied',
         })
-        .eq('user_id', user.id)
+        .eq('org_id', orgId)
         .eq('contact_id', contact.id)
         .eq('status', 'active')
       if (pauseErr) {

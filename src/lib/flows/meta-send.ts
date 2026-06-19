@@ -31,6 +31,7 @@ import { supabaseAdmin } from './admin-client'
 
 interface SendTextEngineArgs {
   userId: string
+  orgId: string
   conversationId: string
   contactId: string
   text: string
@@ -57,7 +58,7 @@ export async function engineSendText(
     .from('contacts')
     .select('id, phone')
     .eq('id', args.contactId)
-    .eq('user_id', args.userId)
+    .eq('org_id', args.orgId)
     .maybeSingle()
   if (contactErr || !contact?.phone) {
     throw new Error('contact not found for this user')
@@ -71,7 +72,7 @@ export async function engineSendText(
   const { data: config, error: configErr } = await db
     .from('whatsapp_config')
     .select('*')
-    .eq('user_id', args.userId)
+    .eq('org_id', args.orgId)
     .single()
   if (configErr || !config) {
     throw new Error('WhatsApp not configured for this account')
@@ -113,6 +114,7 @@ export async function engineSendText(
 
   const { error: msgErr } = await db.from('messages').insert({
     conversation_id: args.conversationId,
+    org_id: args.orgId,
     sender_type: 'bot',
     content_type: 'text',
     content_text: args.text,
@@ -137,6 +139,7 @@ export async function engineSendText(
 
 interface SendInteractiveButtonsEngineArgs {
   userId: string
+  orgId: string
   conversationId: string
   contactId: string
   bodyText: string
@@ -147,6 +150,7 @@ interface SendInteractiveButtonsEngineArgs {
 
 interface SendInteractiveListEngineArgs {
   userId: string
+  orgId: string
   conversationId: string
   contactId: string
   bodyText: string
@@ -201,7 +205,7 @@ async function sendInteractiveViaMeta(
     .from('contacts')
     .select('id, phone')
     .eq('id', input.contactId)
-    .eq('user_id', input.userId)
+    .eq('org_id', input.orgId)
     .maybeSingle()
   if (contactErr || !contact?.phone) {
     throw new Error('contact not found for this user')
@@ -215,7 +219,7 @@ async function sendInteractiveViaMeta(
   const { data: config, error: configErr } = await db
     .from('whatsapp_config')
     .select('*')
-    .eq('user_id', input.userId)
+    .eq('org_id', input.orgId)
     .single()
   if (configErr || !config) {
     throw new Error('WhatsApp not configured for this account')
@@ -285,6 +289,7 @@ async function sendInteractiveViaMeta(
   // when their reply arrives.
   const { error: msgErr } = await db.from('messages').insert({
     conversation_id: input.conversationId,
+    org_id: input.orgId,
     sender_type: 'bot',
     content_type: 'interactive',
     content_text: input.bodyText,

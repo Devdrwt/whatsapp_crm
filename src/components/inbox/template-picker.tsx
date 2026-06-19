@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import type { MessageTemplate } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ export function TemplatePicker({
   onOpenChange,
   onSelect,
 }: TemplatePickerProps) {
+  const { activeOrgId, orgsLoading } = useAuth();
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<MessageTemplate | null>(null);
@@ -60,22 +62,22 @@ export function TemplatePicker({
 
   useEffect(() => {
     if (!open) return;
+    if (orgsLoading) return;
+    if (!activeOrgId) {
+      // No active org → empty result, drop the spinner. React 19 flags
+      // this synchronous setState in an effect but the path is exactly
+      // the "skip" branch the gate is designed to handle.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTemplates([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
     (async () => {
       setLoading(true);
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        if (!cancelled) {
-          setTemplates([]);
-          setLoading(false);
-        }
-        return;
-      }
 
       // Only Approved templates are sendable through Meta — anything else
       // would 400 on the send route. Hide them rather than letting the
@@ -83,7 +85,7 @@ export function TemplatePicker({
       const { data, error } = await supabase
         .from("message_templates")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("org_id", activeOrgId)
         .eq("status", "Approved")
         .order("created_at", { ascending: false });
 
@@ -100,7 +102,7 @@ export function TemplatePicker({
     return () => {
       cancelled = true;
     };
-  }, [open]);
+  }, [open, activeOrgId, orgsLoading]);
 
   function handleOpenChange(next: boolean) {
     if (!next) {

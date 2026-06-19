@@ -92,7 +92,7 @@ const COMMON_LANGUAGE_CODES = [
 
 export function TemplateManager() {
   const supabase = createClient();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, activeOrgId, orgsLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
@@ -102,23 +102,23 @@ export function TemplateManager() {
   const [form, setForm] = useState<TemplateFormData>(emptyForm);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
+    if (authLoading || orgsLoading) return;
+    if (!user || !activeOrgId) {
       setLoading(false);
       return;
     }
-    fetchTemplates(user.id);
+    fetchTemplates(user.id, activeOrgId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, user?.id]);
+  }, [authLoading, orgsLoading, user?.id, activeOrgId]);
 
-  async function fetchTemplates(userId: string) {
+  async function fetchTemplates(_userId: string, orgId: string) {
     try {
       setLoading(true);
 
       const { data, error } = await supabase
         .from('message_templates')
         .select('*')
-        .eq('user_id', userId)
+        .eq('org_id', orgId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -143,13 +143,14 @@ export function TemplateManager() {
 
     try {
       setSaving(true);
-      if (!user) {
+      if (!user || !activeOrgId) {
         toast.error('Not authenticated');
         return;
       }
 
       const payload = {
         user_id: user.id,
+        org_id: activeOrgId,
         name: form.name.trim(),
         category: form.category,
         language: form.language.trim() || 'en_US',
@@ -168,7 +169,7 @@ export function TemplateManager() {
       toast.success('Template created successfully');
       setDialogOpen(false);
       setForm(emptyForm);
-      if (user) await fetchTemplates(user.id);
+      if (user && activeOrgId) await fetchTemplates(user.id, activeOrgId);
     } catch (err) {
       console.error('Save error:', err);
       toast.error('Failed to create template');
@@ -184,7 +185,7 @@ export function TemplateManager() {
    * stuck on error #132001 "Template name does not exist".
    */
   async function handleSyncFromMeta() {
-    if (!user) return;
+    if (!user || !activeOrgId) return;
     setSyncing(true);
     try {
       const res = await fetch('/api/whatsapp/templates/sync', {
@@ -216,7 +217,7 @@ export function TemplateManager() {
           'Hit Meta pagination cap — more templates may exist. Contact support if this persists.',
         );
       }
-      await fetchTemplates(user.id);
+      await fetchTemplates(user.id, activeOrgId);
     } catch (err) {
       console.error('Template sync error:', err);
       toast.error(
