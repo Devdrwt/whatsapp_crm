@@ -103,7 +103,7 @@ export function AiAgentPanel() {
           fallback_message: fallbackMessage,
           model,
         },
-        { onConflict: 'user_id' },
+        { onConflict: 'org_id' },
       );
       if (error) throw error;
       toast.success('AI agent settings saved');
