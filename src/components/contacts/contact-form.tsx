@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
@@ -36,6 +37,8 @@ export function ContactForm({
 }: ContactFormProps) {
   const supabase = createClient();
   const { activeOrgId } = useAuth();
+  const t = useTranslations('contacts.form');
+  const tCommon = useTranslations('common');
   const isEdit = !!contact;
 
   const [name, setName] = useState('');
@@ -82,7 +85,7 @@ export function ContactForm({
     e.preventDefault();
 
     if (!phone.trim()) {
-      toast.error('Phone number is required');
+      toast.error(t('toasts.phoneRequired'));
       return;
     }
 
@@ -147,11 +150,11 @@ export function ContactForm({
         }
       }
 
-      toast.success(isEdit ? 'Contact updated' : 'Contact created');
+      toast.success(isEdit ? t('toasts.updated') : t('toasts.created'));
       onOpenChange(false);
       onSaved();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to save contact';
+      const message = err instanceof Error ? err.message : t('toasts.saveFallback');
       toast.error(message);
     } finally {
       setSaving(false);
@@ -163,78 +166,76 @@ export function ContactForm({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">
-            {isEdit ? 'Edit Contact' : 'Add Contact'}
+            {isEdit ? t('editTitle') : t('addTitle')}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {isEdit
-              ? 'Update the contact details below.'
-              : 'Fill in the details to create a new contact.'}
+            {isEdit ? t('editDescription') : t('addDescription')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="cf-name" className="text-foreground">
-              Name
+              {t('name')}
             </Label>
             <Input
               id="cf-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="John Doe"
+              placeholder={t('namePlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="cf-phone" className="text-foreground">
-              Phone <span className="text-destructive">*</span>
+              {t('phone')} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="cf-phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="+1 234 567 8900"
+              placeholder={t('phonePlaceholder')}
             />
             <p className="text-xs text-muted-foreground">
-              Include country code, e.g. +1 for US
+              {t('phoneHint')}
             </p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="cf-email" className="text-foreground">
-              Email
+              {t('email')}
             </Label>
             <Input
               id="cf-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@example.com"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="cf-company" className="text-foreground">
-              Company
+              {t('company')}
             </Label>
             <Input
               id="cf-company"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              placeholder="Acme Inc."
+              placeholder={t('companyPlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground">Tags</Label>
+            <Label className="text-foreground">{t('tags')}</Label>
             {loadingTags ? (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="size-3 animate-spin" />
-                Loading tags...
+                {t('tagsLoading')}
               </div>
             ) : tags.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                No tags available. Create tags in Settings.
+                {t('tagsEmpty')}
               </p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
@@ -271,7 +272,7 @@ export function ContactForm({
               onClick={() => onOpenChange(false)}
               className="border-border text-foreground hover:bg-accent"
             >
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
@@ -279,7 +280,7 @@ export function ContactForm({
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {saving && <Loader2 className="size-4 animate-spin" />}
-              {isEdit ? 'Update' : 'Create'}
+              {isEdit ? t('update') : t('create')}
             </Button>
           </DialogFooter>
         </form>

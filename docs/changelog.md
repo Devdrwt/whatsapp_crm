@@ -7,6 +7,50 @@
 
 ---
 
+## PR 8a — Localisation FR (Contacts)
+**Branche** : `dev`
+
+Module Contacts entièrement en français : liste paginée, formulaire
+de création / édition, sheet de détail (5 onglets), import CSV.
+
+### Changed
+- [src/app/(dashboard)/contacts/page.tsx](../src/app/(dashboard)/contacts/page.tsx) :
+  titre, sous-titre, total count (ICU plural), search placeholder,
+  6 colonnes du tableau, états vides (avec et sans recherche), CTA
+  « Ajouter un contact », pagination (Affichage X-Y / Page N sur M),
+  dialog de suppression, toasts d'erreur / succès. Date de création
+  formatée via `toLocaleDateString(locale)`.
+- [src/components/contacts/contact-form.tsx](../src/components/contacts/contact-form.tsx) :
+  titres + descriptions (add / edit), libellés et placeholders des
+  4 champs, indication d'indicatif pays, section Tags, boutons
+  Créer / Mettre à jour, toasts.
+- [src/components/contacts/contact-detail-view.tsx](../src/components/contacts/contact-detail-view.tsx) :
+  header sheet, 5 onglets (Détails, Tags, Notes, Champs personnalisés,
+  Affaires), tous les champs et leurs boutons Save, états vides,
+  formats monétaires + dates `Intl.NumberFormat(locale)` /
+  `toLocaleDateString(locale)`, statut deals (Gagnée / Perdue).
+- [src/components/contacts/import-modal.tsx](../src/components/contacts/import-modal.tsx) :
+  titre + description, zone d'upload, en-têtes de preview, compteurs
+  ICU plural (`{count, plural, one {# ligne détectée} other {# lignes
+  détectées}}`), résultats Import terminé, boutons Annuler / Fermer /
+  Importer N contacts, toasts.
+
+### Added
+- Branche `contacts.*` dans [messages/fr.json](../messages/fr.json) /
+  [messages/en.json](../messages/en.json) (~85 clés sous `page`,
+  `form`, `detail`, `import`). Utilise les pluriels ICU pour les
+  compteurs.
+
+### Notes
+- Les en-têtes du tableau de prévisualisation CSV (import) sont
+  réutilisés depuis `contacts.page.headers.*` — un seul endroit
+  pour traduire « Nom / Téléphone / E-mail / Société ».
+- `Intl.NumberFormat` et `toLocaleDateString` reçoivent désormais
+  le `locale` actif (au lieu d'`'en-US'` codé en dur), pour que
+  monnaies et dates suivent l'UI.
+
+---
+
 ## PR 7 — Localisation FR (Inbox)
 **Branche** : `dev`
 

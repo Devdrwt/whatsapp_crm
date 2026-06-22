@@ -8,6 +8,138 @@
     "back": "Retour",
     "close": "Fermer"
   },
+  "contacts": {
+    "page": {
+      "title": "Contacts",
+      "subtitle": "Gérez votre liste de contacts.",
+      "totalCount": "{count} contacts au total.",
+      "import": "Importer",
+      "addContact": "Ajouter un contact",
+      "searchPlaceholder": "Rechercher par nom, téléphone ou e-mail…",
+      "headers": {
+        "name": "Nom",
+        "phone": "Téléphone",
+        "email": "E-mail",
+        "company": "Société",
+        "tags": "Tags",
+        "created": "Créé le"
+      },
+      "loading": "Chargement des contacts…",
+      "emptyNoSearch": "Aucun contact pour le moment.",
+      "emptyWithSearch": "Aucun contact ne correspond à votre recherche.",
+      "addFirst": "Ajouter votre premier contact",
+      "unnamed": "Sans nom",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "pagination": {
+        "showing": "Affichage de {from}-{to} sur {total}",
+        "page": "Page {current} sur {total}"
+      },
+      "deleteDialog": {
+        "title": "Supprimer le contact",
+        "descriptionPrefix": "Voulez-vous vraiment supprimer",
+        "descriptionSuffix": " ? Cette action est irréversible."
+      },
+      "toasts": {
+        "loadFailed": "Échec du chargement des contacts",
+        "deleteFailed": "Échec de la suppression du contact",
+        "deleteSuccess": "Contact supprimé"
+      }
+    },
+    "form": {
+      "addTitle": "Ajouter un contact",
+      "editTitle": "Modifier le contact",
+      "addDescription": "Renseignez les détails pour créer un nouveau contact.",
+      "editDescription": "Mettez à jour les détails du contact ci-dessous.",
+      "name": "Nom",
+      "namePlaceholder": "Jean Dupont",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+216 12 345 678",
+      "phoneHint": "Indiquez l'indicatif pays (ex. +216 pour la Tunisie)",
+      "email": "E-mail",
+      "emailPlaceholder": "jean@exemple.com",
+      "company": "Société",
+      "companyPlaceholder": "Acme SARL",
+      "tags": "Tags",
+      "tagsLoading": "Chargement des tags…",
+      "tagsEmpty": "Aucun tag disponible. Créez-en dans les paramètres.",
+      "create": "Créer",
+      "update": "Mettre à jour",
+      "toasts": {
+        "phoneRequired": "Le numéro de téléphone est requis",
+        "saveFallback": "Échec de l'enregistrement du contact",
+        "created": "Contact créé",
+        "updated": "Contact mis à jour"
+      }
+    },
+    "detail": {
+      "unknown": "Inconnu",
+      "description": "Détails du contact",
+      "tabs": {
+        "details": "Détails",
+        "tags": "Tags",
+        "notes": "Notes",
+        "custom": "Champs personnalisés",
+        "deals": "Affaires"
+      },
+      "fields": {
+        "name": "Nom",
+        "phone": "Téléphone",
+        "email": "E-mail",
+        "company": "Société"
+      },
+      "saveChanges": "Enregistrer les modifications",
+      "tagsHelp": "Cliquez sur un tag pour l'ajouter ou le retirer.",
+      "noTagsHelp": "Aucun tag disponible. Créez-en dans les paramètres.",
+      "notesPlaceholder": "Écrivez une note…",
+      "addNote": "Ajouter la note",
+      "noNotes": "Aucune note pour le moment.",
+      "loadingCustom": "Chargement…",
+      "noCustomFields": "Aucun champ personnalisé. Créez-en dans les paramètres.",
+      "customPlaceholder": "Saisir {field}…",
+      "saveCustom": "Enregistrer les champs personnalisés",
+      "noDeals": "Aucune affaire",
+      "dealStatus": {
+        "won": "Gagnée",
+        "lost": "Perdue"
+      },
+      "toasts": {
+        "phoneRequired": "Le numéro de téléphone est requis",
+        "updateFailed": "Échec de la mise à jour du contact",
+        "updated": "Contact mis à jour",
+        "notAuthenticated": "Non authentifié",
+        "addNoteFailed": "Échec de l'ajout de la note",
+        "noteAdded": "Note ajoutée",
+        "deleteNoteFailed": "Échec de la suppression de la note",
+        "noteDeleted": "Note supprimée",
+        "customSaved": "Champs personnalisés enregistrés",
+        "customSaveFailed": "Échec de l'enregistrement des champs"
+      }
+    },
+    "import": {
+      "title": "Importer des contacts",
+      "description": "Téléversez un fichier CSV avec une colonne « phone » (obligatoire). Colonnes optionnelles : name, email, company.",
+      "uploadHint": "Cliquez pour téléverser un fichier CSV",
+      "uploadRequirement": "CSV avec la colonne « phone » requise",
+      "rowsDetected": "{count, plural, one {# ligne détectée} other {# lignes détectées}}",
+      "preview": "Aperçu (premières {count} lignes)",
+      "previewMore": "…et {count, plural, one {# ligne de plus} other {# lignes de plus}}",
+      "complete": "Import terminé",
+      "imported": "{count, plural, one {# importé} other {# importés}}",
+      "failed": "{count, plural, one {# échec} other {# échecs}}",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "importCount": "{count, plural, =0 {Importer} one {Importer # contact} other {Importer # contacts}}",
+      "toasts": {
+        "noValidRows": "Aucune ligne valide. Le CSV doit avoir une colonne « phone ».",
+        "notAuthenticated": "Non authentifié",
+        "noActiveOrg": "Aucune organisation active",
+        "importedToast": "{count, plural, one {# contact importé} other {# contacts importés}}",
+        "failedToast": "{count, plural, one {# contact en échec} other {# contacts en échec}}",
+        "fallback": "Échec de l'import"
+      }
+    }
+  },
   "inbox": {
     "page": {
       "whatsappNotConnected": "WhatsApp® n'est pas connecté. Allez dans Paramètres pour connecter votre compte."
