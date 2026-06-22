@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { AuthShell } from "@/components/layout/auth-shell";
 
 export default function SignupPage() {
+  const t = useTranslations("auth.signup");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,12 +25,12 @@ export default function SignupPage() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("passwordsDoNotMatch"));
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t("passwordTooShort"));
       return;
     }
 
@@ -57,18 +59,18 @@ export default function SignupPage() {
   if (success) {
     return (
       <AuthShell
-        title="Check your email"
+        title={t("checkEmailTitle")}
         description={
           <>
-            We&apos;ve sent a confirmation link to{" "}
-            <span className="font-medium text-foreground">{email}</span>. Click
-            the link to verify your account.
+            {t("checkEmailDescriptionPrefix")}{" "}
+            <span className="font-medium text-foreground">{email}</span>
+            {t("checkEmailDescriptionSuffix")}
           </>
         }
       >
         <Link href="/login">
           <Button variant="outline" className="w-full">
-            Back to sign in
+            {t("backToSignIn")}
           </Button>
         </Link>
       </AuthShell>
@@ -76,10 +78,7 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthShell
-      title="Create account"
-      description="Get started with Drwintech"
-    >
+    <AuthShell title={t("title")} description={t("description")}>
       <form onSubmit={handleSignup} className="flex flex-col gap-4">
         {error && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -88,11 +87,11 @@ export default function SignupPage() {
         )}
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="fullName">Full name</Label>
+          <Label htmlFor="fullName">{t("fullName")}</Label>
           <Input
             id="fullName"
             type="text"
-            placeholder="John Doe"
+            placeholder={t("fullNamePlaceholder")}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -100,11 +99,11 @@ export default function SignupPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("email")}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t("emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -112,11 +111,11 @@ export default function SignupPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t("password")}</Label>
           <Input
             id="password"
             type="password"
-            placeholder="At least 6 characters"
+            placeholder={t("passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -124,11 +123,11 @@ export default function SignupPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="confirmPassword">Confirm password</Label>
+          <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
           <Input
             id="confirmPassword"
             type="password"
-            placeholder="Repeat your password"
+            placeholder={t("confirmPasswordPlaceholder")}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
@@ -136,14 +135,14 @@ export default function SignupPage() {
         </div>
 
         <Button type="submit" disabled={loading} className="mt-2 h-10 w-full">
-          {loading ? "Creating account..." : "Create account"}
+          {loading ? t("submitting") : t("submit")}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {t("haveAccount")}{" "}
         <Link href="/login" className="font-medium text-primary hover:text-primary/80">
-          Sign in
+          {t("signIn")}
         </Link>
       </p>
     </AuthShell>

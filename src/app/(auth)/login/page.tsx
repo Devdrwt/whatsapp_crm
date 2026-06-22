@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ function safeNext(raw: string | null): string {
 }
 
 export default function LoginPage() {
+  const t = useTranslations("auth.login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthShell title="Welcome back" description="Sign in to your Drwintech account">
+    <AuthShell title={t("title")} description={t("description")}>
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
         {error && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -57,11 +59,11 @@ export default function LoginPage() {
         )}
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("email")}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t("emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -70,18 +72,18 @@ export default function LoginPage() {
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("password")}</Label>
             <Link
               href="/forgot-password"
               className="text-sm text-primary hover:text-primary/80"
             >
-              Forgot password?
+              {t("forgotPassword")}
             </Link>
           </div>
           <Input
             id="password"
             type="password"
-            placeholder="Enter your password"
+            placeholder={t("passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -89,14 +91,14 @@ export default function LoginPage() {
         </div>
 
         <Button type="submit" disabled={loading} className="mt-2 h-10 w-full">
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? t("submitting") : t("submit")}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
+        {t("noAccount")}{" "}
         <Link href={signupHref} className="font-medium text-primary hover:text-primary/80">
-          Create account
+          {t("createAccount")}
         </Link>
       </p>
     </AuthShell>

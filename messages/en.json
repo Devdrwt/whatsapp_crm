@@ -1,0 +1,210 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "sending": "Sending…",
+    "back": "Back",
+    "close": "Close"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "description": "Sign in to your Drwintech account",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account"
+    },
+    "signup": {
+      "title": "Create account",
+      "description": "Get started with Drwintech",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "John Doe",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 6 characters",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "checkEmailTitle": "Check your email",
+      "checkEmailDescriptionPrefix": "We've sent a confirmation link to",
+      "checkEmailDescriptionSuffix": ". Click the link to verify your account.",
+      "backToSignIn": "Back to sign in"
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "description": "Enter your email and we'll send you a reset link",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "backToSignIn": "Back to sign in",
+      "checkEmailTitle": "Check your email",
+      "checkEmailDescriptionPrefix": "We've sent a password reset link to",
+      "checkEmailDescriptionSuffix": ". Please check your inbox."
+    }
+  },
+  "onboarding": {
+    "createOrg": {
+      "title": "Create your organization",
+      "description": "Your workspace inside Drwintech. You can rename it any time.",
+      "name": "Organization name",
+      "namePlaceholder": "Acme — café El Buen Sabor",
+      "nameRequired": "Organization name is required",
+      "submit": "Create organization",
+      "submitting": "Creating…",
+      "rpcFallback": "Could not create the organization",
+      "activeError": "Organization created, but couldn't set it as active"
+    }
+  },
+  "acceptInvite": {
+    "loadingTitle": "Loading…",
+    "loadingDescription": "Checking your invitation.",
+    "joinTitle": "Join the organization",
+    "joinDescriptionPrefix": "You've been invited to join an organization on Drwintech as",
+    "accept": "Accept invitation",
+    "accepting": "Joining…",
+    "wrongAccountPrefix": "Wrong account?",
+    "signOut": "Sign out",
+    "wrongAccountSuffix": "and sign back in.",
+    "successToast": "Invitation accepted",
+    "errors": {
+      "not_found": {
+        "title": "Invitation not found",
+        "body": "This link is invalid. Ask the inviter to send a new one."
+      },
+      "expired": {
+        "title": "Invitation expired",
+        "body": "Invitations are valid for 7 days. Ask the inviter to send a new one."
+      },
+      "already_accepted": {
+        "title": "Already accepted",
+        "body": "You've already joined this organization."
+      },
+      "email_mismatch": {
+        "title": "Email mismatch",
+        "body": "This invitation was sent to a different email. Sign out and sign back in with the email it was sent to."
+      },
+      "network": {
+        "title": "Network error",
+        "body": "Something went wrong. Check your connection and try again."
+      },
+      "rpc_failed": {
+        "title": "Could not accept",
+        "body": "Something went wrong on our side. Try again, or ask the inviter for help."
+      }
+    },
+    "backToDashboard": "Back to dashboard"
+  },
+  "layout": {
+    "sidebar": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "inbox": "Inbox",
+        "contacts": "Contacts",
+        "pipelines": "Pipelines",
+        "broadcasts": "Broadcasts",
+        "automations": "Automations",
+        "flows": "Flows"
+      },
+      "bottomNav": {
+        "settings": "Settings"
+      },
+      "beta": "Beta",
+      "unreadAria": "{count, plural, one {# unread conversation} other {# unread conversations}}",
+      "themeLightLabel": "Light mode",
+      "themeDarkLabel": "Dark mode",
+      "themeToLight": "Switch to light mode",
+      "themeToDark": "Switch to dark mode",
+      "collapse": "Collapse",
+      "collapseAria": "Collapse sidebar",
+      "expandAria": "Expand sidebar",
+      "userMenu": {
+        "profile": "Profile",
+        "settings": "Settings",
+        "signOut": "Sign out",
+        "openMenuAria": "Open account menu",
+        "fallbackName": "User",
+        "fallbackAccount": "Account"
+      },
+      "logoAria": "Drwintech — Dashboard",
+      "openMenuAria": "Open menu",
+      "closeMenuAria": "Close menu",
+      "primaryAria": "Primary"
+    },
+    "header": {
+      "openMenuAria": "Open menu",
+      "pageTitles": {
+        "dashboard": "Dashboard",
+        "inbox": "Inbox",
+        "contacts": "Contacts",
+        "pipelines": "Pipelines",
+        "broadcasts": "Broadcasts",
+        "automations": "Automations",
+        "flows": "Flows",
+        "settings": "Settings"
+      },
+      "themeToLight": "Switch to light mode",
+      "themeToDark": "Switch to dark mode",
+      "userMenu": {
+        "openAria": "Open account menu",
+        "profile": "Profile",
+        "settings": "Settings",
+        "signOut": "Sign out",
+        "fallbackName": "User"
+      }
+    },
+    "orgSwitcher": {
+      "switchAria": "Switch organization",
+      "header": "Organizations",
+      "createNew": "Create new organization"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your profile, WhatsApp® integration, message templates, and tags.",
+    "tabs": {
+      "profile": "Profile",
+      "whatsapp": "WhatsApp Config",
+      "templates": "Templates",
+      "tags": "Tags",
+      "team": "Team",
+      "aiAgent": "AI Agent",
+      "appearance": "Appearance"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Choose the interface theme. Saved to this device.",
+      "modes": {
+        "light": { "name": "Light", "hint": "Bright and airy." },
+        "dark": { "name": "Dark", "hint": "Easy on the eyes." },
+        "system": { "name": "System", "hint": "Follows your device." }
+      },
+      "active": "Active",
+      "themeAria": "{name} theme"
+    },
+    "locale": {
+      "title": "Language",
+      "description": "The interface is shown in the selected language. Saved to this browser.",
+      "label": "Language",
+      "options": {
+        "fr": "Français",
+        "en": "English"
+      },
+      "saveError": "Could not save language"
+    }
+  }
+}

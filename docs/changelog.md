@@ -7,6 +7,67 @@
 
 ---
 
+## PR 6 — Localisation FR (socle i18n + frame)
+**Branche** : `dev` · **Dépendance** : `next-intl@^4`
+
+**Bloqueur #1 levé** avant le 1er client payant : Drwintech cible des
+PME francophones (Tunisie, Afrique de l'Ouest) mais l'UI était
+entièrement en anglais. PR 6 installe le **socle i18n** et traduit
+les **surfaces visibles partout** (auth, onboarding, accept-invite,
+sidebar, header, org-switcher, settings shell + Appearance). Les
+PRs 7-10 traduiront ensuite chaque module (inbox, contacts,
+pipelines, broadcasts, automations, flows, settings détaillés).
+
+### Added
+- **next-intl v4** wiring : plugin dans [next.config.ts](../next.config.ts),
+  fichier [i18n/request.ts](../i18n/request.ts) qui lit la locale
+  côté serveur, `NextIntlClientProvider` dans le root layout.
+- [src/lib/i18n/active-locale.ts](../src/lib/i18n/active-locale.ts) :
+  helpers cookie `drwintech.locale` (1 an), parallèles à
+  `active-org.ts`. Constantes `SUPPORTED_LOCALES = ['fr', 'en']`,
+  `DEFAULT_LOCALE = 'fr'`.
+- [src/app/api/locale/route.ts](../src/app/api/locale/route.ts) :
+  GET (lecture) / POST (bascule + cookie).
+- [src/components/settings/locale-selector.tsx](../src/components/settings/locale-selector.tsx) :
+  Select FR / EN dans le panneau Appearance, valeur optimiste +
+  `router.refresh()` au changement.
+- [messages/fr.json](../messages/fr.json) et [messages/en.json](../messages/en.json) :
+  arborescence de clés sémantiques (`auth.*`, `onboarding.*`,
+  `acceptInvite.*`, `layout.*`, `settings.*`, `common.*`).
+- Tests : [src/lib/i18n/active-locale.test.ts](../src/lib/i18n/active-locale.test.ts)
+  (validation + cookie fallback) + [src/lib/i18n/messages-parity.test.ts](../src/lib/i18n/messages-parity.test.ts)
+  (assure que `fr.json` et `en.json` ont **exactement** les mêmes
+  clés, et qu'aucune n'est vide).
+
+### Changed
+- [src/app/layout.tsx](../src/app/layout.tsx) : `<html lang>`
+  désormais dynamique (lu depuis la locale active), wrapping
+  `<NextIntlClientProvider>` autour de tout l'arbre.
+- Surfaces traduites (clés sous `auth.*`, `onboarding.*`,
+  `acceptInvite.*`, `layout.*`, `settings.tabs.*`,
+  `settings.appearance.*`, `settings.locale.*`) :
+  - Auth : login, signup, forgot-password.
+  - Onboarding : create-org.
+  - Accept-invite : 6 codes d'erreur typés en FR.
+  - Frame dashboard : sidebar, header, org-switcher.
+  - Settings shell : titre + sous-titre + 7 onglets, appearance-panel.
+
+### Notes
+- **Routing cookie-based, pas de préfixe URL** : les routes restent
+  `/dashboard`, `/inbox`, etc. La locale est un cookie
+  `drwintech.locale` (1 an). Aucune dette de routing à payer plus
+  tard.
+- **Source-of-truth = clés sémantiques en anglais**. Les deux JSON
+  contiennent toutes les chaînes traduites.
+- **Hors PR 6** : tous les modules (inbox, contacts, pipelines,
+  broadcasts, automations, flows, team-panel, ai-agent-panel, et
+  les autres onglets de Settings) restent en anglais — sujet des
+  PRs 7-10.
+- **AR + RTL** : sujet à part (polices arabes, sens d'écriture
+  inverse, miroir CSS). Plus tard.
+
+---
+
 ## PR 5 — Tests d'isolation cross-org au CI
 **Branche** : `dev`
 

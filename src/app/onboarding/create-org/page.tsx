@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { AuthShell } from "@/components/layout/auth-shell";
 
 export default function CreateOrgPage() {
+  const t = useTranslations("onboarding.createOrg");
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,7 @@ export default function CreateOrgPage() {
     setError(null);
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("Organization name is required");
+      setError(t("nameRequired"));
       return;
     }
     setLoading(true);
@@ -34,7 +36,7 @@ export default function CreateOrgPage() {
     );
 
     if (rpcError || !orgId) {
-      setError(rpcError?.message ?? "Could not create the organization");
+      setError(rpcError?.message ?? t("rpcFallback"));
       setLoading(false);
       return;
     }
@@ -47,7 +49,7 @@ export default function CreateOrgPage() {
       body: JSON.stringify({ orgId }),
     });
     if (!res.ok) {
-      setError("Organization created, but couldn't set it as active");
+      setError(t("activeError"));
       setLoading(false);
       return;
     }
@@ -57,10 +59,7 @@ export default function CreateOrgPage() {
   };
 
   return (
-    <AuthShell
-      title="Create your organization"
-      description="Your workspace inside Drwintech. You can rename it any time."
-    >
+    <AuthShell title={t("title")} description={t("description")}>
       <form onSubmit={handleCreate} className="flex flex-col gap-4">
         {error && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -69,11 +68,11 @@ export default function CreateOrgPage() {
         )}
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="org-name">Organization name</Label>
+          <Label htmlFor="org-name">{t("name")}</Label>
           <Input
             id="org-name"
             type="text"
-            placeholder="Acme — café El Buen Sabor"
+            placeholder={t("namePlaceholder")}
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoFocus
@@ -82,7 +81,7 @@ export default function CreateOrgPage() {
         </div>
 
         <Button type="submit" disabled={loading} className="mt-2 h-10 w-full">
-          {loading ? "Creating..." : "Create organization"}
+          {loading ? t("submitting") : t("submit")}
         </Button>
       </form>
     </AuthShell>

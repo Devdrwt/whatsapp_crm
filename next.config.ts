@@ -1,4 +1,11 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+// next-intl wiring. Points at the request config file at the repo
+// root (./i18n/request.ts) — that file reads the active locale from
+// the `drwintech.locale` cookie and returns the matching messages
+// bundle. Cookie-based, no URL prefix: dashboard URLs stay stable.
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /**
  * Baseline security headers applied to every response.
@@ -127,4 +134,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

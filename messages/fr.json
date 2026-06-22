@@ -1,0 +1,210 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "loading": "Chargement…",
+    "saving": "Enregistrement…",
+    "sending": "Envoi…",
+    "back": "Retour",
+    "close": "Fermer"
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour",
+      "description": "Connectez-vous à votre compte Drwintech",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Saisissez votre mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "submitting": "Connexion…",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte"
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "description": "Commencez avec Drwintech",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Jean Dupont",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "6 caractères minimum",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+      "confirmPassword": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "Saisissez à nouveau votre mot de passe",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+      "submit": "Créer le compte",
+      "submitting": "Création du compte…",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter",
+      "checkEmailTitle": "Vérifiez votre boîte mail",
+      "checkEmailDescriptionPrefix": "Nous avons envoyé un lien de confirmation à",
+      "checkEmailDescriptionSuffix": ". Cliquez sur le lien pour activer votre compte.",
+      "backToSignIn": "Retour à la connexion"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "description": "Saisissez votre e-mail, nous vous envoyons un lien de réinitialisation",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "submit": "Envoyer le lien",
+      "submitting": "Envoi…",
+      "backToSignIn": "Retour à la connexion",
+      "checkEmailTitle": "Vérifiez votre boîte mail",
+      "checkEmailDescriptionPrefix": "Nous avons envoyé un lien de réinitialisation à",
+      "checkEmailDescriptionSuffix": ". Consultez votre boîte de réception."
+    }
+  },
+  "onboarding": {
+    "createOrg": {
+      "title": "Créez votre organisation",
+      "description": "Votre espace de travail Drwintech. Vous pourrez la renommer à tout moment.",
+      "name": "Nom de l'organisation",
+      "namePlaceholder": "Acme — café El Buen Sabor",
+      "nameRequired": "Le nom de l'organisation est requis",
+      "submit": "Créer l'organisation",
+      "submitting": "Création…",
+      "rpcFallback": "Impossible de créer l'organisation",
+      "activeError": "Organisation créée, mais impossible de la définir comme active"
+    }
+  },
+  "acceptInvite": {
+    "loadingTitle": "Chargement…",
+    "loadingDescription": "Vérification de votre invitation.",
+    "joinTitle": "Rejoindre l'organisation",
+    "joinDescriptionPrefix": "Vous êtes invité à rejoindre une organisation sur Drwintech en tant que",
+    "accept": "Accepter l'invitation",
+    "accepting": "Connexion en cours…",
+    "wrongAccountPrefix": "Mauvais compte ?",
+    "signOut": "Se déconnecter",
+    "wrongAccountSuffix": "et reconnectez-vous.",
+    "successToast": "Invitation acceptée",
+    "errors": {
+      "not_found": {
+        "title": "Invitation introuvable",
+        "body": "Ce lien est invalide. Demandez à l'expéditeur de vous en envoyer un nouveau."
+      },
+      "expired": {
+        "title": "Invitation expirée",
+        "body": "Les invitations sont valides 7 jours. Demandez à l'expéditeur d'en envoyer une nouvelle."
+      },
+      "already_accepted": {
+        "title": "Déjà acceptée",
+        "body": "Vous avez déjà rejoint cette organisation."
+      },
+      "email_mismatch": {
+        "title": "E-mail différent",
+        "body": "Cette invitation a été envoyée à une autre adresse. Déconnectez-vous puis reconnectez-vous avec l'e-mail destinataire."
+      },
+      "network": {
+        "title": "Erreur réseau",
+        "body": "Un problème est survenu. Vérifiez votre connexion et réessayez."
+      },
+      "rpc_failed": {
+        "title": "Impossible d'accepter",
+        "body": "Un problème est survenu de notre côté. Réessayez, ou contactez l'expéditeur."
+      }
+    },
+    "backToDashboard": "Retour au tableau de bord"
+  },
+  "layout": {
+    "sidebar": {
+      "nav": {
+        "dashboard": "Tableau de bord",
+        "inbox": "Boîte de réception",
+        "contacts": "Contacts",
+        "pipelines": "Pipelines",
+        "broadcasts": "Diffusions",
+        "automations": "Automatisations",
+        "flows": "Parcours"
+      },
+      "bottomNav": {
+        "settings": "Paramètres"
+      },
+      "beta": "Bêta",
+      "unreadAria": "{count, plural, one {# conversation non lue} other {# conversations non lues}}",
+      "themeLightLabel": "Mode clair",
+      "themeDarkLabel": "Mode sombre",
+      "themeToLight": "Passer au mode clair",
+      "themeToDark": "Passer au mode sombre",
+      "collapse": "Réduire",
+      "collapseAria": "Réduire la barre latérale",
+      "expandAria": "Déployer la barre latérale",
+      "userMenu": {
+        "profile": "Profil",
+        "settings": "Paramètres",
+        "signOut": "Se déconnecter",
+        "openMenuAria": "Ouvrir le menu compte",
+        "fallbackName": "Utilisateur",
+        "fallbackAccount": "Compte"
+      },
+      "logoAria": "Drwintech — Tableau de bord",
+      "openMenuAria": "Ouvrir le menu",
+      "closeMenuAria": "Fermer le menu",
+      "primaryAria": "Navigation principale"
+    },
+    "header": {
+      "openMenuAria": "Ouvrir le menu",
+      "pageTitles": {
+        "dashboard": "Tableau de bord",
+        "inbox": "Boîte de réception",
+        "contacts": "Contacts",
+        "pipelines": "Pipelines",
+        "broadcasts": "Diffusions",
+        "automations": "Automatisations",
+        "flows": "Parcours",
+        "settings": "Paramètres"
+      },
+      "themeToLight": "Passer au mode clair",
+      "themeToDark": "Passer au mode sombre",
+      "userMenu": {
+        "openAria": "Ouvrir le menu compte",
+        "profile": "Profil",
+        "settings": "Paramètres",
+        "signOut": "Se déconnecter",
+        "fallbackName": "Utilisateur"
+      }
+    },
+    "orgSwitcher": {
+      "switchAria": "Changer d'organisation",
+      "header": "Organisations",
+      "createNew": "Créer une nouvelle organisation"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez votre profil, l'intégration WhatsApp®, les modèles de messages et les tags.",
+    "tabs": {
+      "profile": "Profil",
+      "whatsapp": "Config WhatsApp",
+      "templates": "Modèles",
+      "tags": "Tags",
+      "team": "Équipe",
+      "aiAgent": "Agent IA",
+      "appearance": "Apparence"
+    },
+    "appearance": {
+      "title": "Apparence",
+      "description": "Choisissez le thème de l'interface. Enregistré sur cet appareil.",
+      "modes": {
+        "light": { "name": "Clair", "hint": "Lumineux et aéré." },
+        "dark": { "name": "Sombre", "hint": "Reposant pour les yeux." },
+        "system": { "name": "Système", "hint": "Suit votre appareil." }
+      },
+      "active": "Actif",
+      "themeAria": "Thème {name}"
+    },
+    "locale": {
+      "title": "Langue",
+      "description": "L'interface s'affiche dans la langue choisie. Enregistrée sur ce navigateur.",
+      "label": "Langue",
+      "options": {
+        "fr": "Français",
+        "en": "English"
+      },
+      "saveError": "Impossible d'enregistrer la langue"
+    }
+  }
+}

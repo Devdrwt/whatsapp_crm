@@ -549,9 +549,19 @@ avec le `contact_id = NULL` (ils s'affichent comme *Contact supprimé*).
 Pas de perte d'audit ni de comptes broadcast.
 
 **Multi-langue ?**
-L'interface est en anglais pour l'instant (français côté guide et
-documentation). Sur les templates WhatsApp, chaque langue est un
-**template séparé** côté Meta, à approuver indépendamment.
+L'interface est disponible en **français (par défaut)** et **anglais**.
+Bascule dans **Settings → Appearance → Langue**, choix enregistré
+sur ce navigateur. Le frame de l'app (auth, onboarding, sidebar,
+header, switcher d'organisations, onglet Appearance) est entièrement
+traduit ; les modules métier (Inbox, Contacts, Pipelines, Broadcasts,
+Automations, Flows, autres onglets de Settings) restent en anglais
+pour l'instant — déploiement progressif sur les prochaines livraisons.
+**L'arabe** + le sens d'écriture droite-à-gauche sont prévus mais
+demandent un chantier dédié (polices, miroir CSS).
+
+Note : sur les templates WhatsApp, chaque langue est un **template
+séparé** côté Meta, à approuver indépendamment — c'est une
+contrainte Meta, pas Drwintech.
 
 ---
 

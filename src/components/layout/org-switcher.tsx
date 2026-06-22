@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Building2, Check, ChevronDown, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -22,6 +23,7 @@ import {
  */
 export function OrgSwitcher() {
   const { orgs, activeOrgId, orgsLoading, switchOrg } = useAuth();
+  const t = useTranslations("layout.orgSwitcher");
 
   if (orgsLoading || orgs.length === 0) return null;
 
@@ -30,7 +32,7 @@ export function OrgSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label="Switch organization"
+        aria-label={t("switchAria")}
         className="flex max-w-[180px] items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent focus:bg-accent focus:outline-none data-popup-open:bg-accent sm:max-w-[220px]"
       >
         <Building2 className="size-4 shrink-0 text-muted-foreground" />
@@ -39,7 +41,7 @@ export function OrgSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={6} className="min-w-56">
         <div className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Organizations
+          {t("header")}
         </div>
         {orgs.map((o) => {
           const isActive = o.id === active.id;
@@ -65,7 +67,7 @@ export function OrgSwitcher() {
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/onboarding/create-org" />}>
           <Plus className="size-4" />
-          Create new organization
+          {t("createNew")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

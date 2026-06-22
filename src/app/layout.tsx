@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "@/hooks/use-theme";
@@ -64,14 +66,20 @@ const MODE_BOOT_SCRIPT = `
 })();
 `;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Locale comes from the drwintech.locale cookie; falls back to FR
+  // (see src/lib/i18n/active-locale.ts). Both <html lang> and the
+  // intl provider read from the same source, so server-rendered
+  // markup and client-side translations stay in sync.
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
     <html
-      lang="fr"
+      lang={locale}
       className={`${inter.variable} ${jakarta.variable} h-full antialiased`}
     >
       <head>
@@ -82,10 +90,12 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full bg-background text-foreground font-sans">
-        <ThemeProvider>
-          {children}
-          <Toaster theme="system" position="top-right" richColors closeButton />
-        </ThemeProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider>
+            {children}
+            <Toaster theme="system" position="top-right" richColors closeButton />
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

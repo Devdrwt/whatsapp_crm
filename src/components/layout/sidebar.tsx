@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
@@ -38,25 +39,35 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Brand } from "@/components/layout/brand";
 
+type NavKey =
+  | "dashboard"
+  | "inbox"
+  | "contacts"
+  | "pipelines"
+  | "broadcasts"
+  | "automations"
+  | "flows";
+
 interface NavItem {
   href: string;
-  label: string;
+  /** i18n key under `layout.sidebar.nav.*` */
+  key: NavKey;
   icon: typeof LayoutDashboard;
   beta?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/inbox", label: "Inbox", icon: MessageSquare },
-  { href: "/contacts", label: "Contacts", icon: Users },
-  { href: "/pipelines", label: "Pipelines", icon: GitBranch },
-  { href: "/broadcasts", label: "Broadcasts", icon: Radio },
-  { href: "/automations", label: "Automations", icon: Zap },
-  { href: "/flows", label: "Flows", icon: Workflow, beta: true },
+  { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
+  { href: "/inbox", key: "inbox", icon: MessageSquare },
+  { href: "/contacts", key: "contacts", icon: Users },
+  { href: "/pipelines", key: "pipelines", icon: GitBranch },
+  { href: "/broadcasts", key: "broadcasts", icon: Radio },
+  { href: "/automations", key: "automations", icon: Zap },
+  { href: "/flows", key: "flows", icon: Workflow, beta: true },
 ];
 
-const bottomNavItems = [
-  { href: "/settings", label: "Settings", icon: Settings },
+const bottomNavItems: { href: string; key: "settings"; icon: typeof Settings }[] = [
+  { href: "/settings", key: "settings", icon: Settings },
 ];
 
 const COLLAPSE_STORAGE_KEY = "drwintech.sidebar-collapsed";
@@ -72,6 +83,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
   const { profile, signOut } = useAuth();
   const { resolved, toggle } = useTheme();
   const totalUnread = useTotalUnread();
+  const t = useTranslations("layout.sidebar");
 
   // Desktop-only collapsed state. Persists across reloads via
   // localStorage. The mobile drawer always renders full-width — `lg:`
@@ -131,7 +143,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
     <>
       <button
         type="button"
-        aria-label="Close menu"
+        aria-label={t("closeMenuAria")}
         onClick={onClose}
         className={cn(
           "fixed inset-0 z-30 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden",
@@ -150,7 +162,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           "lg:static lg:z-0 lg:translate-x-0 lg:transition-[width] lg:duration-200 lg:ease-out",
           collapsed ? "lg:w-16" : "lg:w-60",
         )}
-        aria-label="Primary"
+        aria-label={t("primaryAria")}
       >
         {/* Logo row */}
         <div
@@ -161,7 +173,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         >
           <Link
             href="/dashboard"
-            aria-label="Drwintech — Dashboard"
+            aria-label={t("logoAria")}
             className="flex items-center"
           >
             {/* On mobile the drawer is full width so the wordmark always
@@ -172,7 +184,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close menu"
+            aria-label={t("closeMenuAria")}
             className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden"
           >
             <X className="h-5 w-5" />
@@ -195,11 +207,13 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               const showUnreadDot =
                 item.href === "/inbox" && totalUnread > 0 && !isActive;
 
+              const label = t(`nav.${item.key}`);
+
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    title={collapsed ? item.label : undefined}
+                    title={collapsed ? label : undefined}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:py-2",
                       isActive
@@ -210,22 +224,22 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     <span className={cn("flex-1", hideOnCollapse)}>
-                      {item.label}
+                      {label}
                     </span>
                     {item.beta && (
                       <span
-                        aria-label="Beta feature"
+                        aria-label={t("beta")}
                         className={cn(
                           "rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-300",
                           hideOnCollapse,
                         )}
                       >
-                        Beta
+                        {t("beta")}
                       </span>
                     )}
                     {showUnreadDot && (
                       <span
-                        aria-label={`${totalUnread} unread conversation${totalUnread === 1 ? "" : "s"}`}
+                        aria-label={t("unreadAria", { count: totalUnread })}
                         className={cn(
                           "relative flex h-2 w-2",
                           hideOnCollapse,
@@ -246,11 +260,12 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <ul className="flex flex-col gap-1">
             {bottomNavItems.map((item) => {
               const isActive = pathname.startsWith(item.href);
+              const label = t(`bottomNav.${item.key}`);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    title={collapsed ? item.label : undefined}
+                    title={collapsed ? label : undefined}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:py-2",
                       isActive
@@ -261,7 +276,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     <span className={cn("flex-1", hideOnCollapse)}>
-                      {item.label}
+                      {label}
                     </span>
                   </Link>
                 </li>
@@ -272,15 +287,13 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 type="button"
                 onClick={toggle}
                 aria-label={
-                  resolved === "dark"
-                    ? "Switch to light mode"
-                    : "Switch to dark mode"
+                  resolved === "dark" ? t("themeToLight") : t("themeToDark")
                 }
                 title={
                   collapsed
                     ? resolved === "dark"
-                      ? "Light mode"
-                      : "Dark mode"
+                      ? t("themeLightLabel")
+                      : t("themeDarkLabel")
                     : undefined
                 }
                 className={cn(
@@ -299,7 +312,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     hideOnCollapse,
                   )}
                 >
-                  {resolved === "dark" ? "Light mode" : "Dark mode"}
+                  {resolved === "dark" ? t("themeLightLabel") : t("themeDarkLabel")}
                 </span>
               </button>
             </li>
@@ -310,9 +323,9 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 type="button"
                 onClick={toggleCollapsed}
                 aria-label={
-                  collapsed ? "Expand sidebar" : "Collapse sidebar"
+                  collapsed ? t("expandAria") : t("collapseAria")
                 }
-                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                title={collapsed ? t("expandAria") : t("collapseAria")}
                 aria-pressed={collapsed}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
@@ -325,7 +338,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                   <ChevronsLeft className="h-4 w-4 shrink-0" />
                 )}
                 <span className={cn("flex-1 text-left", hideOnCollapse)}>
-                  Collapse
+                  {t("collapse")}
                 </span>
               </button>
             </li>
@@ -345,7 +358,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-accent focus:bg-accent focus:outline-none data-popup-open:bg-accent",
                 collapsed && "lg:justify-center lg:gap-0 lg:px-0",
               )}
-              title={collapsed ? (profile?.full_name ?? "Account") : undefined}
+              title={collapsed ? (profile?.full_name ?? t("userMenu.fallbackAccount")) : undefined}
             >
               <Avatar className="size-8 shrink-0">
                 {profile?.avatar_url ? (
@@ -362,7 +375,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               </Avatar>
               <div className={cn("min-w-0 flex-1", hideOnCollapse)}>
                 <p className="truncate text-sm font-medium text-foreground">
-                  {profile?.full_name ?? "User"}
+                  {profile?.full_name ?? t("userMenu.fallbackName")}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
                   {profile?.email ?? ""}
@@ -381,7 +394,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 }
               >
                 <User className="size-4" />
-                Profile
+                {t("userMenu.profile")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={
@@ -389,12 +402,12 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 }
               >
                 <Settings className="size-4" />
-                Settings
+                {t("userMenu.settings")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
                 <LogOut className="size-4" />
-                Sign out
+                {t("userMenu.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

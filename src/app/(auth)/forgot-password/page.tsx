@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { ArrowLeft } from "lucide-react";
 import { AuthShell } from "@/components/layout/auth-shell";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("auth.forgotPassword");
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,18 +40,18 @@ export default function ForgotPasswordPage() {
   if (success) {
     return (
       <AuthShell
-        title="Check your email"
+        title={t("checkEmailTitle")}
         description={
           <>
-            We&apos;ve sent a password reset link to{" "}
-            <span className="font-medium text-foreground">{email}</span>. Please
-            check your inbox.
+            {t("checkEmailDescriptionPrefix")}{" "}
+            <span className="font-medium text-foreground">{email}</span>
+            {t("checkEmailDescriptionSuffix")}
           </>
         }
       >
         <Link href="/login">
           <Button variant="outline" className="w-full">
-            Back to sign in
+            {t("backToSignIn")}
           </Button>
         </Link>
       </AuthShell>
@@ -57,10 +59,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <AuthShell
-      title="Reset password"
-      description="Enter your email and we'll send you a reset link"
-    >
+    <AuthShell title={t("title")} description={t("description")}>
       <form onSubmit={handleReset} className="flex flex-col gap-4">
         {error && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -69,11 +68,11 @@ export default function ForgotPasswordPage() {
         )}
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("email")}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t("emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -81,7 +80,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <Button type="submit" disabled={loading} className="mt-2 h-10 w-full">
-          {loading ? "Sending..." : "Send reset link"}
+          {loading ? t("submitting") : t("submit")}
         </Button>
       </form>
 
@@ -90,7 +89,7 @@ export default function ForgotPasswordPage() {
         className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to sign in
+        {t("backToSignIn")}
       </Link>
     </AuthShell>
   );

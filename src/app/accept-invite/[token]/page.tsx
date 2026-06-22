@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -27,7 +28,31 @@ type Status =
   | { kind: "accepting" }
   | { kind: "error"; code: string };
 
+type ErrorCode =
+  | "not_found"
+  | "expired"
+  | "already_accepted"
+  | "email_mismatch"
+  | "network"
+  | "rpc_failed";
+
+const KNOWN_CODES: readonly ErrorCode[] = [
+  "not_found",
+  "expired",
+  "already_accepted",
+  "email_mismatch",
+  "network",
+  "rpc_failed",
+];
+
+function toKnownCode(raw: string): ErrorCode {
+  return (KNOWN_CODES as readonly string[]).includes(raw)
+    ? (raw as ErrorCode)
+    : "rpc_failed";
+}
+
 export default function AcceptInvitePage() {
+  const t = useTranslations("acceptInvite");
   const params = useParams<{ token: string }>();
   const token = params.token;
   const router = useRouter();
@@ -59,7 +84,7 @@ export default function AcceptInvitePage() {
         return;
       }
       await refreshOrgs();
-      toast.success("Invitation accepted");
+      toast.success(t("successToast"));
       router.replace("/dashboard");
       router.refresh();
     } catch (err) {
@@ -70,7 +95,7 @@ export default function AcceptInvitePage() {
 
   if (status.kind === "loading" || loading) {
     return (
-      <AuthShell title="Loading…" description="Checking your invitation.">
+      <AuthShell title={t("loadingTitle")} description={t("loadingDescription")}>
         <div className="flex items-center justify-center py-6">
           <Loader2 className="size-6 animate-spin text-primary" />
         </div>
@@ -79,43 +104,17 @@ export default function AcceptInvitePage() {
   }
 
   if (status.kind === "error") {
-    const messages: Record<string, { title: string; body: string }> = {
-      not_found: {
-        title: "Invitation not found",
-        body: "This link is invalid. Ask the inviter to send a new one.",
-      },
-      expired: {
-        title: "Invitation expired",
-        body: "Invitations are valid for 7 days. Ask the inviter to send a new one.",
-      },
-      already_accepted: {
-        title: "Already accepted",
-        body: "You've already joined this organization.",
-      },
-      email_mismatch: {
-        title: "Email mismatch",
-        body: "This invitation was sent to a different email. Sign out and sign back in with the email it was sent to.",
-      },
-      network: {
-        title: "Network error",
-        body: "Something went wrong. Check your connection and try again.",
-      },
-      rpc_failed: {
-        title: "Could not accept",
-        body: "Something went wrong on our side. Try again, or ask the inviter for help.",
-      },
-    };
-    const m = messages[status.code] ?? messages.rpc_failed;
+    const code = toKnownCode(status.code);
     return (
-      <AuthShell title={m.title} description={m.body}>
-        {status.code === "email_mismatch" ? (
+      <AuthShell title={t(`errors.${code}.title`)} description={t(`errors.${code}.body`)}>
+        {code === "email_mismatch" ? (
           <Button onClick={signOut} className="w-full">
-            Sign out
+            {t("signOut")}
           </Button>
         ) : (
           <Link href="/dashboard">
             <Button variant="outline" className="w-full">
-              Back to dashboard
+              {t("backToDashboard")}
             </Button>
           </Link>
         )}
@@ -125,10 +124,10 @@ export default function AcceptInvitePage() {
 
   return (
     <AuthShell
-      title="Join the organization"
+      title={t("joinTitle")}
       description={
         <>
-          You&apos;ve been invited to join an organization on Drwintech as{" "}
+          {t("joinDescriptionPrefix")}{" "}
           <span className="font-medium text-foreground">{user?.email}</span>.
         </>
       }
@@ -141,22 +140,22 @@ export default function AcceptInvitePage() {
         {status.kind === "accepting" ? (
           <>
             <Loader2 className="size-4 animate-spin" />
-            Joining…
+            {t("accepting")}
           </>
         ) : (
-          "Accept invitation"
+          t("accept")
         )}
       </Button>
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        Wrong account?{" "}
+        {t("wrongAccountPrefix")}{" "}
         <button
           type="button"
           onClick={signOut}
           className="font-medium text-primary hover:text-primary/80"
         >
-          Sign out
+          {t("signOut")}
         </button>{" "}
-        and sign back in.
+        {t("wrongAccountSuffix")}
       </p>
     </AuthShell>
   );

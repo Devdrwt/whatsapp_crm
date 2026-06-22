@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Settings, MessageSquare, Tag, User, Palette, Bot, Users } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
@@ -33,6 +34,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { activeOrg } = useAuth();
+  const t = useTranslations('settings');
   // Team management surface — visible to every member, but the
   // mutating actions inside the panel itself are gated to admin/owner.
   const showTeamTab = activeOrg !== null;
@@ -53,10 +55,9 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage your profile, WhatsApp® integration, message templates, and
-          tags.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -67,28 +68,28 @@ export default function SettingsPage() {
             className="data-active:bg-accent data-active:text-primary text-muted-foreground"
           >
             <User className="size-4" />
-            Profile
+            {t('tabs.profile')}
           </TabsTrigger>
           <TabsTrigger
             value="whatsapp"
             className="data-active:bg-accent data-active:text-primary text-muted-foreground"
           >
             <Settings className="size-4" />
-            WhatsApp Config
+            {t('tabs.whatsapp')}
           </TabsTrigger>
           <TabsTrigger
             value="templates"
             className="data-active:bg-accent data-active:text-primary text-muted-foreground"
           >
             <MessageSquare className="size-4" />
-            Templates
+            {t('tabs.templates')}
           </TabsTrigger>
           <TabsTrigger
             value="tags"
             className="data-active:bg-accent data-active:text-primary text-muted-foreground"
           >
             <Tag className="size-4" />
-            Tags
+            {t('tabs.tags')}
           </TabsTrigger>
           {showTeamTab && (
             <TabsTrigger
@@ -96,7 +97,7 @@ export default function SettingsPage() {
               className="data-active:bg-accent data-active:text-primary text-muted-foreground"
             >
               <Users className="size-4" />
-              Team
+              {t('tabs.team')}
             </TabsTrigger>
           )}
           <TabsTrigger
@@ -104,14 +105,14 @@ export default function SettingsPage() {
             className="data-active:bg-accent data-active:text-primary text-muted-foreground"
           >
             <Bot className="size-4" />
-            AI Agent
+            {t('tabs.aiAgent')}
           </TabsTrigger>
           <TabsTrigger
             value="appearance"
             className="data-active:bg-accent data-active:text-primary text-muted-foreground"
           >
             <Palette className="size-4" />
-            Appearance
+            {t('tabs.appearance')}
           </TabsTrigger>
         </TabsList>
 
