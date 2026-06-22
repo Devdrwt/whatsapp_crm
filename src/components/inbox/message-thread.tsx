@@ -144,7 +144,7 @@ export function MessageThread({
   resyncToken = 0,
   onRefresh,
 }: MessageThreadProps) {
-  const { user } = useAuth();
+  const { user, activeOrgId } = useAuth();
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
@@ -174,28 +174,40 @@ export function MessageThread({
   }, [isRefreshing, onRefresh]);
   const [replyTo, setReplyTo] = useState<ReplyDraft | null>(null);
 
-  // Profiles are bounded by RLS to rows the current user is allowed to
-  // see — today that's just the current user, but the dropdown keeps the
-  // shape ready for shared-team workspaces without a refactor.
+  // Scope the assignee dropdown to members of the active org. Loaded
+  // via org_members ↔ profiles join so an admin sees only colleagues
+  // who share this organization, never users from other orgs.
   useEffect(() => {
+    if (!activeOrgId) return;
     let cancelled = false;
     const supabase = createClient();
     supabase
-      .from("profiles")
-      .select("*")
-      .order("full_name")
+      .from("org_members")
+      .select("user_id, profiles!inner(*)")
+      .eq("org_id", activeOrgId)
       .then(({ data, error }) => {
         if (cancelled) return;
         if (error) {
-          console.error("Failed to fetch profiles:", error);
+          console.error("Failed to fetch org members:", error);
           return;
         }
-        setProfiles((data as Profile[]) ?? []);
+        // Supabase types the M:1 join as an array; at runtime it's an
+        // object. Flatten + sort by full_name client-side.
+        const rows = (data ?? []) as unknown as Array<{
+          user_id: string;
+          profiles: Profile;
+        }>;
+        const list = rows
+          .map((r) => r.profiles)
+          .sort((a, b) =>
+            (a.full_name ?? "").localeCompare(b.full_name ?? ""),
+          );
+        setProfiles(list);
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeOrgId]);
 
   // 24-hour session timer
   const sessionInfo = useMemo(() => {

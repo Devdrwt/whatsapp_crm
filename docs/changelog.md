@@ -7,6 +7,70 @@
 
 ---
 
+## PR 4 — Multi-agents + invitations
+**Branche** : `dev` · **Migration** : `018_invitations_accept_fn.sql`
+
+Un `owner` / `admin` peut désormais **inviter** des collègues à
+rejoindre son organisation. L'invité reçoit une **URL d'invitation**
+(la branche email transactionnel viendra ensuite), s'inscrit ou se
+connecte, accepte l'invitation et atterrit sur l'org. Plusieurs
+membres d'une même org partagent toutes ses données — le **multi-agents
+opérationnel** est ouvert.
+
+### Added
+- Page **Settings → Team** ([src/components/settings/team-panel.tsx](../src/components/settings/team-panel.tsx)) :
+  liste des membres avec rôle, liste des invitations en attente,
+  dialog d'invitation (email + rôle `admin` / `agent`), actions
+  « copier URL » / « révoquer » / « changer rôle » / « retirer ».
+- Page **`/accept-invite/[token]`** ([src/app/accept-invite/[token]/page.tsx](../src/app/accept-invite/[token]/page.tsx)) :
+  parcours d'acceptation, gestion d'erreurs typées (token introuvable,
+  expiré, déjà accepté, email ne matche pas).
+- API : [`/api/orgs/invitations`](../src/app/api/orgs/invitations/route.ts)
+  (GET liste / POST upsert), [`/api/orgs/invitations/[id]`](../src/app/api/orgs/invitations/[id]/route.ts)
+  (DELETE révoque), [`/api/orgs/members`](../src/app/api/orgs/members/route.ts)
+  (GET liste), [`/api/orgs/members/[userId]`](../src/app/api/orgs/members/[userId]/route.ts)
+  (PATCH rôle / DELETE retire), [`/api/orgs/accept-invitation`](../src/app/api/orgs/accept-invitation/route.ts)
+  (POST — appelle la RPC, set cookie d'org).
+- **`useAuth().activeOrg`** : dérive l'`OrganizationWithRole` actif
+  depuis `orgs` + `activeOrgId`. Utilisé partout pour les gardes par
+  rôle (`activeOrg.role`).
+
+### Changed
+- [src/components/inbox/message-thread.tsx](../src/components/inbox/message-thread.tsx) :
+  la liste des assignees ne charge plus tous les profiles existants
+  mais **uniquement les membres de l'org active** (jointure
+  `org_members ↔ profiles`). Plus de profils d'autres orgs visibles.
+- [src/app/(dashboard)/settings/page.tsx](../src/app/(dashboard)/settings/page.tsx) :
+  nouvel onglet **Team** (icône `Users`) entre Tags et AI Agent.
+  Visible à tous les membres ; les actions mutantes sont gardées dans
+  le panel (admin / owner).
+- [src/middleware.ts](../src/middleware.ts) : route `/accept-invite/*`
+  ajoutée comme « auth requise, org pas requise » — un user invité y
+  arrive avant de devenir membre. Sur les redirects vers `/login`,
+  la query string `?next=…` est désormais propagée.
+- [src/app/(auth)/login/page.tsx](../src/app/(auth)/login/page.tsx) :
+  lit `?next` (validation anti open-redirect — doit commencer par `/`),
+  redirige sur cette URL après login, propage `?next` sur le lien
+  « Create account ».
+
+### Database
+- Fonction `accept_invitation(p_token TEXT) RETURNS UUID`
+  `SECURITY DEFINER` : valide le token (existence, expiration,
+  acceptation), match email JWT vs invitation, insert atomique dans
+  `org_members` + marque `accepted_at`. Erreurs typées
+  (`invitation_not_found`, `invitation_already_accepted`,
+  `invitation_expired`, `invitation_email_mismatch`,
+  `not_authenticated`) que l'API mappe en codes HTTP (410 / 403 / 401).
+
+### Notes
+- **Email transactionnel** : encore hors scope. L'inviteur copie
+  l'URL et la transmet manuellement. Brancher Resend / SendGrid
+  viendra dans une PR dédiée.
+- **Transfert de propriété** et **suppression d'org** : pas encore
+  exposés. Un owner ne peut pas se retirer lui-même.
+
+---
+
 ## PR 3 — Multi-tenant lock (RLS org-based)
 **Branche** : `dev` · **Migration** : `017_org_id_lock.sql`
 

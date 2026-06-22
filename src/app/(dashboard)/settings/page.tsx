@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Settings, MessageSquare, Tag, User, Palette, Bot } from 'lucide-react';
+import { Settings, MessageSquare, Tag, User, Palette, Bot, Users } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/use-auth';
 import { WhatsAppConfig } from '@/components/settings/whatsapp-config';
 import { TemplateManager } from '@/components/settings/template-manager';
 import { TagManager } from '@/components/settings/tag-manager';
@@ -11,12 +12,14 @@ import { PasswordForm } from '@/components/settings/password-form';
 import { SessionsCard } from '@/components/settings/sessions-card';
 import { AppearancePanel } from '@/components/settings/appearance-panel';
 import { AiAgentPanel } from '@/components/settings/ai-agent-panel';
+import { TeamPanel } from '@/components/settings/team-panel';
 
 const TAB_VALUES = [
   'profile',
   'whatsapp',
   'templates',
   'tags',
+  'team',
   'ai-agent',
   'appearance',
 ] as const;
@@ -29,6 +32,10 @@ function isTabValue(v: string | null): v is TabValue {
 export default function SettingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { activeOrg } = useAuth();
+  // Team management surface — visible to every member, but the
+  // mutating actions inside the panel itself are gated to admin/owner.
+  const showTeamTab = activeOrg !== null;
 
   // The URL is the single source of truth for the active tab — no
   // local state, no sync effect. A previous revision duplicated this
@@ -83,6 +90,15 @@ export default function SettingsPage() {
             <Tag className="size-4" />
             Tags
           </TabsTrigger>
+          {showTeamTab && (
+            <TabsTrigger
+              value="team"
+              className="data-active:bg-accent data-active:text-primary text-muted-foreground"
+            >
+              <Users className="size-4" />
+              Team
+            </TabsTrigger>
+          )}
           <TabsTrigger
             value="ai-agent"
             className="data-active:bg-accent data-active:text-primary text-muted-foreground"
@@ -116,6 +132,12 @@ export default function SettingsPage() {
         <TabsContent value="tags">
           <TagManager />
         </TabsContent>
+
+        {showTeamTab && (
+          <TabsContent value="team">
+            <TeamPanel />
+          </TabsContent>
+        )}
 
         <TabsContent value="ai-agent">
           <AiAgentPanel />

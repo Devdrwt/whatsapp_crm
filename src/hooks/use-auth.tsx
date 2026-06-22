@@ -49,6 +49,10 @@ interface AuthContextValue {
   orgs: OrganizationWithRole[];
   /** Currently-active org id (mirrors the `drwintech.org-id` cookie). */
   activeOrgId: string | null;
+  /** The OrganizationWithRole entry matching `activeOrgId`, or null if
+   *  not yet resolved. Convenience for role-gated UI — `activeOrg.role`
+   *  is what callers should read. */
+  activeOrg: OrganizationWithRole | null;
   /** Stays true until orgs + active-org id have both settled. */
   orgsLoading: boolean;
   signOut: () => Promise<void>;
@@ -274,6 +278,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [activeOrgId, router],
   );
 
+  // Derived: which `OrganizationWithRole` is the active one? Cheap
+  // `.find` recomputed only when orgs or activeOrgId change.
+  const activeOrg =
+    (activeOrgId && orgs.find((o) => o.id === activeOrgId)) || null;
+
   return (
     <AuthContext.Provider
       value={{
@@ -283,6 +292,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profileLoading,
         orgs,
         activeOrgId,
+        activeOrg,
         orgsLoading,
         signOut,
         refreshProfile,
@@ -309,6 +319,7 @@ export function useAuth(): AuthContextValue {
       profileLoading: false,
       orgs: [],
       activeOrgId: null,
+      activeOrg: null,
       orgsLoading: false,
       signOut: async () => {
         window.location.href = "/login";
