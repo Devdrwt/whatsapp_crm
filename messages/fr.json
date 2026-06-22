@@ -279,6 +279,214 @@
       }
     }
   },
+  "broadcasts": {
+    "statuses": {
+      "draft": "Brouillon",
+      "scheduled": "Planifiée",
+      "sending": "Envoi en cours",
+      "sent": "Envoyée",
+      "failed": "Échec"
+    },
+    "recipientStatuses": {
+      "pending": "En attente",
+      "sent": "Envoyé",
+      "delivered": "Livré",
+      "read": "Lu",
+      "replied": "Répondu",
+      "failed": "Échec"
+    },
+    "list": {
+      "title": "Diffusions",
+      "subtitle": "Envoyez des messages en masse à vos contacts via des modèles approuvés.",
+      "newBroadcast": "Nouvelle diffusion",
+      "emptyTitle": "Aucune diffusion pour l'instant",
+      "emptyHint": "Créez votre première diffusion pour toucher vos contacts à grande échelle.",
+      "retry": "Réessayer",
+      "loadFailed": "Échec du chargement des diffusions",
+      "progressAria": "Diffusion en cours",
+      "headers": {
+        "name": "Nom",
+        "template": "Modèle",
+        "recipients": "Destinataires",
+        "delivery": "Livraison",
+        "read": "Lu",
+        "status": "Statut",
+        "date": "Date"
+      }
+    },
+    "wizard": {
+      "title": "Nouvelle diffusion",
+      "subtitle": "Créez et envoyez un message de diffusion à vos contacts.",
+      "steps": {
+        "template": "Modèle",
+        "audience": "Audience",
+        "personalize": "Personnaliser",
+        "send": "Envoyer"
+      },
+      "toasts": {
+        "broadcastFailed": "Échec de la diffusion",
+        "nameRequired": "Donnez un nom à la diffusion avant d'enregistrer le brouillon.",
+        "notSignedIn": "Non connecté.",
+        "noActiveOrg": "Aucune organisation active.",
+        "draftSaveFailed": "Échec de l'enregistrement du brouillon : {error}",
+        "draftSaved": "Brouillon enregistré"
+      }
+    },
+    "step1": {
+      "title": "Choisissez un modèle",
+      "subtitle": "Sélectionnez un modèle approuvé pour votre diffusion.",
+      "emptyTitle": "Aucun modèle disponible.",
+      "emptyHint": "Créez d'abord un modèle dans les paramètres.",
+      "loadFailed": "Échec du chargement des modèles",
+      "back": "Retour",
+      "next": "Suivant"
+    },
+    "step2": {
+      "title": "Sélectionnez l'audience",
+      "subtitle": "Choisissez qui recevra cette diffusion.",
+      "options": {
+        "all": { "label": "Tous les contacts", "description": "Envoyer à chaque contact de la base" },
+        "tags": { "label": "Filtrer par tags", "description": "Cibler les contacts ayant certains tags" },
+        "custom_field": { "label": "Champ personnalisé", "description": "Filtrer par la valeur d'un champ personnalisé" },
+        "csv": { "label": "Téléverser un CSV", "description": "Téléverser une liste de numéros" }
+      },
+      "selectTags": "Sélectionner les tags",
+      "noTagsCreate": "Aucun tag. Créez-en dans les paramètres.",
+      "customFieldFilter": "Filtre par champ personnalisé",
+      "noCustomFields": "Aucun champ personnalisé. Créez-en dans Paramètres → Champs personnalisés.",
+      "selectField": "Choisir un champ…",
+      "operators": {
+        "is": "est",
+        "is_not": "n'est pas",
+        "contains": "contient"
+      },
+      "valuePlaceholder": "Valeur",
+      "excludeTitle": "Exclure les contacts avec ces tags",
+      "excludeOptional": "(optionnel)",
+      "noTagsAvailable": "Aucun tag disponible.",
+      "summaryTitle": "Résumé de l'audience",
+      "calculating": "Calcul…",
+      "estimatedRecipients": "destinataires estimés",
+      "selectAudienceTypeHint": "Choisissez un type d'audience pour voir l'estimation.",
+      "back": "Retour",
+      "next": "Suivant"
+    },
+    "step3": {
+      "title": "Personnaliser le message",
+      "subtitle": "Associez les variables du modèle à des champs de contact, des champs personnalisés ou des valeurs statiques.",
+      "noVariables": "Ce modèle n'a pas de variables à personnaliser.",
+      "mappingType": "Type de mappage",
+      "mappingTypes": {
+        "static": "Valeur statique",
+        "field": "Champ de contact",
+        "custom_field": "Champ personnalisé"
+      },
+      "value": "Valeur",
+      "field": "Champ",
+      "staticPlaceholder": "Saisir une valeur…",
+      "selectField": "Choisir un champ…",
+      "selectCustomField": "Choisir un champ personnalisé…",
+      "loadingCustomFields": "Chargement…",
+      "noCustomFields": "Aucun champ personnalisé",
+      "preview": "Aperçu en direct",
+      "sampleData": "données d'exemple",
+      "unmappedPrefix": "Mappez chaque variable avant de continuer — encore manquant",
+      "unmappedSuffix": ". Sinon ces variables partiraient vides chez Meta.",
+      "contactFields": {
+        "name": "Nom du contact",
+        "phone": "Numéro de téléphone",
+        "email": "Adresse e-mail",
+        "company": "Société"
+      },
+      "back": "Retour",
+      "next": "Suivant"
+    },
+    "step4": {
+      "title": "Revoir & envoyer",
+      "subtitle": "Nommez votre diffusion, vérifiez les détails, et envoyez.",
+      "nameLabel": "Nom de la diffusion",
+      "namePlaceholder": "ex. Annonce soldes d'été",
+      "summary": "Résumé",
+      "summaryFields": {
+        "template": "Modèle",
+        "audience": "Audience",
+        "estimatedReach": "Portée estimée",
+        "language": "Langue"
+      },
+      "audienceLabels": {
+        "all": "Tous les contacts",
+        "tagsSelected": "Tags ({count} sélectionnés)",
+        "csv": "Import CSV",
+        "custom": "Personnalisée"
+      },
+      "sending": "Envoi de la diffusion…",
+      "back": "Retour",
+      "saveDraft": "Enregistrer comme brouillon",
+      "sendBroadcast": "Envoyer la diffusion",
+      "confirmTitle": "Confirmer la diffusion",
+      "confirmPrefix": "Vous êtes sur le point d'envoyer cette diffusion à",
+      "confirmMid": "contacts via le modèle",
+      "confirmSuffix": ". Cette action est irréversible.",
+      "cancel": "Annuler",
+      "confirmSend": "Confirmer & envoyer"
+    },
+    "detail": {
+      "loadFailed": "Échec du chargement de la diffusion",
+      "notFound": "Diffusion introuvable",
+      "backToList": "Retour aux diffusions",
+      "templateLabel": "Modèle :",
+      "createdPrefix": "Créée le",
+      "deleteConfirm": "Supprimer cette diffusion ?",
+      "cancel": "Annuler",
+      "deleting": "Suppression…",
+      "confirmDelete": "Confirmer",
+      "deleteTooltipDisabled": "Impossible de supprimer pendant un envoi en cours",
+      "deleteTooltipEnabled": "Supprimer cette diffusion",
+      "delete": "Supprimer",
+      "deleteFailed": "Échec de la suppression : {error}",
+      "deleted": "Diffusion supprimée",
+      "stats": {
+        "totalRecipients": "Destinataires",
+        "sent": "Envoyés",
+        "delivered": "Livrés",
+        "read": "Lus",
+        "replied": "Réponses",
+        "failed": "Échecs"
+      },
+      "funnel": "Entonnoir",
+      "funnelSteps": {
+        "sent": "Envoyés",
+        "delivered": "Livrés",
+        "read": "Lus",
+        "replied": "Réponses"
+      },
+      "recipientsTitle": "Destinataires",
+      "filterAll": "Tous les statuts",
+      "exportCsv": "Exporter en CSV",
+      "noRecipients": "Aucun destinataire.",
+      "noRecipientsFilter": "Aucun destinataire ne correspond à ce filtre.",
+      "headers": {
+        "contact": "Contact",
+        "phone": "Téléphone",
+        "status": "Statut",
+        "sent": "Envoyé",
+        "delivered": "Livré",
+        "read": "Lu",
+        "error": "Erreur"
+      },
+      "unknown": "Inconnu",
+      "exportHeaders": {
+        "contact": "Contact",
+        "phone": "Téléphone",
+        "status": "Statut",
+        "sentAt": "Envoyé le",
+        "deliveredAt": "Livré le",
+        "readAt": "Lu le",
+        "repliedAt": "Répondu le",
+        "error": "Erreur"
+      }
+    }
+  },
   "inbox": {
     "page": {
       "whatsappNotConnected": "WhatsApp® n'est pas connecté. Allez dans Paramètres pour connecter votre compte."

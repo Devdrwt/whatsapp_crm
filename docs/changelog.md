@@ -7,6 +7,56 @@
 
 ---
 
+## PR 8c — Localisation FR (Broadcasts)
+**Branche** : `dev`
+
+Module Diffusions entièrement en français : liste paginée avec
+indicateur d'envoi en cours, wizard 4 étapes (Modèle → Audience
+→ Personnaliser → Envoyer), page détail avec funnel, statistiques,
+export CSV, et suppression.
+
+### Changed
+- [src/app/(dashboard)/broadcasts/page.tsx](../src/app/(dashboard)/broadcasts/page.tsx) :
+  titre, sous-titre, CTAs « Nouvelle diffusion », empty state, 7
+  colonnes du tableau, statut traduit via `t('broadcasts.statuses.*')`,
+  date au format `toLocaleDateString(locale)`.
+- [src/app/(dashboard)/broadcasts/new/page.tsx](../src/app/(dashboard)/broadcasts/new/page.tsx) :
+  header, libellés des 4 étapes (Modèle / Audience / Personnaliser
+  / Envoyer), toasts d'erreur et de brouillon sauvegardé.
+- Steps 1-4 ([step1-choose-template](../src/components/broadcasts/step1-choose-template.tsx),
+  [step2-select-audience](../src/components/broadcasts/step2-select-audience.tsx),
+  [step3-personalize](../src/components/broadcasts/step3-personalize.tsx),
+  [step4-schedule-send](../src/components/broadcasts/step4-schedule-send.tsx)) :
+  toutes les chaînes (titres, sous-titres, placeholders, états vides,
+  cartes options audience, opérateurs de filtre, types de mapping,
+  preview, dialog de confirmation, audience summary avec
+  `Intl.NumberFormat(locale)`).
+- [src/app/(dashboard)/broadcasts/[id]/page.tsx](../src/app/(dashboard)/broadcasts/[id]/page.tsx) :
+  pastille de statut (broadcast + recipient), 6 cartes statistiques,
+  funnel, table destinataires avec ses 7 colonnes, dropdown filtre,
+  export CSV (headers traduits), suppression inline avec confirmation,
+  dates au format locale.
+
+### Added
+- Branche `broadcasts.*` dans [messages/fr.json](../messages/fr.json) /
+  [messages/en.json](../messages/en.json) (~165 clés organisées par
+  surface : `statuses`, `recipientStatuses`, `list`, `wizard`,
+  `step1`-`step4`, `detail`).
+
+### Notes
+- Les helpers `getBroadcastStatus()` / `getRecipientStatus()` dans
+  [src/lib/broadcast-status.ts](../src/lib/broadcast-status.ts)
+  retournent toujours `{classes, pulse}` (le `label` reste pour
+  compat) — les callers passent désormais par
+  `t('broadcasts.statuses.*')` pour afficher les libellés
+  traduits. Les tests du helper (vérifient `classes` et `pulse`)
+  restent verts.
+- Les sous-composants internes (`FunnelChart`) reçoivent leurs
+  titres en props depuis le parent pour éviter un 2e
+  `useTranslations` dans des composants purement présentationnels.
+
+---
+
 ## PR 8b — Localisation FR (Pipelines)
 **Branche** : `dev`
 

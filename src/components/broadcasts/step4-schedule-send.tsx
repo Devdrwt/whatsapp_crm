@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { MessageTemplate } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,8 @@ export function Step4ScheduleSend({
   isProcessing,
   progress,
 }: Step4Props) {
+  const t = useTranslations('broadcasts.step4');
+  const locale = useLocale();
   const [showConfirm, setShowConfirm] = useState(false);
   const [estimatedReach, setEstimatedReach] = useState<number>(0);
   const [loadingReach, setLoadingReach] = useState(true);
@@ -83,59 +86,59 @@ export function Step4ScheduleSend({
 
   const audienceLabel =
     audience.type === 'all'
-      ? 'All Contacts'
+      ? t('audienceLabels.all')
       : audience.type === 'tags'
-        ? `Tags (${audience.tagIds?.length ?? 0} selected)`
+        ? t('audienceLabels.tagsSelected', { count: audience.tagIds?.length ?? 0 })
         : audience.type === 'csv'
-          ? 'CSV Upload'
-          : 'Custom';
+          ? t('audienceLabels.csv')
+          : t('audienceLabels.custom');
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Review & Send</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t('title')}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Name your broadcast, review the details, and send.
+          {t('subtitle')}
         </p>
       </div>
 
       {/* Broadcast Name */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-foreground">Broadcast Name</label>
+        <label className="mb-1.5 block text-sm font-medium text-foreground">{t('nameLabel')}</label>
         <Input
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="e.g. Summer Sale Announcement"
+          placeholder={t('namePlaceholder')}
         />
       </div>
 
       {/* Summary Card */}
       <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-3">
-        <p className="text-sm font-medium text-foreground">Summary</p>
+        <p className="text-sm font-medium text-foreground">{t('summary')}</p>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <p className="text-xs text-muted-foreground">Template</p>
+            <p className="text-xs text-muted-foreground">{t('summaryFields.template')}</p>
             <p className="text-foreground">{template.name}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Audience</p>
+            <p className="text-xs text-muted-foreground">{t('summaryFields.audience')}</p>
             <p className="text-foreground">{audienceLabel}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Estimated Reach</p>
+            <p className="text-xs text-muted-foreground">{t('summaryFields.estimatedReach')}</p>
             <div className="flex items-center gap-1.5">
               {loadingReach ? (
                 <Loader2 className="h-3 w-3 animate-spin text-primary" />
               ) : (
                 <>
                   <Users className="h-3.5 w-3.5 text-primary" />
-                  <p className="font-medium text-foreground">{estimatedReach.toLocaleString()}</p>
+                  <p className="font-medium text-foreground">{estimatedReach.toLocaleString(locale)}</p>
                 </>
               )}
             </div>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Language</p>
+            <p className="text-xs text-muted-foreground">{t('summaryFields.language')}</p>
             <p className="text-foreground">{template.language ?? 'en_US'}</p>
           </div>
         </div>
@@ -147,7 +150,7 @@ export function Step4ScheduleSend({
           <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <p className="text-sm font-medium text-foreground">Sending broadcast...</p>
+              <p className="text-sm font-medium text-foreground">{t('sending')}</p>
             </div>
             <span className="text-xs font-medium text-primary">{progress}%</span>
           </div>
@@ -168,7 +171,7 @@ export function Step4ScheduleSend({
           className="border-border text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          {t('back')}
         </Button>
 
         <div className="flex items-center gap-2">
@@ -180,7 +183,7 @@ export function Step4ScheduleSend({
               className="border-border text-foreground hover:bg-accent disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
-              Save as Draft
+              {t('saveDraft')}
             </Button>
           )}
 
@@ -194,17 +197,17 @@ export function Step4ScheduleSend({
             }
           >
             <Send className="h-4 w-4" />
-            Send Broadcast
+            {t('sendBroadcast')}
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Confirm Broadcast</DialogTitle>
+              <DialogTitle>{t('confirmTitle')}</DialogTitle>
               <DialogDescription>
-                You are about to send this broadcast to{' '}
-                <span className="font-medium text-foreground">{estimatedReach.toLocaleString()}</span>{' '}
-                contacts using the{' '}
-                <span className="font-medium text-foreground">{template.name}</span> template.
-                This action cannot be undone.
+                {t('confirmPrefix')}{' '}
+                <span className="font-medium text-foreground">{estimatedReach.toLocaleString(locale)}</span>{' '}
+                {t('confirmMid')}{' '}
+                <span className="font-medium text-foreground">{template.name}</span>{' '}
+                {t('confirmSuffix')}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -213,7 +216,7 @@ export function Step4ScheduleSend({
                 onClick={() => setShowConfirm(false)}
                 className="border-border text-foreground"
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 onClick={() => {
@@ -223,7 +226,7 @@ export function Step4ScheduleSend({
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Send className="h-4 w-4" />
-                Confirm & Send
+                {t('confirmSend')}
               </Button>
             </DialogFooter>
           </DialogContent>

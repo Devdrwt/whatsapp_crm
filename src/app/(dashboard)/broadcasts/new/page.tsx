@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
@@ -13,17 +14,14 @@ import { Step4ScheduleSend } from '@/components/broadcasts/step4-schedule-send';
 import { useBroadcastSending } from '@/hooks/use-broadcast-sending';
 import { Check } from 'lucide-react';
 
-const steps = [
-  { label: 'Template', key: 'template' },
-  { label: 'Audience', key: 'audience' },
-  { label: 'Personalize', key: 'personalize' },
-  { label: 'Send', key: 'send' },
-] as const;
+const STEP_KEYS = ['template', 'audience', 'personalize', 'send'] as const;
+type StepKey = (typeof STEP_KEYS)[number];
 
 export default function NewBroadcastPage() {
   const router = useRouter();
   const { activeOrgId } = useAuth();
   const { createAndSendBroadcast, isProcessing, progress } = useBroadcastSending();
+  const t = useTranslations('broadcasts.wizard');
 
   const [currentStep, setCurrentStep] = useState(0);
   const [template, setTemplate] = useState<MessageTemplate | null>(null);
@@ -63,7 +61,7 @@ export default function NewBroadcastPage() {
     } catch (err) {
       // Previously swallowed with console.error — the wizard would
       // just no-op, leaving the user confused. Surface the reason.
-      const message = err instanceof Error ? err.message : 'Broadcast failed';
+      const message = err instanceof Error ? err.message : t('toasts.broadcastFailed');
       console.error('Broadcast failed:', err);
       toast.error(message);
     }
@@ -80,7 +78,7 @@ export default function NewBroadcastPage() {
    */
   async function handleSaveDraft() {
     if (!template || !name.trim()) {
-      toast.error('Give the broadcast a name before saving a draft.');
+      toast.error(t('toasts.nameRequired'));
       return;
     }
     const supabase = createClient();
@@ -89,11 +87,11 @@ export default function NewBroadcastPage() {
     } = await supabase.auth.getSession();
     const user = session?.user;
     if (!user) {
-      toast.error('Not signed in.');
+      toast.error(t('toasts.notSignedIn'));
       return;
     }
     if (!activeOrgId) {
-      toast.error('No active organization.');
+      toast.error(t('toasts.noActiveOrg'));
       return;
     }
 
@@ -118,10 +116,10 @@ export default function NewBroadcastPage() {
     });
 
     if (error) {
-      toast.error(`Failed to save draft: ${error.message}`);
+      toast.error(t('toasts.draftSaveFailed', { error: error.message }));
       return;
     }
-    toast.success('Draft saved');
+    toast.success(t('toasts.draftSaved'));
     router.push('/broadcasts');
   }
 
@@ -129,20 +127,20 @@ export default function NewBroadcastPage() {
     <div className="mx-auto max-w-3xl space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">New Broadcast</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Create and send a broadcast message to your contacts.
+          {t('subtitle')}
         </p>
       </div>
 
       {/* Step Indicator */}
       <div className="flex items-center justify-between">
-        {steps.map((step, index) => {
+        {STEP_KEYS.map((stepKey: StepKey, index) => {
           const isActive = index === currentStep;
           const isCompleted = index < currentStep;
 
           return (
-            <div key={step.key} className="flex flex-1 items-center">
+            <div key={stepKey} className="flex flex-1 items-center">
               <div className="flex items-center gap-2">
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-all ${
@@ -160,10 +158,10 @@ export default function NewBroadcastPage() {
                     isActive ? 'text-foreground' : isCompleted ? 'text-primary' : 'text-muted-foreground'
                   }`}
                 >
-                  {step.label}
+                  {t(`steps.${stepKey}`)}
                 </span>
               </div>
-              {index < steps.length - 1 && (
+              {index < STEP_KEYS.length - 1 && (
                 <div
                   className={`mx-3 h-px flex-1 ${
                     index < currentStep ? 'bg-primary' : 'bg-muted'
