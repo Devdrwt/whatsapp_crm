@@ -7,6 +7,52 @@
 
 ---
 
+## PR 12 — Templates Supabase Auth en français
+**Branche** : `dev`
+
+Les e-mails envoyés par Supabase Auth lui-même (confirmation
+d'inscription, reset password, changement d'e-mail) deviennent
+**brandés Drwintech et bilingues** au lieu des templates par
+défaut Supabase (anglais, génériques). Pas de code — 6 fichiers
+HTML auto-suffisants à coller dans le Dashboard Supabase.
+
+### Added
+- [supabase/auth-templates/](../supabase/auth-templates/) :
+  - `README.md` — procédure de pose dans Dashboard + recommandation
+    custom SMTP via Resend (même compte que PR 11, un seul domaine
+    à vérifier).
+  - 3 templates × 2 langues (`confirm-signup`, `reset-password`,
+    `change-email` × `.fr` + `.en`).
+  - Même DNA visuel que l'e-mail d'invitation (PR 11) : header
+    avec mark emerald, CTA `#1f9e6a`, footer avec tagline brand,
+    layout tables imbriquées + styles inline pour compatibilité
+    clients mail.
+
+### Notes
+- **Supabase = un seul jeu de templates par projet** — pas de
+  variant par utilisateur. Pour Drwintech (cible francophone),
+  poser les versions FR par défaut. Versions EN fournies pour
+  clients anglophones ou tests.
+- Variables Supabase utilisées : `{{ .ConfirmationURL }}`,
+  `{{ .Email }}`. Syntaxe Go `text/template`.
+- **Magic Link** et **Invite user** non couverts — on n'utilise
+  pas le passwordless, et les invitations Drwintech passent par
+  notre propre route (PR 11).
+- **Per-user locale** (FR ou EN selon préférence stockée) =
+  bascule sur le **Send Email Hook** Supabase. Chantier de ~2 h
+  (webhook endpoint avec HMAC verify + rendu via nos templates
+  TS + envoi via Resend). Documenté comme future PR optionnelle ;
+  pour la v1 français-par-défaut couvre 99 % des cas.
+
+### Suite (post-PR 12)
+1. **Onboarding WhatsApp BSP** (360dialog ou équivalent) — gros
+   chantier, partenariat + intégration embedded sign-up.
+2. **Facturation locale** (Konnect / Paymee / Flutterwave).
+3. **Back-office super-admin Drwintech**.
+4. **Send Email Hook** (per-user locale) — optionnel.
+
+---
+
 ## PR 11 — Email transactionnel : invitations via Resend
 **Branche** : `dev` · **Dépendance** : `resend@^6`
 

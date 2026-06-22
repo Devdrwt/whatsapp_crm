@@ -467,6 +467,19 @@ mais pas d'e-mail côté invité, vérifie avec ton admin Drwintech
 que la clé `RESEND_API_KEY` est posée et que le domaine d'envoi
 (`EMAIL_FROM`) est vérifié sur resend.com.
 
+**Les e-mails d'inscription et de reset password sont-ils
+français eux aussi ?**
+Oui — depuis PR 12. Les trois e-mails que Supabase Auth envoie
+(confirmation d'inscription, réinitialisation du mot de passe,
+changement d'adresse) sont brandés Drwintech (header emerald,
+bouton CTA, tagline) et en français par défaut. Templates sources
+dans [supabase/auth-templates/](../supabase/auth-templates/) — à
+coller dans **Dashboard Supabase → Authentication → Email
+Templates** quand on provisionne un projet. Pour les clients
+anglophones, swap pour les versions `.en.html`. Supabase ne
+permet qu'un seul jeu par projet — la version par-utilisateur
+demanderait un chantier dédié (Send Email Hook).
+
 **J'essaie d'accepter une invitation et l'app me dit *email mismatch*.**
 L'invitation a été envoyée à `marie@…` et tu es connecté en
 `pierre@…`. Déconnecte-toi (lien dans le message d'erreur) et
