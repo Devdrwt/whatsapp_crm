@@ -37,10 +37,14 @@ dans une seule interface :
 - des **broadcasts** (campagnes WhatsApp) sur des templates approuvés par Meta ;
 - deux moteurs d'automatisation complémentaires : **Automations** (règles)
   et **Flows** (chatbot à boutons), plus un **Agent IA** qui répond en
-  langage naturel quand rien ne matche.
+  langage naturel quand rien ne matche ;
+- une gestion **multi-organisations** + **multi-agents** avec rôles
+  Owner / Admin / Agent, invitations par e-mail, isolation stricte
+  des données entre organisations.
 
-Tout est **multi-thème (clair / sombre / système)** — bouton soleil/lune
-en haut à droite.
+L'interface est entièrement **bilingue français / anglais** (bascule
+dans Settings → Apparence → Langue, défaut FR) et **multi-thème
+clair / sombre / système** — bouton soleil/lune en haut à droite.
 
 ---
 
@@ -325,15 +329,24 @@ que tu lui fournis. Idéal pour la FAQ ouverte qui ne tient pas dans un menu
 
 ## Réglages
 
-**Settings**, accessible via le menu utilisateur ou la sidebar.
+**Settings**, accessible via le menu utilisateur ou la sidebar. Sept
+onglets :
 
-- **Profile** : nom, email, avatar, mot de passe, sessions actives (déconnexion globale).
+- **Profile** : nom d'affichage, e-mail, avatar (JPG/PNG/WebP/GIF,
+  2 Mo max), mot de passe, sessions actives (déconnexion globale).
 - **WhatsApp Config** : voir [Premiers pas](#premiers-pas).
-- **Templates** : tes templates Meta synchronisés.
-- **Tags** : créer / renommer / supprimer les tags.
+- **Templates** : tes templates Meta. Bouton **Sync depuis Meta**
+  pour récupérer la liste approuvée.
+- **Tags** : créer / renommer / supprimer les tags. 8 couleurs
+  prédéfinies.
+- **Team** : membres de l'organisation, gestion des rôles (Owner /
+  Admin / Agent), invitations par e-mail (voir
+  [Inviter un coéquipier](#faq) dans la FAQ).
 - **AI Agent** : voir [Agent IA](#agent-ia).
-- **Appearance** : Clair / Sombre / Système — appliqué instantanément,
-  sauvegardé sur l'appareil.
+- **Appearance** : thème **Clair / Sombre / Système** + sélecteur de
+  **Langue** (**Français** par défaut, **English** disponible).
+  Choix appliqués instantanément, sauvegardés sur ce navigateur via
+  cookie (`drwintech.mode`, `drwintech.locale`).
 
 ---
 
@@ -440,7 +453,19 @@ isolés.
 **L'invitation que j'ai envoyée a expiré. Que faire ?**
 Les invitations sont valides **7 jours**. Va dans Settings → Team
 → révoque l'ancienne et recrée-en une nouvelle. Le destinataire
-reçoit une nouvelle URL.
+reçoit un nouveau lien par e-mail.
+
+**L'invité a-t-il reçu un e-mail ?**
+Oui, quand l'envoi est configuré : dès qu'un owner / admin crée
+l'invitation, l'invité reçoit un e-mail bilingue (FR ou EN selon
+la langue active de l'inviteur) avec un bouton **Accepter
+l'invitation**. Le bouton **Copier l'URL** reste affiché dans le
+panel Team — utile si l'e-mail n'arrive pas (spam, domaine non
+vérifié sur Resend, etc.) : tu peux toujours envoyer le lien par
+WhatsApp ou messagerie. Si tu vois l'invitation côté Drwintech
+mais pas d'e-mail côté invité, vérifie avec ton admin Drwintech
+que la clé `RESEND_API_KEY` est posée et que le domaine d'envoi
+(`EMAIL_FROM`) est vérifié sur resend.com.
 
 **J'essaie d'accepter une invitation et l'app me dit *email mismatch*.**
 L'invitation a été envoyée à `marie@…` et tu es connecté en
@@ -549,15 +574,22 @@ avec le `contact_id = NULL` (ils s'affichent comme *Contact supprimé*).
 Pas de perte d'audit ni de comptes broadcast.
 
 **Multi-langue ?**
-L'interface est disponible en **français (par défaut)** et **anglais**.
-Bascule dans **Settings → Appearance → Langue**, choix enregistré
-sur ce navigateur. Le frame de l'app (auth, onboarding, sidebar,
-header, switcher d'organisations, onglet Appearance) est entièrement
-traduit ; les modules métier (Inbox, Contacts, Pipelines, Broadcasts,
-Automations, Flows, autres onglets de Settings) restent en anglais
-pour l'instant — déploiement progressif sur les prochaines livraisons.
+L'interface est **100 % traduite en français (défaut) et anglais**.
+Bascule dans **Settings → Appearance → Langue**, le choix s'applique
+instantanément à toute l'app : auth, onboarding, dashboard, inbox,
+contacts, pipelines, broadcasts (wizard complet), automations
+(builder + logs), parcours, agent IA, et tous les onglets de
+Settings. Dates et nombres suivent aussi la locale active. Choix
+enregistré sur le navigateur (cookie `drwintech.locale`).
+
+Seules restent en anglais quelques configurations très techniques
+du **builder de parcours** (`var_key`, `next_node_key`, etc.) —
+concepts qui mappent directement sur le schéma et ciblent les
+power-users.
+
 **L'arabe** + le sens d'écriture droite-à-gauche sont prévus mais
-demandent un chantier dédié (polices, miroir CSS).
+demandent un chantier dédié (polices arabes, miroir CSS sur tous
+les composants).
 
 Note : sur les templates WhatsApp, chaque langue est un **template
 séparé** côté Meta, à approuver indépendamment — c'est une
@@ -721,13 +753,25 @@ contrainte Meta, pas Drwintech.
 **10.1 Invitation**
 - **Setup** : être owner / admin.
 - **Action** : Settings → Team → Invite → email + rôle agent →
-  copier l'URL.
-- **Attendu** : invitation visible dans la liste *Pending*.
+  *Create invitation*.
+- **Attendu** : invitation visible dans la liste *Pending* avec
+  bouton **Copier l'URL** + bouton révoquer.
+
+**10.1bis Envoi de l'e-mail (si `RESEND_API_KEY` configuré)**
+- **Setup** : `.env.local` avec `RESEND_API_KEY` + `EMAIL_FROM`
+  (domaine vérifié sur resend.com).
+- **Action** : créer l'invitation comme en 10.1.
+- **Attendu** : l'invité reçoit un e-mail avec bouton « Accepter
+  l'invitation » dans la langue active de l'inviteur (FR ou EN).
+  Côté inviteur, la réponse de l'API est **immédiate** (le mail
+  part en fire-and-forget — pas d'attente). Si Resend tombe,
+  l'invitation reste créée et `Copier l'URL` fonctionne quand même
+  (dégradation gracieuse).
 
 **10.2 Acceptation**
 - **Setup** : créer le user invité côté Supabase Auth (Auto Confirm).
-- **Action** : navigation privée → coller l'URL d'invitation → login
-  → cliquer *Accept invitation*.
+- **Action** : depuis l'e-mail ou navigation privée → cliquer le
+  bouton (ou coller l'URL) → login → cliquer *Accept invitation*.
 - **Attendu** : atterrissage sur `/dashboard` de l'org de l'inviteur,
   les données de cette org sont visibles, `org_members` a une
   nouvelle ligne.
@@ -766,7 +810,12 @@ contrainte Meta, pas Drwintech.
 4. ☐ Settings → AI Agent → édition + save → toast de succès, valeur
    conservée au reload.
 5. ☐ Bascule clair/sombre → instantané + sauvegardé.
-6. ☐ Switch d'org (si applicable) → données différentes, aucune fuite.
+6. ☐ Bascule FR ↔ EN (Settings → Apparence → Langue) → sidebar /
+   header / cartes basculent, recharge la page : choix conservé.
+7. ☐ Switch d'org (si applicable) → données différentes, aucune fuite.
+8. ☐ (Si Resend configuré) Settings → Team → Invite avec un e-mail
+   contrôlé → e-mail reçu en moins de 30 s avec bouton **Accepter
+   l'invitation**.
 
 Si une étape échoue : ouvrir une issue immédiatement avec le
 contexte (org, user, étape, message d'erreur, console navigateur).
