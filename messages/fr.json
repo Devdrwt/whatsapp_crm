@@ -140,6 +140,145 @@
       }
     }
   },
+  "pipelines": {
+    "page": {
+      "selectPipeline": "Choisir un pipeline",
+      "noPipelinesItem": "Aucun pipeline",
+      "managePipelines": "Gérer les pipelines",
+      "addPipeline": "Ajouter un pipeline",
+      "addDeal": "Ajouter une affaire",
+      "emptyTitle": "Aucun pipeline pour l'instant",
+      "emptyHint": "Créez un pipeline pour commencer à suivre vos affaires",
+      "createPipeline": "Créer un pipeline",
+      "newPipeline": {
+        "title": "Nouveau pipeline",
+        "label": "Nom du pipeline",
+        "placeholder": "ex. Ventes Entreprises",
+        "hint": "Les étapes par défaut (Nouveau lead → Gagné) seront créées automatiquement.",
+        "creating": "Création…",
+        "submit": "Créer le pipeline"
+      },
+      "toasts": {
+        "moveFailed": "Échec du déplacement de l'affaire",
+        "noActiveOrg": "Aucune organisation active",
+        "createFailed": "Échec de la création du pipeline",
+        "created": "Pipeline créé"
+      }
+    },
+    "board": {
+      "dropHere": "Déposez une affaire ici",
+      "addDeal": "Ajouter une affaire"
+    },
+    "card": {
+      "noContact": "Aucun contact",
+      "status": {
+        "won": "Gagnée",
+        "lost": "Perdue"
+      }
+    },
+    "analytics": {
+      "totalDeals": {
+        "label": "Affaires totales",
+        "tooltip": "Nombre d'affaires de ce pipeline non marquées comme Perdues. Les Gagnées sont incluses."
+      },
+      "pipelineValue": {
+        "label": "Valeur du pipeline",
+        "tooltip": "Somme des valeurs de toutes les affaires du pipeline, hors Perdues."
+      },
+      "avgDealSize": {
+        "label": "Valeur moyenne",
+        "tooltip": "Valeur du pipeline ÷ nombre d'affaires — la valeur moyenne d'une affaire non perdue."
+      },
+      "weightedValue": {
+        "label": "Valeur pondérée",
+        "tooltip": "Revenu attendu : valeur × probabilité par étape. 1re étape ≈ 10 %, progression jusqu'à 90 %, Gagnée = 100 %. Perdues exclues."
+      },
+      "wonThisMonth": {
+        "label": "Gagnées ce mois",
+        "tooltip": "Affaires marquées Gagnées depuis le 1er du mois en cours."
+      },
+      "lostThisMonth": {
+        "label": "Perdues ce mois",
+        "tooltip": "Affaires marquées Perdues depuis le 1er du mois en cours."
+      },
+      "howCalculated": "Comment {label} est calculé"
+    },
+    "dealForm": {
+      "titleNew": "Nouvelle affaire",
+      "titleEdit": "Modifier l'affaire",
+      "fields": {
+        "title": "Intitulé",
+        "titlePlaceholder": "Intitulé de l'affaire",
+        "contact": "Contact",
+        "contactSelect": "Sélectionnez un contact",
+        "linkConversation": "Voir la conversation",
+        "value": "Montant",
+        "currency": "Devise",
+        "closeDate": "Date de clôture prévue",
+        "stage": "Étape",
+        "assignedTo": "Assignée à",
+        "unassigned": "Non assignée",
+        "notes": "Notes",
+        "notesPlaceholder": "Ajouter des notes…"
+      },
+      "status": {
+        "title": "Statut",
+        "markWon": "Marquer comme Gagnée",
+        "markLost": "Marquer comme Perdue",
+        "reopen": "Rouvrir l'affaire"
+      },
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveChanges": "Enregistrer",
+      "createDeal": "Créer l'affaire",
+      "deleteConfirm": "Supprimer cette affaire ?",
+      "deleteConfirmAction": "Confirmer",
+      "deleting": "Suppression…",
+      "deleteDeal": "Supprimer l'affaire",
+      "toasts": {
+        "required": "Intitulé, contact et étape sont requis",
+        "saveFailed": "Échec de l'enregistrement de l'affaire",
+        "notSignedIn": "Non connecté",
+        "noActiveOrg": "Aucune organisation active",
+        "createFailed": "Échec de la création de l'affaire",
+        "updated": "Affaire mise à jour",
+        "created": "Affaire créée",
+        "statusFailed": "Échec de la mise à jour du statut",
+        "markedWon": "Marquée comme Gagnée",
+        "markedLost": "Marquée comme Perdue",
+        "reopened": "Affaire rouverte",
+        "deleteFailed": "Échec de la suppression de l'affaire",
+        "deleted": "Affaire supprimée"
+      }
+    },
+    "settings": {
+      "title": "Gérer le pipeline",
+      "deleteTitle": "Supprimer le pipeline",
+      "deleteWarning": "Cette opération archivera toutes les affaires de ce pipeline. Elle est irréversible.",
+      "deleting": "Suppression…",
+      "deletePipeline": "Supprimer le pipeline",
+      "cancel": "Annuler",
+      "pipelineName": "Nom du pipeline",
+      "stages": "Étapes",
+      "pickColor": "Choisir la couleur {color}",
+      "newStagePlaceholder": "Nom de la nouvelle étape",
+      "add": "Ajouter",
+      "createAnother": "Créer un nouveau pipeline",
+      "saving": "Enregistrement…",
+      "saveChanges": "Enregistrer",
+      "dragReorder": "Glisser pour réorganiser",
+      "changeColor": "Changer la couleur",
+      "toasts": {
+        "saveFailed": "Échec de l'enregistrement du pipeline",
+        "saved": "Pipeline enregistré",
+        "addStageFailed": "Échec de l'ajout de l'étape",
+        "moveDealsFirst": "Déplacez ou supprimez d'abord les affaires de cette étape",
+        "deleteStageFailed": "Échec de la suppression de l'étape",
+        "deletePipelineFailed": "Échec de la suppression du pipeline",
+        "deleted": "Pipeline supprimé"
+      }
+    }
+  },
   "inbox": {
     "page": {
       "whatsappNotConnected": "WhatsApp® n'est pas connecté. Allez dans Paramètres pour connecter votre compte."

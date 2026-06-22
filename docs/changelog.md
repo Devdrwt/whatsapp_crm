@@ -7,6 +7,54 @@
 
 ---
 
+## PR 8b — Localisation FR (Pipelines)
+**Branche** : `dev`
+
+Module Pipelines entièrement en français : sélecteur de pipeline,
+board Kanban (colonnes par étape), formulaire d'affaire (sheet),
+panneau analytics (6 métriques + tooltips explicatifs), réglages
+de pipeline (étapes drag & drop, couleurs).
+
+### Changed
+- [src/app/(dashboard)/pipelines/page.tsx](../src/app/(dashboard)/pipelines/page.tsx) :
+  selector de pipeline, boutons « Ajouter un pipeline / une affaire »,
+  empty state, dialog « Nouveau pipeline », toasts.
+- [src/components/pipelines/pipeline-board.tsx](../src/components/pipelines/pipeline-board.tsx) :
+  zone « Déposez une affaire ici », bouton « Ajouter une affaire »
+  par colonne, total monétaire des étapes via `Intl.NumberFormat(locale)`.
+- [src/components/pipelines/deal-card.tsx](../src/components/pipelines/deal-card.tsx) :
+  pastilles de statut (Gagnée / Perdue), fallback contact, format
+  monétaire + date selon la locale active.
+- [src/components/pipelines/deal-form.tsx](../src/components/pipelines/deal-form.tsx) :
+  sheet entièrement traduit — titre, 7 champs + placeholders,
+  section Statut (Marquer comme Gagnée / Perdue / Rouvrir), bouton
+  Supprimer + confirmation inline, toasts.
+- [src/components/pipelines/pipeline-settings.tsx](../src/components/pipelines/pipeline-settings.tsx) :
+  dialog « Gérer le pipeline », formulaire de renommage, drag &
+  drop des étapes (aria-label « Glisser pour réorganiser »), ajout
+  d'étape + sélection de couleur, confirmation de suppression,
+  toasts. `SortableStageRow` et `ColorSwatch` reçoivent leurs
+  aria-labels en props depuis le parent (évite un 3e useTranslations
+  juste pour deux strings).
+- [src/components/pipelines/pipeline-analytics.tsx](../src/components/pipelines/pipeline-analytics.tsx) :
+  6 métriques (Affaires totales, Valeur du pipeline, Valeur moyenne,
+  Valeur pondérée, Gagnées / Perdues ce mois) avec leurs tooltips
+  explicatifs. Aria-label « Comment {label} est calculé »
+  paramétré sur le label.
+
+### Added
+- Branche `pipelines.*` dans [messages/fr.json](../messages/fr.json) /
+  [messages/en.json](../messages/en.json) (~95 clés sous `page`,
+  `board`, `card`, `analytics`, `dealForm`, `settings`).
+
+### Notes
+- Tous les formats monétaires/dates passent en
+  `Intl.NumberFormat(locale)` / `toLocaleDateString(locale)`.
+- La devise du board (total par étape) reste en USD pour l'instant
+  — multi-devise par org est un sujet à part.
+
+---
+
 ## PR 8a — Localisation FR (Contacts)
 **Branche** : `dev`
 

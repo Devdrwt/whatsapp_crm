@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   DndContext,
   DragOverlay,
@@ -27,8 +28,8 @@ interface PipelineBoardProps {
   onEditDeal: (deal: Deal) => void;
 }
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
+function formatCurrency(value: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 0,
@@ -124,6 +125,7 @@ export function PipelineBoard({
             />
           );
         })}
+
       </div>
 
       <DragOverlay
@@ -177,6 +179,8 @@ function StageColumn({
   onAddDeal: (stageId: string) => void;
   onEditDeal: (deal: Deal) => void;
 }) {
+  const t = useTranslations("pipelines.board");
+  const locale = useLocale();
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
 
   return (
@@ -200,7 +204,7 @@ function StageColumn({
           {deals.length}
         </span>
       </div>
-      <p className="text-xs text-muted-foreground">{formatCurrency(totalValue)}</p>
+      <p className="text-xs text-muted-foreground">{formatCurrency(totalValue, locale)}</p>
 
       <div
         ref={setNodeRef}
@@ -212,7 +216,7 @@ function StageColumn({
       >
         {deals.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-border py-10 text-xs text-muted-foreground">
-            Drop a deal here
+            {t("dropHere")}
           </div>
         ) : (
           deals.map((deal) => (
@@ -233,7 +237,7 @@ function StageColumn({
         className="mt-3 w-full justify-start border border-dashed border-border bg-transparent text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground"
       >
         <Plus className="mr-1 h-3 w-3" />
-        Add Deal
+        {t("addDeal")}
       </Button>
     </div>
   );
