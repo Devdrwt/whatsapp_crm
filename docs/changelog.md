@@ -7,6 +7,55 @@
 
 ---
 
+## PR 9c — Localisation FR (Parcours / Flows — pages + frame du builder)
+**Branche** : `dev`
+
+Surfaces utilisateur du module Parcours (Flows) en français : liste
++ dialog de création (templates + vierge), page détail, page
+exécutions (runs), header / status / actions du builder.
+
+### Changed
+- [src/app/(dashboard)/flows/page.tsx](../src/app/(dashboard)/flows/page.tsx) :
+  header avec badge Bêta, dialog de création (cartes templates +
+  blank), card de flow (status, exécutions en ICU plural, actions),
+  empty state, descripteur de déclencheur (keyword / first inbound /
+  manual), toasts. `STATUS_LABELS` retiré (résolu via
+  `t('flows.statuses.*')`).
+- [src/app/(dashboard)/flows/[id]/page.tsx](../src/app/(dashboard)/flows/[id]/page.tsx) :
+  écran « Parcours introuvable » + bouton retour, toast d'erreur.
+- [src/app/(dashboard)/flows/[id]/runs/page.tsx](../src/app/(dashboard)/flows/[id]/runs/page.tsx) :
+  titre + sous-titre, empty state, 6 statuts de run (Actif /
+  Terminé / Passé à un agent / Expiré / Mis en pause / Échec),
+  badge `at {node}`, format de date `date-fns/locale/fr` ou `enUS`,
+  durée relative localisée, libellés « variables capturées » /
+  « aucun événement ».
+- [src/components/flows/flow-builder.tsx](../src/components/flows/flow-builder.tsx) :
+  Header (back, name placeholder, status badge, description, dirty
+  indicator, boutons Runs / Supprimer / Pause / Activer / Save) +
+  toasts. Les sous-formulaires per-node-type (TriggerPanel,
+  EntryPicker, NodeCard, AddNodeButton, ValidationPanel et les 9
+  configs de nœud) restent en anglais — sujets très techniques
+  (var_key / reply_id / next_node_key) pour power-users ; un
+  follow-up dédié peut les traduire plus tard sans changer
+  l'expérience utilisateur courante.
+
+### Added
+- Branche `flows.*` dans [messages/fr.json](../messages/fr.json) /
+  [messages/en.json](../messages/en.json) (~115 clés sous `nodes`,
+  `statuses`, `list`, `editor`, `runs`, `builder`). Pluriels ICU
+  pour `runs` / `nodes`.
+
+### Notes
+- Le builder de flow (2 134 lignes) est plus profond que celui des
+  automations (1 160 lignes). La frame chrome est traduite, les
+  configs de nœud (~1 500 lignes) sont laissées en anglais pour
+  l'instant — décision tactique : la valeur i18n par caractère
+  traduit est plus haute sur la liste + le détail + les runs que
+  sur les Inputs avec labels « Tag id » / « Var key » / « Next
+  node key » utilisés par les power-users.
+
+---
+
 ## PR 9b — Localisation FR (Automatisations)
 **Branche** : `dev`
 

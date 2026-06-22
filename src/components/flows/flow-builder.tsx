@@ -17,6 +17,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   CircleCheck,
@@ -331,6 +332,8 @@ function defaultConfigFor(type: NodeType): Record<string, unknown> {
 
 export function FlowBuilder({ initialFlow, initialNodes }: FlowBuilderProps) {
   const router = useRouter();
+  const t = useTranslations("flows.builder");
+  const tStatuses = useTranslations("flows.statuses");
 
   const [state, setState] = useState<BuilderState>(() => ({
     name: initialFlow.name,
@@ -417,23 +420,23 @@ export function FlowBuilder({ initialFlow, initialNodes }: FlowBuilderProps) {
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        throw new Error(json.error ?? `Save failed: ${res.status}`);
+        throw new Error(json.error ?? t("saveFailed"));
       }
       setDirty(false);
-      toast.success("Saved.");
+      toast.success(t("saved"));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Save failed";
+      const msg = err instanceof Error ? err.message : t("saveFailed");
       toast.error(msg);
     } finally {
       setSaving(false);
     }
-  }, [initialFlow.id, state]);
+  }, [initialFlow.id, state, t]);
 
   // ---- Activate / Pause / Archive ----
   const handleStatus = useCallback(
     async (next: BuilderState["status"]) => {
       if (next === "active" && !canActivate) {
-        toast.error("Fix the issues below before activating.");
+        toast.error(t("fixIssuesFirst"));
         return;
       }
       setActivating(true);
@@ -451,43 +454,41 @@ export function FlowBuilder({ initialFlow, initialNodes }: FlowBuilderProps) {
         });
         if (!res.ok) {
           const json = await res.json().catch(() => ({}));
-          throw new Error(json.error ?? `Status update failed: ${res.status}`);
+          throw new Error(json.error ?? t("statusFailed"));
         }
         setState((s) => ({ ...s, status: next }));
         toast.success(
           next === "active"
-            ? "Flow activated."
+            ? t("activated")
             : next === "archived"
-              ? "Archived."
-              : "Saved as draft.",
+              ? t("archived")
+              : t("draftSaved"),
         );
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Status update failed";
+        const msg = err instanceof Error ? err.message : t("statusFailed");
         toast.error(msg);
       } finally {
         setActivating(false);
       }
     },
-    [canActivate, handleSave, initialFlow.id],
+    [canActivate, handleSave, initialFlow.id, t],
   );
 
   // ---- Delete ----
   const handleDelete = useCallback(async () => {
-    const yes = window.confirm(
-      `Delete "${state.name}"? Any active runs end immediately. This can't be undone.`,
-    );
+    const yes = window.confirm(t("deleteConfirm", { name: state.name }));
     if (!yes) return;
     try {
       const res = await fetch(`/api/flows/${initialFlow.id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+      if (!res.ok) throw new Error(t("deleteFailed"));
       router.push("/flows");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Delete failed";
+      const msg = err instanceof Error ? err.message : t("deleteFailed");
       toast.error(msg);
     }
-  }, [initialFlow.id, router, state.name]);
+  }, [initialFlow.id, router, state.name, t]);
 
   // ---- Node helpers ----
   const updateNode = useCallback(
@@ -608,6 +609,8 @@ export function FlowBuilder({ initialFlow, initialNodes }: FlowBuilderProps) {
         canActivate={canActivate}
         onBack={() => router.push("/flows")}
         onViewRuns={() => router.push(`/flows/${initialFlow.id}/runs`)}
+        t={t}
+        tStatuses={tStatuses}
       />
 
       <TriggerPanel
@@ -673,6 +676,9 @@ export function FlowBuilder({ initialFlow, initialNodes }: FlowBuilderProps) {
 // Header
 // ============================================================
 
+type BuilderT = ReturnType<typeof useTranslations<"flows.builder">>
+type StatusesT = ReturnType<typeof useTranslations<"flows.statuses">>
+
 function Header({
   state,
   setState,
@@ -685,6 +691,8 @@ function Header({
   canActivate,
   onBack,
   onViewRuns,
+  t,
+  tStatuses,
 }: {
   state: BuilderState;
   setState: React.Dispatch<React.SetStateAction<BuilderState>>;
@@ -697,6 +705,8 @@ function Header({
   canActivate: boolean;
   onBack: () => void;
   onViewRuns: () => void;
+  t: BuilderT;
+  tStatuses: StatusesT;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -707,7 +717,7 @@ function Header({
           className="inline-flex items-center gap-1 hover:text-foreground"
         >
           <ArrowLeft className="h-3 w-3" />
-          Flows
+          {t("back")}
         </button>
       </div>
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -718,18 +728,18 @@ function Header({
             onChange={(e) =>
               setState((s) => ({ ...s, name: e.target.value }))
             }
-            placeholder="Flow name"
+            placeholder={t("namePlaceholder")}
             className="max-w-md text-lg font-semibold"
           />
-          <StatusBadge status={state.status} />
+          <StatusBadge status={state.status} tStatuses={tStatuses} />
           {dirty && (
             <span
               className="inline-flex shrink-0 items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-amber-600 dark:text-amber-400"
-              title="Unsaved changes — hit Save to persist"
+              title={t("editedTitle")}
               aria-live="polite"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-400" />
-              Edited
+              {t("edited")}
             </span>
           )}
         </div>
@@ -740,7 +750,7 @@ function Header({
             onClick={() => onViewRuns()}
           >
             <History className="h-3.5 w-3.5" />
-            Runs
+            {t("runs")}
           </Button>
           <Button
             variant="ghost"
@@ -749,7 +759,7 @@ function Header({
             className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            {t("delete")}
           </Button>
           {state.status === "active" ? (
             <Button
@@ -763,7 +773,7 @@ function Header({
               ) : (
                 <PauseCircle className="h-3.5 w-3.5" />
               )}
-              Pause
+              {t("pause")}
             </Button>
           ) : (
             <Button
@@ -772,9 +782,7 @@ function Header({
               onClick={() => onStatus("active")}
               disabled={activating || !canActivate}
               title={
-                !canActivate
-                  ? "Fix the issues below before activating"
-                  : undefined
+                !canActivate ? t("fixIssuesFirst") : undefined
               }
             >
               {activating ? (
@@ -782,7 +790,7 @@ function Header({
               ) : (
                 <PlayCircle className="h-3.5 w-3.5" />
               )}
-              Activate
+              {t("activate")}
             </Button>
           )}
           <Button onClick={onSave} disabled={saving} size="sm">
@@ -791,7 +799,7 @@ function Header({
             ) : (
               <Save className="h-3.5 w-3.5" />
             )}
-            Save
+            {t("save")}
           </Button>
         </div>
       </div>
@@ -800,14 +808,20 @@ function Header({
         onChange={(e) =>
           setState((s) => ({ ...s, description: e.target.value }))
         }
-        placeholder="Optional description (internal — customers don't see this)"
+        placeholder={t("descriptionPlaceholder")}
         className="text-sm"
       />
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: BuilderState["status"] }) {
+function StatusBadge({
+  status,
+  tStatuses,
+}: {
+  status: BuilderState["status"];
+  tStatuses: StatusesT;
+}) {
   const cls = {
     draft: "border-border bg-muted text-muted-foreground",
     active: "border-emerald-600/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
@@ -815,7 +829,7 @@ function StatusBadge({ status }: { status: BuilderState["status"] }) {
   }[status];
   return (
     <Badge variant="outline" className={cn("shrink-0", cls)}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {tStatuses(status)}
     </Badge>
   );
 }

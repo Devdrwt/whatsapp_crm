@@ -279,6 +279,140 @@
       }
     }
   },
+  "flows": {
+    "nodes": {
+      "start": "Start",
+      "send_message": "Send message",
+      "send_buttons": "Send buttons",
+      "send_list": "Send list",
+      "collect_input": "Collect input",
+      "condition": "If / else",
+      "set_tag": "Tag contact",
+      "handoff": "Handoff to agent",
+      "end": "End"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "list": {
+      "title": "Flows",
+      "beta": "Beta",
+      "subtitle": "Build branching, button-driven WhatsApp conversations. Useful for menus, FAQs, and triage before a human steps in.",
+      "newFlow": "New flow",
+      "emptyTitle": "No flows yet",
+      "emptyHint": "Build your first conversation — a welcome menu, an order lookup, an FAQ bot. Customers tap buttons; the bot routes them to the right answer (or the right agent).",
+      "createFirst": "Create your first flow",
+      "loadFailed": "Couldn't load flows.",
+      "createFailed": "Couldn't create flow.",
+      "createDialog": {
+        "title": "Create a new flow",
+        "description": "Start from a template or build from scratch.",
+        "fromTemplate": "Start from a template",
+        "orStartBlank": "Or start blank",
+        "namePlaceholder": "e.g. Welcome menu",
+        "cancel": "Cancel",
+        "createBlank": "Create blank flow",
+        "nodes": "{count, plural, one {# node} other {# nodes}}",
+        "cloneFailed": "Template clone failed"
+      },
+      "card": {
+        "runs": "{count, plural, one {# run} other {# runs}}",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteConfirm": "Delete \"{name}\"? Any active runs will end immediately.",
+        "deleteFailed": "Couldn't delete flow.",
+        "deleted": "Flow deleted."
+      },
+      "triggers": {
+        "keywordEmpty": "Triggers on keyword (none set)",
+        "keywordWith": "Triggers on: {keywords}",
+        "firstInbound": "Triggers on a contact's first-ever inbound message",
+        "manual": "Manual trigger"
+      }
+    },
+    "editor": {
+      "loadFailed": "Couldn't load flow.",
+      "notFound": "Flow not found.",
+      "backToFlows": "← Back to flows"
+    },
+    "runs": {
+      "title": "Runs",
+      "subtitle": "The 50 most recent times this flow ran. Expand a row to see the engine's per-step log.",
+      "loadFailed": "Couldn't load runs.",
+      "empty": "No runs yet. Trigger the flow from a personal WhatsApp number to see it appear here.",
+      "unknownContact": "Unknown contact",
+      "statuses": {
+        "active": "Active",
+        "completed": "Completed",
+        "handed_off": "Handed off",
+        "timed_out": "Timed out",
+        "paused_by_agent": "Paused by agent",
+        "failed": "Failed"
+      },
+      "atNode": "at {node}",
+      "startedAt": "Started {time}",
+      "reprompts": "· {count} re-prompts",
+      "ranFor": "· ran for {duration}",
+      "capturedVars": "Captured vars ({count})",
+      "noEvents": "No events recorded for this run."
+    },
+    "builder": {
+      "back": "Flows",
+      "namePlaceholder": "Flow name",
+      "descriptionPlaceholder": "Optional description (internal — customers don't see this)",
+      "edited": "Edited",
+      "editedTitle": "Unsaved changes — hit Save to persist",
+      "runs": "Runs",
+      "delete": "Delete",
+      "pause": "Pause",
+      "activate": "Activate",
+      "save": "Save",
+      "saving": "Saving…",
+      "activating": "Activating…",
+      "fixIssuesFirst": "Fix the issues below before activating",
+      "deleteConfirm": "Delete \"{name}\"? Any active runs end immediately. This can't be undone.",
+      "saved": "Saved.",
+      "saveFailed": "Save failed",
+      "activated": "Flow activated.",
+      "archived": "Archived.",
+      "draftSaved": "Saved as draft.",
+      "statusFailed": "Status update failed",
+      "deleteFailed": "Delete failed",
+      "trigger": "Trigger",
+      "triggerWhen": "When…",
+      "triggerOptions": {
+        "keyword": "A message contains a keyword",
+        "first_inbound_message": "Customer's first ever inbound message",
+        "manual": "Manual only (no auto-trigger)"
+      },
+      "triggerKeywords": "Keywords (comma-separated)",
+      "triggerKeywordsPlaceholder": "support, help, hi",
+      "entry": "Entry node",
+      "entryPlaceholder": "Select an entry node…",
+      "noNodesYet": "No nodes yet — add one to pick an entry node.",
+      "nodes": "Nodes",
+      "nodesCount": "Nodes ({count})",
+      "addNode": "Add node",
+      "emptyState": "Add a **Start** node, then a **Send buttons** node, then a **Handoff** — that's the welcome-menu shape from the brief.",
+      "validation": {
+        "title": "Activation",
+        "ready": "Ready to activate",
+        "blockersTitle": "{count, plural, one {# blocker to fix} other {# blockers to fix}}",
+        "warningsTitle": "{count, plural, one {# warning} other {# warnings}}",
+        "jumpTo": "Jump to node"
+      },
+      "nodeCard": {
+        "entryBadge": "Entry",
+        "setAsEntry": "Set as entry",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "nodeKey": "Key",
+        "remove": "Remove"
+      }
+    }
+  },
   "aiAgent": {
     "title": "AI Agent",
     "description": "Auto-reply to inbound WhatsApp messages that no flow or automation handles, using your business knowledge base.",

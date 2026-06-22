@@ -279,6 +279,140 @@
       }
     }
   },
+  "flows": {
+    "nodes": {
+      "start": "Démarrer",
+      "send_message": "Envoyer un message",
+      "send_buttons": "Envoyer des boutons",
+      "send_list": "Envoyer une liste",
+      "collect_input": "Saisie utilisateur",
+      "condition": "Si / sinon",
+      "set_tag": "Taguer le contact",
+      "handoff": "Passer à un agent",
+      "end": "Fin"
+    },
+    "statuses": {
+      "draft": "Brouillon",
+      "active": "Actif",
+      "archived": "Archivé"
+    },
+    "list": {
+      "title": "Parcours",
+      "beta": "Bêta",
+      "subtitle": "Concevez des conversations WhatsApp guidées par boutons. Idéal pour menus, FAQ et tri avant intervention humaine.",
+      "newFlow": "Nouveau parcours",
+      "emptyTitle": "Aucun parcours pour l'instant",
+      "emptyHint": "Construisez votre première conversation — un menu d'accueil, une recherche de commande, un bot FAQ. Le client tape sur des boutons ; le bot l'oriente vers la bonne réponse (ou le bon agent).",
+      "createFirst": "Créer votre premier parcours",
+      "loadFailed": "Impossible de charger les parcours.",
+      "createFailed": "Impossible de créer le parcours.",
+      "createDialog": {
+        "title": "Créer un nouveau parcours",
+        "description": "Partez d'un modèle ou de zéro.",
+        "fromTemplate": "Partir d'un modèle",
+        "orStartBlank": "Ou démarrer vierge",
+        "namePlaceholder": "ex. Menu d'accueil",
+        "cancel": "Annuler",
+        "createBlank": "Créer un parcours vierge",
+        "nodes": "{count, plural, one {# nœud} other {# nœuds}}",
+        "cloneFailed": "Échec du clonage du modèle"
+      },
+      "card": {
+        "runs": "{count, plural, one {# exécution} other {# exécutions}}",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "deleteConfirm": "Supprimer « {name} » ? Toutes les exécutions actives se termineront immédiatement.",
+        "deleteFailed": "Impossible de supprimer le parcours.",
+        "deleted": "Parcours supprimé."
+      },
+      "triggers": {
+        "keywordEmpty": "Déclenché par un mot-clé (aucun défini)",
+        "keywordWith": "Déclenché par : {keywords}",
+        "firstInbound": "Déclenché au tout premier message entrant d'un contact",
+        "manual": "Déclencheur manuel"
+      }
+    },
+    "editor": {
+      "loadFailed": "Impossible de charger le parcours.",
+      "notFound": "Parcours introuvable.",
+      "backToFlows": "← Retour aux parcours"
+    },
+    "runs": {
+      "title": "Exécutions",
+      "subtitle": "Les 50 dernières exécutions de ce parcours. Dépliez une ligne pour voir le log pas-à-pas du moteur.",
+      "loadFailed": "Impossible de charger les exécutions.",
+      "empty": "Aucune exécution pour l'instant. Déclenchez le parcours depuis un numéro WhatsApp personnel pour la voir apparaître ici.",
+      "unknownContact": "Contact inconnu",
+      "statuses": {
+        "active": "Actif",
+        "completed": "Terminé",
+        "handed_off": "Passé à un agent",
+        "timed_out": "Expiré",
+        "paused_by_agent": "Mis en pause par un agent",
+        "failed": "Échec"
+      },
+      "atNode": "à {node}",
+      "startedAt": "Démarré {time}",
+      "reprompts": "· {count} relance{plural}",
+      "ranFor": "· duré {duration}",
+      "capturedVars": "Variables capturées ({count})",
+      "noEvents": "Aucun événement enregistré pour cette exécution."
+    },
+    "builder": {
+      "back": "Parcours",
+      "namePlaceholder": "Nom du parcours",
+      "descriptionPlaceholder": "Description (interne — invisible pour les clients)",
+      "edited": "Modifié",
+      "editedTitle": "Modifications non enregistrées — cliquez sur Enregistrer pour les conserver",
+      "runs": "Exécutions",
+      "delete": "Supprimer",
+      "pause": "Mettre en pause",
+      "activate": "Activer",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "activating": "Activation…",
+      "fixIssuesFirst": "Corrigez les problèmes ci-dessous avant d'activer",
+      "deleteConfirm": "Supprimer « {name} » ? Toutes les exécutions actives se terminent immédiatement. Cette action est irréversible.",
+      "saved": "Enregistré.",
+      "saveFailed": "Échec de l'enregistrement",
+      "activated": "Parcours activé.",
+      "archived": "Archivé.",
+      "draftSaved": "Enregistré comme brouillon.",
+      "statusFailed": "Échec de mise à jour du statut",
+      "deleteFailed": "Échec de la suppression",
+      "trigger": "Déclencheur",
+      "triggerWhen": "Quand…",
+      "triggerOptions": {
+        "keyword": "Un message contient un mot-clé",
+        "first_inbound_message": "1er message entrant d'un client",
+        "manual": "Manuel uniquement (pas de déclenchement auto)"
+      },
+      "triggerKeywords": "Mots-clés (séparés par des virgules)",
+      "triggerKeywordsPlaceholder": "support, aide, bonjour",
+      "entry": "Nœud d'entrée",
+      "entryPlaceholder": "Sélectionner un nœud d'entrée…",
+      "noNodesYet": "Aucun nœud — ajoutez-en pour choisir le point d'entrée.",
+      "nodes": "Nœuds",
+      "nodesCount": "Nœuds ({count})",
+      "addNode": "Ajouter un nœud",
+      "emptyState": "Ajoutez un **Démarrer**, puis un **Envoyer des boutons**, puis un **Passer à un agent** — c'est la forme menu-d'accueil du brief.",
+      "validation": {
+        "title": "Activation",
+        "ready": "Prêt à activer",
+        "blockersTitle": "{count, plural, one {# problème à corriger} other {# problèmes à corriger}}",
+        "warningsTitle": "{count, plural, one {# avertissement} other {# avertissements}}",
+        "jumpTo": "Aller au nœud"
+      },
+      "nodeCard": {
+        "entryBadge": "Entrée",
+        "setAsEntry": "Définir comme entrée",
+        "expand": "Déplier",
+        "collapse": "Replier",
+        "nodeKey": "Identifiant",
+        "remove": "Retirer"
+      }
+    }
+  },
   "aiAgent": {
     "title": "Agent IA",
     "description": "Répond automatiquement aux messages WhatsApp entrants qu'aucun parcours ou automatisation ne gère, en s'appuyant sur votre base de connaissance.",

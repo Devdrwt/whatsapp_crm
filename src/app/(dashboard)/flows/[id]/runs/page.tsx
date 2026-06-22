@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowLeft,
   Loader2,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
+import { fr as frLocale, enUS } from "date-fns/locale";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -59,35 +61,29 @@ interface EventRow {
 
 const STATUS_META: Record<
   RunRow["status"],
-  { label: string; classes: string; icon: typeof Clock }
+  { classes: string; icon: typeof Clock }
 > = {
   active: {
-    label: "Active",
     classes: "border-emerald-600/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
     icon: PlayCircle,
   },
   completed: {
-    label: "Completed",
     classes: "border-border bg-muted text-muted-foreground",
     icon: CircleCheck,
   },
   handed_off: {
-    label: "Handed off",
     classes: "border-amber-600/40 bg-amber-500/10 text-amber-600 dark:text-amber-400",
     icon: UserPlus,
   },
   timed_out: {
-    label: "Timed out",
     classes: "border-border bg-muted/60 text-muted-foreground",
     icon: Clock,
   },
   paused_by_agent: {
-    label: "Paused by agent",
     classes: "border-border bg-muted text-muted-foreground",
     icon: PauseCircle,
   },
   failed: {
-    label: "Failed",
     classes: "border-red-600/40 bg-red-500/10 text-rose-600 dark:text-rose-400",
     icon: CircleAlert,
   },
@@ -96,6 +92,10 @@ const STATUS_META: Record<
 export default function FlowRunsPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const t = useTranslations("flows.runs");
+  const tEditor = useTranslations("flows.editor");
+  const locale = useLocale();
+  const dateLocale = locale === "fr" ? frLocale : enUS;
 
   const [flow, setFlow] = useState<{ id: string; name: string } | null>(null);
   const [runs, setRuns] = useState<RunRow[]>([]);
@@ -128,7 +128,7 @@ export default function FlowRunsPage() {
       } catch (err) {
         if (!cancelled) {
           console.error(err);
-          toast.error("Couldn't load runs.");
+          toast.error(t("loadFailed"));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -137,6 +137,7 @@ export default function FlowRunsPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   function toggle(runId: string) {
@@ -158,13 +159,13 @@ export default function FlowRunsPage() {
   if (notFound || !flow) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-sm text-muted-foreground">Flow not found.</p>
+        <p className="text-sm text-muted-foreground">{tEditor("notFound")}</p>
         <button
           type="button"
           onClick={() => router.push("/flows")}
           className="text-sm text-primary hover:opacity-80"
         >
-          ← Back to flows
+          {tEditor("backToFlows")}
         </button>
       </div>
     );
@@ -180,16 +181,14 @@ export default function FlowRunsPage() {
         <ArrowLeft className="h-3 w-3" />
         {flow.name}
       </button>
-      <h1 className="text-xl font-semibold text-foreground">Runs</h1>
+      <h1 className="text-xl font-semibold text-foreground">{t("title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        The 50 most recent times this flow ran. Expand a row to see the engine&apos;s
-        per-step log.
+        {t("subtitle")}
       </p>
 
       {runs.length === 0 ? (
         <div className="mt-6 rounded-lg border border-dashed border-border bg-muted/40 px-6 py-12 text-center text-sm text-muted-foreground">
-          No runs yet. Trigger the flow from a personal WhatsApp number to see
-          it appear here.
+          {t("empty")}
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-2">
@@ -200,6 +199,8 @@ export default function FlowRunsPage() {
               events={events.filter((e) => e.flow_run_id === run.id)}
               expanded={expanded.has(run.id)}
               onToggle={() => toggle(run.id)}
+              t={t}
+              dateLocale={dateLocale}
             />
           ))}
         </div>
@@ -213,19 +214,24 @@ function RunCard({
   events,
   expanded,
   onToggle,
+  t,
+  dateLocale,
 }: {
   run: RunRow;
   events: EventRow[];
   expanded: boolean;
   onToggle: () => void;
+  t: ReturnType<typeof useTranslations<"flows.runs">>;
+  dateLocale: typeof frLocale;
 }) {
   const meta = STATUS_META[run.status];
   const StatusIcon = meta.icon;
   const contactLabel =
-    run.contact?.name?.trim() || run.contact?.phone || "Unknown contact";
+    run.contact?.name?.trim() || run.contact?.phone || t("unknownContact");
   const duration = run.ended_at
     ? formatDistanceToNow(new Date(run.ended_at), {
         addSuffix: false,
+        locale: dateLocale,
       })
     : null;
   return (
@@ -247,20 +253,20 @@ function RunCard({
             </span>
             <Badge variant="outline" className={cn("gap-1", meta.classes)}>
               <StatusIcon className="h-3 w-3" />
-              {meta.label}
+              {t(`statuses.${run.status}`)}
             </Badge>
             {run.status === "active" && run.current_node_key && (
               <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                at {run.current_node_key}
+                {t("atNode", { node: run.current_node_key })}
               </code>
             )}
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-            <span>Started {format(new Date(run.started_at), "PP p")}</span>
+            <span>{t("startedAt", { time: format(new Date(run.started_at), "PP p", { locale: dateLocale }) })}</span>
             {run.reprompt_count > 0 && (
-              <span>· {run.reprompt_count} re-prompts</span>
+              <span>{t("reprompts", { count: run.reprompt_count, plural: run.reprompt_count > 1 ? "s" : "" })}</span>
             )}
-            {duration && <span>· ran for {duration}</span>}
+            {duration && <span>{t("ranFor", { duration })}</span>}
           </div>
         </div>
       </button>
@@ -269,7 +275,7 @@ function RunCard({
           {Object.keys(run.vars).length > 0 && (
             <details className="mb-3">
               <summary className="cursor-pointer text-xs text-muted-foreground">
-                Captured vars ({Object.keys(run.vars).length})
+                {t("capturedVars", { count: Object.keys(run.vars).length })}
               </summary>
               <pre className="mt-2 overflow-x-auto rounded-md bg-background p-2 text-[11px] text-foreground">
                 {JSON.stringify(run.vars, null, 2)}
@@ -279,7 +285,7 @@ function RunCard({
           <div className="flex flex-col gap-1">
             {events.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                No events recorded for this run.
+                {t("noEvents")}
               </p>
             ) : (
               events.map((ev, ix) => <EventLine key={ix} ev={ev} />)
