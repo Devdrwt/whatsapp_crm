@@ -1181,6 +1181,307 @@
         "en": "English"
       },
       "saveError": "Could not save language"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "How you show up across the app. Your avatar and name appear in the header, sidebar, and anywhere your teammates see you.",
+      "changePhoto": "Change photo",
+      "uploadPhoto": "Upload photo",
+      "remove": "Remove",
+      "photoHint": "PNG, JPG, WebP, or GIF. Up to 2 MB.",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Ada Lovelace",
+      "email": "Email",
+      "emailChangePending": "Check the inbox for {oldEmail} and {newEmail} — both need to confirm before the change takes effect.",
+      "accountDetails": "Account details",
+      "role": "Role",
+      "joined": "Joined",
+      "userId": "User ID",
+      "loading": "Loading your profile…",
+      "saving": "Saving…",
+      "save": "Save changes",
+      "toasts": {
+        "unsupportedImage": "Unsupported image type",
+        "unsupportedImageHint": "Use PNG, JPG, WebP, or GIF.",
+        "imageTooLarge": "Image is too large",
+        "imageTooLargeHint": "Maximum 2 MB.",
+        "nameRequired": "Display name is required",
+        "invalidEmail": "Enter a valid email address",
+        "uploadFailed": "Upload failed: {error}",
+        "saveFailed": "Save failed: {error}",
+        "saved": "Profile saved",
+        "savedEmailPending": "Profile saved — check your email to confirm the address change",
+        "emailChangeFailed": "Email change failed: {error}",
+        "unknownError": "Unknown error"
+      }
+    },
+    "password": {
+      "title": "Password",
+      "description": "Use at least {min} characters. You will stay signed in on this device after changing it.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "updating": "Updating…",
+      "update": "Update password",
+      "errors": {
+        "noEmail": "Cannot change password without a current email",
+        "tooShort": "Password must be at least {min} characters",
+        "mismatch": "New password and confirmation do not match",
+        "wrongCurrent": "Current password is incorrect",
+        "updateFailed": "Password update failed: {error}",
+        "unknown": "Unknown error"
+      },
+      "toasts": {
+        "updated": "Password updated"
+      }
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "description": "Sign out of every device where you're logged in — including this one. Useful if you lost a laptop or shared your password.",
+      "signOutAll": "Sign out of all devices",
+      "dialogTitle": "Sign out everywhere?",
+      "dialogDescription": "Every device logged into this account will be signed out and will need to log in again. You will be redirected to the login page.",
+      "cancel": "Cancel",
+      "signingOut": "Signing out…",
+      "confirmSignOut": "Sign out everywhere",
+      "toasts": {
+        "signOutFailed": "Sign-out failed: {error}",
+        "unknown": "Unknown error"
+      }
+    },
+    "tags": {
+      "title": "Tags",
+      "subtitle": "Organize your contacts with color-coded tags.",
+      "newTag": "New Tag",
+      "loadFailed": "Failed to load tags",
+      "noTagsTitle": "No tags yet.",
+      "noTagsHint": "Create tags to categorize your contacts.",
+      "dialog": {
+        "title": "New Tag",
+        "description": "Create a new tag with a name and color.",
+        "name": "Tag Name",
+        "namePlaceholder": "e.g. VIP Customer",
+        "color": "Color",
+        "preview": "Preview",
+        "defaultPreviewName": "Tag Name",
+        "cancel": "Cancel",
+        "create": "Create Tag",
+        "creating": "Creating…"
+      },
+      "deleteDialog": {
+        "title": "Delete Tag",
+        "description": "Are you sure you want to delete the tag \"{name}\"? This will remove it from all contacts. This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete Tag",
+        "deleting": "Deleting…"
+      },
+      "toasts": {
+        "nameRequired": "Tag name is required",
+        "notAuthenticated": "Not authenticated",
+        "created": "Tag created successfully",
+        "createFailed": "Failed to create tag",
+        "deleted": "Tag deleted",
+        "deleteFailed": "Failed to delete tag"
+      }
+    },
+    "team": {
+      "title": "Team",
+      "subtitle": "People who can access {orgName}.",
+      "fallbackOrgName": "this organization",
+      "invite": "Invite",
+      "loadFailed": "Failed to load team",
+      "memberActions": "Member actions",
+      "you": "(you)",
+      "promoteToAdmin": "Promote to admin",
+      "demoteToAgent": "Demote to agent",
+      "removeMember": "Remove from organization",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "agent": "Agent"
+      },
+      "pending": {
+        "title": "Pending invitations",
+        "empty": "No pending invitations.",
+        "copyTitle": "Copy invitation URL",
+        "copyUrl": "Copy URL",
+        "revokeTitle": "Revoke invitation",
+        "expired": "expired",
+        "expiresInDays": "expires in {days}d",
+        "expiresInHours": "expires in {hours}h"
+      },
+      "inviteDialog": {
+        "title": "Invite a teammate",
+        "description": "They'll receive an invitation URL to join {orgName}.",
+        "fallbackOrgName": "the organization",
+        "url": "Invitation URL",
+        "copy": "Copy",
+        "sendHint": "Send this URL to {email}. It expires in 7 days.",
+        "email": "Email",
+        "emailPlaceholder": "colleague@example.com",
+        "role": "Role",
+        "roleAgent": "Agent — daily usage",
+        "roleAdmin": "Admin — manage team & settings",
+        "cancel": "Cancel",
+        "creating": "Creating…",
+        "create": "Create invitation",
+        "done": "Done"
+      },
+      "prompts": {
+        "revoke": "Revoke this invitation?",
+        "remove": "Remove {label} from the organization?"
+      },
+      "toasts": {
+        "emailRequired": "Email is required",
+        "inviteCreated": "Invitation created",
+        "inviteFailed": "Failed to create invitation",
+        "urlCopied": "Invitation URL copied",
+        "copied": "Copied",
+        "revoked": "Invitation revoked",
+        "revokeFailed": "Failed to revoke",
+        "roleUpdated": "Role updated",
+        "roleUpdateFailed": "Failed to change role",
+        "memberRemoved": "Member removed",
+        "removeFailed": "Failed to remove"
+      }
+    },
+    "whatsapp": {
+      "loadFailed": "Failed to load WhatsApp configuration",
+      "resetBanner": {
+        "title": "Stored token can't be decrypted"
+      },
+      "status": {
+        "connected": "Connected",
+        "notConnected": "Not Connected",
+        "connectedDescription": "Your WhatsApp Business API is connected and ready to send/receive messages.",
+        "notConnectedDefault": "Configure your Meta API credentials below to connect your WhatsApp Business account."
+      },
+      "credentials": {
+        "title": "API Credentials",
+        "description": "Enter your Meta WhatsApp Business API credentials.",
+        "phoneNumberId": "Phone Number ID",
+        "phoneNumberIdPlaceholder": "e.g. 100234567890123",
+        "wabaId": "WhatsApp Business Account ID",
+        "wabaIdPlaceholder": "e.g. 100234567890456",
+        "accessToken": "Permanent Access Token",
+        "accessTokenPlaceholder": "Enter your access token",
+        "tokenHidden": "Token is hidden for security. Re-enter it to update configuration.",
+        "verifyToken": "Webhook Verify Token",
+        "verifyTokenPlaceholder": "Create a custom verify token",
+        "verifyTokenHint": "A custom string you create. Must match the token you set in Meta webhook settings."
+      },
+      "webhook": {
+        "title": "Webhook Configuration",
+        "description": "Use this URL as your webhook callback in the Meta App Dashboard.",
+        "callbackUrl": "Webhook Callback URL",
+        "urlCopied": "Webhook URL copied to clipboard"
+      },
+      "actions": {
+        "save": "Save Configuration",
+        "saving": "Saving…",
+        "test": "Test API Connection",
+        "testing": "Testing…",
+        "reset": "Reset Configuration",
+        "resetting": "Resetting…"
+      },
+      "toasts": {
+        "phoneNumberIdRequired": "Phone Number ID is required",
+        "tokenRequiredInitial": "Access Token is required for initial setup",
+        "tokenReenterRequired": "Please re-enter the Access Token to save changes",
+        "connectedTo": "Connected to {name}",
+        "savedSuccess": "Configuration saved successfully",
+        "saveFailed": "Failed to save configuration",
+        "apiSuccess": "API connection successful",
+        "apiFailed": "API connection failed",
+        "testFailed": "Connection test failed. Check network and try again.",
+        "resetConfirm": "This will delete the current WhatsApp config so you can re-enter it. Continue?",
+        "resetSuccess": "Configuration cleared. You can now re-enter your credentials.",
+        "resetFailed": "Failed to reset configuration"
+      },
+      "setup": {
+        "title": "Setup Instructions",
+        "description": "Follow these steps to connect your WhatsApp Business API.",
+        "step1Title": "Create a Meta App",
+        "step1": {
+          "1": "Go to developers.facebook.com",
+          "2": "Click \"My Apps\" and then \"Create App\"",
+          "3": "Select \"Business\" as the app type",
+          "4": "Fill in app details and create"
+        },
+        "step2Title": "Add WhatsApp Product",
+        "step2": {
+          "1": "In your app dashboard, click \"Add Product\"",
+          "2": "Find \"WhatsApp\" and click \"Set Up\"",
+          "3": "Follow the setup wizard to link your business"
+        },
+        "step3Title": "Get API Credentials",
+        "step3": {
+          "1": "Go to WhatsApp > API Setup",
+          "2": "Copy your Phone Number ID",
+          "3": "Copy your WhatsApp Business Account ID",
+          "4": "Generate a Permanent Access Token from Business Settings > System Users"
+        },
+        "step4Title": "Configure Webhooks",
+        "step4": {
+          "1": "Go to WhatsApp > Configuration",
+          "2": "Click \"Edit\" on the Webhook section",
+          "3": "Paste the Webhook Callback URL from above",
+          "4": "Enter the same Verify Token you set here",
+          "5": "Subscribe to \"messages\" webhook field"
+        },
+        "docs": "Meta WhatsApp API Documentation"
+      }
+    },
+    "templates": {
+      "title": "Message Templates",
+      "subtitle": "Create and manage your WhatsApp message templates. Meta requires every template to be approved in the WhatsApp Manager before it can be sent — use \"Sync from Meta\" to pull your approved list.",
+      "sync": "Sync from Meta",
+      "syncing": "Syncing…",
+      "syncTitle": "Pull approved templates from your Meta WhatsApp Business Account",
+      "newTemplate": "New Template",
+      "noTemplatesTitle": "No templates yet.",
+      "noTemplatesHint": "Create your first message template to get started.",
+      "loadFailed": "Failed to load templates",
+      "statuses": {
+        "Draft": "Draft",
+        "Pending": "Pending",
+        "Approved": "Approved",
+        "Rejected": "Rejected"
+      },
+      "dialog": {
+        "title": "New Message Template",
+        "description": "Create a new WhatsApp message template.",
+        "name": "Template Name",
+        "namePlaceholder": "e.g. order_confirmation",
+        "category": "Category",
+        "language": "Language",
+        "languageHint": "Must match the exact language code the template is approved under on Meta — e.g. en_US and en are distinct.",
+        "headerType": "Header Type",
+        "headerNone": "None",
+        "bodyText": "Body Text",
+        "bodyPlaceholder": "Enter your template message body. Use '{{1}}', '{{2}}' for variables.",
+        "footerText": "Footer Text",
+        "footerPlaceholder": "Optional footer text",
+        "cancel": "Cancel",
+        "create": "Create Template",
+        "creating": "Creating…"
+      },
+      "toasts": {
+        "nameRequired": "Template name is required",
+        "bodyRequired": "Body text is required",
+        "notAuthenticated": "Not authenticated",
+        "created": "Template created successfully",
+        "createFailed": "Failed to create template",
+        "deleted": "Template deleted",
+        "deleteFailed": "Failed to delete template",
+        "syncSuccess": "{count, plural, one {Synced # template} other {Synced # templates}} from Meta",
+        "syncStats": " ({inserted} new, {updated} updated)",
+        "syncFailedSome": "Failed to sync: {names}",
+        "syncFailedMore": ", +{count} more",
+        "syncTruncated": "Hit Meta pagination cap — more templates may exist. Contact support if this persists.",
+        "syncFailed": "Failed to sync templates",
+        "syncFailedGeneric": "Sync failed (HTTP {status})"
+      }
     }
   }
 }

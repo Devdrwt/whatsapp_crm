@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Check,
@@ -64,12 +65,6 @@ interface Invitation {
   created_at: string;
 }
 
-const ROLE_LABEL: Record<OrgRole, string> = {
-  owner: "Owner",
-  admin: "Admin",
-  agent: "Agent",
-};
-
 function inviteUrl(token: string): string {
   const base =
     typeof window !== "undefined"
@@ -78,19 +73,24 @@ function inviteUrl(token: string): string {
   return `${base}/accept-invite/${token}`;
 }
 
-function relativeDeadline(iso: string): string {
+type PendingT = ReturnType<typeof useTranslations<"settings.team.pending">>
+
+function relativeDeadline(iso: string, t: PendingT): string {
   const now = Date.now();
   const then = new Date(iso).getTime();
   const diffMs = then - now;
-  if (diffMs <= 0) return "expired";
+  if (diffMs <= 0) return t("expired");
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (days >= 1) return `expires in ${days}d`;
+  if (days >= 1) return t("expiresInDays", { days });
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  return `expires in ${hours}h`;
+  return t("expiresInHours", { hours });
 }
 
 export function TeamPanel() {
   const { user, activeOrg, orgsLoading } = useAuth();
+  const t = useTranslations("settings.team");
+  const tPending = useTranslations("settings.team.pending");
+  const tRoles = useTranslations("settings.team.roles");
   const canManage =
     activeOrg?.role === "owner" || activeOrg?.role === "admin";
 
@@ -121,10 +121,11 @@ export function TeamPanel() {
       }
     } catch (err) {
       console.error("[team] load failed:", err);
-      toast.error("Failed to load team");
+      toast.error(t("loadFailed"));
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -139,7 +140,7 @@ export function TeamPanel() {
 
   async function handleInvite() {
     if (!inviteEmail.trim()) {
-      toast.error("Email is required");
+      toast.error(t("toasts.emailRequired"));
       return;
     }
     try {
@@ -157,38 +158,38 @@ export function TeamPanel() {
         error?: string;
       };
       if (!res.ok || !data.invitation) {
-        toast.error(data.error ?? "Failed to create invitation");
+        toast.error(data.error ?? t("toasts.inviteFailed"));
         return;
       }
       setJustCreated(data.invitation);
       setInviteEmail("");
       setInviteRole("agent");
-      toast.success("Invitation created");
+      toast.success(t("toasts.inviteCreated"));
       await load();
     } catch (err) {
       console.error("[team] invite failed:", err);
-      toast.error("Failed to create invitation");
+      toast.error(t("toasts.inviteFailed"));
     } finally {
       setInviting(false);
     }
   }
 
   async function revokeInvitation(id: string) {
-    if (!confirm("Revoke this invitation?")) return;
+    if (!confirm(t("prompts.revoke"))) return;
     try {
       const res = await fetch(`/api/orgs/invitations/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        toast.error(data.error ?? "Failed to revoke");
+        toast.error(data.error ?? t("toasts.revokeFailed"));
         return;
       }
-      toast.success("Invitation revoked");
+      toast.success(t("toasts.revoked"));
       setInvitations((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
       console.error("[team] revoke failed:", err);
-      toast.error("Failed to revoke");
+      toast.error(t("toasts.revokeFailed"));
     }
   }
 
@@ -201,35 +202,35 @@ export function TeamPanel() {
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        toast.error(data.error ?? "Failed to change role");
+        toast.error(data.error ?? t("toasts.roleUpdateFailed"));
         return;
       }
-      toast.success("Role updated");
+      toast.success(t("toasts.roleUpdated"));
       setMembers((prev) =>
         prev.map((m) => (m.user_id === userId ? { ...m, role } : m)),
       );
     } catch (err) {
       console.error("[team] change role failed:", err);
-      toast.error("Failed to change role");
+      toast.error(t("toasts.roleUpdateFailed"));
     }
   }
 
   async function removeMember(userId: string, label: string) {
-    if (!confirm(`Remove ${label} from the organization?`)) return;
+    if (!confirm(t("prompts.remove", { label }))) return;
     try {
       const res = await fetch(`/api/orgs/members/${userId}`, {
         method: "DELETE",
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        toast.error(data.error ?? "Failed to remove");
+        toast.error(data.error ?? t("toasts.removeFailed"));
         return;
       }
-      toast.success("Member removed");
+      toast.success(t("toasts.memberRemoved"));
       setMembers((prev) => prev.filter((m) => m.user_id !== userId));
     } catch (err) {
       console.error("[team] remove failed:", err);
-      toast.error("Failed to remove");
+      toast.error(t("toasts.removeFailed"));
     }
   }
 
@@ -245,9 +246,9 @@ export function TeamPanel() {
     <div className="space-y-6 mt-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Team</h2>
+          <h2 className="text-lg font-semibold text-foreground">{t("title")}</h2>
           <p className="text-sm text-muted-foreground">
-            People who can access {activeOrg?.name ?? "this organization"}.
+            {t("subtitle", { orgName: activeOrg?.name ?? t("fallbackOrgName") })}
           </p>
         </div>
         {canManage && (
@@ -259,7 +260,7 @@ export function TeamPanel() {
             className="shrink-0"
           >
             <UserPlus className="size-4" />
-            Invite
+            {t("invite")}
           </Button>
         )}
       </div>
@@ -291,7 +292,7 @@ export function TeamPanel() {
                       {m.full_name ?? m.email}
                       {isSelf && (
                         <span className="ml-2 text-xs text-muted-foreground">
-                          (you)
+                          {t("you")}
                         </span>
                       )}
                     </p>
@@ -307,12 +308,12 @@ export function TeamPanel() {
                       ? "bg-blue-500/10 text-blue-700 dark:text-blue-300"
                       : "bg-muted text-muted-foreground",
                   )}>
-                    {ROLE_LABEL[m.role]}
+                    {tRoles(m.role)}
                   </span>
                   {canManage && m.role !== "owner" && !isSelf && (
                     <DropdownMenu>
                       <DropdownMenuTrigger
-                        aria-label="Member actions"
+                        aria-label={t("memberActions")}
                         className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
                       >
                         <MoreHorizontal className="size-4" />
@@ -327,7 +328,7 @@ export function TeamPanel() {
                           }
                         >
                           <Check className="size-4" />
-                          {m.role === "admin" ? "Demote to agent" : "Promote to admin"}
+                          {m.role === "admin" ? t("demoteToAgent") : t("promoteToAdmin")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -335,7 +336,7 @@ export function TeamPanel() {
                           className="text-destructive focus:text-destructive"
                         >
                           <Trash2 className="size-4" />
-                          Remove from organization
+                          {t("removeMember")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -351,12 +352,12 @@ export function TeamPanel() {
       {canManage && (
         <div>
           <h3 className="mb-2 text-sm font-semibold text-foreground">
-            Pending invitations
+            {tPending("title")}
           </h3>
           {invitations.length === 0 ? (
             <Card className="bg-card border-border shadow-card">
               <CardContent className="px-5 py-6 text-center text-sm text-muted-foreground">
-                No pending invitations.
+                {tPending("empty")}
               </CardContent>
             </Card>
           ) : (
@@ -373,25 +374,25 @@ export function TeamPanel() {
                           {inv.email}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
-                          {ROLE_LABEL[inv.role]} · {relativeDeadline(inv.expires_at)}
+                          {tRoles(inv.role)} · {relativeDeadline(inv.expires_at, tPending)}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => {
                           navigator.clipboard.writeText(inviteUrl(inv.token));
-                          toast.success("Invitation URL copied");
+                          toast.success(t("toasts.urlCopied"));
                         }}
-                        title="Copy invitation URL"
+                        title={tPending("copyTitle")}
                         className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                       >
                         <Copy className="size-3.5" />
-                        Copy URL
+                        {tPending("copyUrl")}
                       </button>
                       <button
                         type="button"
                         onClick={() => revokeInvitation(inv.id)}
-                        title="Revoke invitation"
+                        title={tPending("revokeTitle")}
                         className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       >
                         <Trash2 className="size-4" />
@@ -409,15 +410,15 @@ export function TeamPanel() {
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Invite a teammate</DialogTitle>
+            <DialogTitle>{t("inviteDialog.title")}</DialogTitle>
             <DialogDescription>
-              They&apos;ll receive an invitation URL to join {activeOrg?.name ?? "the organization"}.
+              {t("inviteDialog.description", { orgName: activeOrg?.name ?? t("inviteDialog.fallbackOrgName") })}
             </DialogDescription>
           </DialogHeader>
 
           {justCreated ? (
             <div className="space-y-3 py-2">
-              <Label>Invitation URL</Label>
+              <Label>{t("inviteDialog.url")}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   readOnly
@@ -427,33 +428,33 @@ export function TeamPanel() {
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText(inviteUrl(justCreated.token));
-                    toast.success("Copied");
+                    toast.success(t("toasts.copied"));
                   }}
                   variant="outline"
                 >
                   <Copy className="size-4" />
-                  Copy
+                  {t("inviteDialog.copy")}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Send this URL to {justCreated.email}. It expires in 7 days.
+                {t("inviteDialog.sendHint", { email: justCreated.email })}
               </p>
             </div>
           ) : (
             <div className="space-y-4 py-2">
               <div className="space-y-2">
-                <Label htmlFor="invite-email">Email</Label>
+                <Label htmlFor="invite-email">{t("inviteDialog.email")}</Label>
                 <Input
                   id="invite-email"
                   type="email"
-                  placeholder="colleague@example.com"
+                  placeholder={t("inviteDialog.emailPlaceholder")}
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   autoFocus
                 />
               </div>
               <div className="space-y-2">
-                <Label>Role</Label>
+                <Label>{t("inviteDialog.role")}</Label>
                 <Select
                   value={inviteRole}
                   onValueChange={(v) => setInviteRole(v as "admin" | "agent")}
@@ -462,8 +463,8 @@ export function TeamPanel() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="agent">Agent — daily usage</SelectItem>
-                    <SelectItem value="admin">Admin — manage team &amp; settings</SelectItem>
+                    <SelectItem value="agent">{t("inviteDialog.roleAgent")}</SelectItem>
+                    <SelectItem value="admin">{t("inviteDialog.roleAdmin")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -472,7 +473,7 @@ export function TeamPanel() {
 
           <DialogFooter>
             {justCreated ? (
-              <Button onClick={() => setInviteOpen(false)}>Done</Button>
+              <Button onClick={() => setInviteOpen(false)}>{t("inviteDialog.done")}</Button>
             ) : (
               <>
                 <Button
@@ -480,16 +481,16 @@ export function TeamPanel() {
                   onClick={() => setInviteOpen(false)}
                   disabled={inviting}
                 >
-                  Cancel
+                  {t("inviteDialog.cancel")}
                 </Button>
                 <Button onClick={handleInvite} disabled={inviting}>
                   {inviting ? (
                     <>
                       <Loader2 className="size-4 animate-spin" />
-                      Creating…
+                      {t("inviteDialog.creating")}
                     </>
                   ) : (
-                    "Create invitation"
+                    t("inviteDialog.create")
                   )}
                 </Button>
               </>

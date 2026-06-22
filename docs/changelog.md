@@ -7,6 +7,84 @@
 
 ---
 
+## PR 10 — Localisation FR (Settings restants — onglets et panneaux)
+**Branche** : `dev`
+
+Tous les onglets restants de Settings entièrement en français :
+Profil + Mot de passe + Sessions, Tags, Équipe, Config WhatsApp,
+Modèles de messages.
+
+**🇫🇷 100 % de la surface utilisateur est désormais traduite** (sauf
+le deep config flow-builder, sujet d'un follow-up technique).
+
+### Changed
+- [src/components/settings/profile-form.tsx](../src/components/settings/profile-form.tsx) :
+  card profile + uploader avatar (3 toasts validation) + champs nom /
+  e-mail + bannière email-change-pending (via `t.rich` pour les
+  `<strong>` interpolés) + bloc account details (Role / Joined /
+  User ID). Date `Joined` au format locale-aware.
+- [src/components/settings/password-form.tsx](../src/components/settings/password-form.tsx) :
+  card + 3 champs + 5 messages d'erreur (longueur min, mismatch,
+  current incorrect, etc.) + bouton + toast succès.
+- [src/components/settings/sessions-card.tsx](../src/components/settings/sessions-card.tsx) :
+  card + dialog « Déconnecter partout ? » + toasts.
+- [src/components/settings/tag-manager.tsx](../src/components/settings/tag-manager.tsx) :
+  header, empty state, dialog création (nom + couleur + preview),
+  dialog suppression, toasts.
+- [src/components/settings/team-panel.tsx](../src/components/settings/team-panel.tsx) :
+  header avec nom de l'org en placeholder, liste des membres avec
+  rôles (Owner / Admin / Agent), menu d'actions (Promouvoir admin
+  / Rétrograder agent / Retirer), invitations en attente avec
+  expiration relative localisée (« expire dans X j / h »), dialog
+  d'invitation (vue formulaire + vue URL générée), tous les toasts.
+  `ROLE_LABEL` retiré, résolu via `t('settings.team.roles.*')`.
+- [src/components/settings/template-manager.tsx](../src/components/settings/template-manager.tsx) :
+  header avec boutons Sync depuis Meta + Nouveau modèle, empty
+  state, 4 statuts traduits (Brouillon / En attente / Approuvé /
+  Rejeté), dialog création (nom, catégorie, langue avec datalist,
+  type d'en-tête, corps avec placeholder ICU-escapé `'{{1}}'`,
+  pied de page), toasts (sync avec ICU plural, errors, truncated).
+- [src/components/settings/whatsapp-config.tsx](../src/components/settings/whatsapp-config.tsx) :
+  bannière de réinitialisation, alert de statut (Connected / Not
+  Connected), card credentials (Phone Number ID, WABA ID, Access
+  Token, Verify Token), card webhook, 3 boutons d'action (Save /
+  Test / Reset), sidebar instructions de setup en 4 étapes
+  (accordion), tous les toasts, lien doc Meta.
+
+### Added
+- Branche `settings.profile.*` / `settings.password.*` /
+  `settings.sessions.*` / `settings.tags.*` / `settings.team.*` /
+  `settings.whatsapp.*` / `settings.templates.*` dans
+  [messages/fr.json](../messages/fr.json) et
+  [messages/en.json](../messages/en.json) — ~280 nouvelles clés.
+
+### Notes
+- `t.rich()` utilisé dans le profile-form pour l'avis email
+  pending : `{oldEmail}` / `{newEmail}` rendus en `<strong>` via
+  callbacks plutôt qu'en string interpolée. Pattern next-intl
+  canonique pour ce cas.
+- ICU placeholders Meta (`{{1}}`, `{{2}}`) escapés en JSON avec
+  apostrophes single-quote (`'{{1}}'`) pour que MessageFormat les
+  traite comme littéraux et non comme syntaxe.
+- `relativeDeadline()` du team-panel prend désormais un translator
+  en argument (pattern identique à `formatRelative` pour les
+  automations en PR 9b).
+
+### 🎉 État final i18n (PR 6-10)
+| PR | Surface |
+|---|---|
+| 6 | Socle next-intl + auth + onboarding + accept-invite + frame dashboard + Appearance |
+| 7 | Inbox |
+| 8 | Contacts + Pipelines + Broadcasts |
+| 9 | AI Agent + Automations + Flows (pages + builder chrome) |
+| **10** | **Settings : Profile / Password / Sessions / Tags / Team / WhatsApp Config / Templates** |
+
+**Total i18n** : ~1 200+ clés FR↔EN couvrant la totalité de l'app
+côté utilisateur. **Couverture restante** : configs deep du
+flow-builder (~1 500 l, power-user) — follow-up optionnel.
+
+---
+
 ## PR 9c — Localisation FR (Parcours / Flows — pages + frame du builder)
 **Branche** : `dev`
 

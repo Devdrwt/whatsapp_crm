@@ -1181,6 +1181,307 @@
         "en": "English"
       },
       "saveError": "Impossible d'enregistrer la langue"
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Votre apparence dans l'application. Votre photo et votre nom apparaissent dans le header, la sidebar et partout où vos coéquipiers vous voient.",
+      "changePhoto": "Changer la photo",
+      "uploadPhoto": "Téléverser une photo",
+      "remove": "Retirer",
+      "photoHint": "PNG, JPG, WebP ou GIF. 2 Mo max.",
+      "displayName": "Nom d'affichage",
+      "displayNamePlaceholder": "Ada Lovelace",
+      "email": "E-mail",
+      "emailChangePending": "Vérifiez les boîtes de réception de {oldEmail} et {newEmail} — les deux doivent confirmer avant que le changement prenne effet.",
+      "accountDetails": "Détails du compte",
+      "role": "Rôle",
+      "joined": "Inscription",
+      "userId": "ID utilisateur",
+      "loading": "Chargement du profil…",
+      "saving": "Enregistrement…",
+      "save": "Enregistrer les modifications",
+      "toasts": {
+        "unsupportedImage": "Type d'image non pris en charge",
+        "unsupportedImageHint": "Utilisez PNG, JPG, WebP ou GIF.",
+        "imageTooLarge": "Image trop volumineuse",
+        "imageTooLargeHint": "Maximum 2 Mo.",
+        "nameRequired": "Le nom d'affichage est requis",
+        "invalidEmail": "Saisissez une adresse e-mail valide",
+        "uploadFailed": "Échec du téléversement : {error}",
+        "saveFailed": "Échec de l'enregistrement : {error}",
+        "saved": "Profil enregistré",
+        "savedEmailPending": "Profil enregistré — vérifiez votre e-mail pour confirmer le changement d'adresse",
+        "emailChangeFailed": "Échec du changement d'e-mail : {error}",
+        "unknownError": "Erreur inconnue"
+      }
+    },
+    "password": {
+      "title": "Mot de passe",
+      "description": "Utilisez au moins {min} caractères. Vous resterez connecté sur cet appareil après le changement.",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Confirmer le nouveau mot de passe",
+      "updating": "Mise à jour…",
+      "update": "Mettre à jour le mot de passe",
+      "errors": {
+        "noEmail": "Impossible de changer le mot de passe sans e-mail actuel",
+        "tooShort": "Le mot de passe doit contenir au moins {min} caractères",
+        "mismatch": "Le nouveau mot de passe et la confirmation ne correspondent pas",
+        "wrongCurrent": "Mot de passe actuel incorrect",
+        "updateFailed": "Échec de la mise à jour : {error}",
+        "unknown": "Erreur inconnue"
+      },
+      "toasts": {
+        "updated": "Mot de passe mis à jour"
+      }
+    },
+    "sessions": {
+      "title": "Sessions actives",
+      "description": "Déconnectez tous les appareils sur lesquels vous êtes connecté — y compris celui-ci. Utile si vous avez perdu un ordinateur ou partagé votre mot de passe.",
+      "signOutAll": "Déconnecter tous les appareils",
+      "dialogTitle": "Déconnecter partout ?",
+      "dialogDescription": "Tous les appareils connectés à ce compte seront déconnectés et devront se reconnecter. Vous serez redirigé vers la page de connexion.",
+      "cancel": "Annuler",
+      "signingOut": "Déconnexion…",
+      "confirmSignOut": "Déconnecter partout",
+      "toasts": {
+        "signOutFailed": "Déconnexion échouée : {error}",
+        "unknown": "Erreur inconnue"
+      }
+    },
+    "tags": {
+      "title": "Tags",
+      "subtitle": "Organisez vos contacts avec des tags colorés.",
+      "newTag": "Nouveau tag",
+      "loadFailed": "Échec du chargement des tags",
+      "noTagsTitle": "Aucun tag pour l'instant.",
+      "noTagsHint": "Créez des tags pour catégoriser vos contacts.",
+      "dialog": {
+        "title": "Nouveau tag",
+        "description": "Créez un nouveau tag avec un nom et une couleur.",
+        "name": "Nom du tag",
+        "namePlaceholder": "ex. Client VIP",
+        "color": "Couleur",
+        "preview": "Aperçu",
+        "defaultPreviewName": "Nom du tag",
+        "cancel": "Annuler",
+        "create": "Créer le tag",
+        "creating": "Création…"
+      },
+      "deleteDialog": {
+        "title": "Supprimer le tag",
+        "description": "Voulez-vous vraiment supprimer le tag « {name} » ? Il sera retiré de tous les contacts. Action irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer le tag",
+        "deleting": "Suppression…"
+      },
+      "toasts": {
+        "nameRequired": "Le nom du tag est requis",
+        "notAuthenticated": "Non authentifié",
+        "created": "Tag créé",
+        "createFailed": "Échec de la création du tag",
+        "deleted": "Tag supprimé",
+        "deleteFailed": "Échec de la suppression du tag"
+      }
+    },
+    "team": {
+      "title": "Équipe",
+      "subtitle": "Personnes qui peuvent accéder à {orgName}.",
+      "fallbackOrgName": "cette organisation",
+      "invite": "Inviter",
+      "loadFailed": "Échec du chargement de l'équipe",
+      "memberActions": "Actions du membre",
+      "you": "(vous)",
+      "promoteToAdmin": "Promouvoir admin",
+      "demoteToAgent": "Rétrograder agent",
+      "removeMember": "Retirer de l'organisation",
+      "roles": {
+        "owner": "Propriétaire",
+        "admin": "Admin",
+        "agent": "Agent"
+      },
+      "pending": {
+        "title": "Invitations en attente",
+        "empty": "Aucune invitation en attente.",
+        "copyTitle": "Copier l'URL d'invitation",
+        "copyUrl": "Copier l'URL",
+        "revokeTitle": "Révoquer l'invitation",
+        "expired": "expirée",
+        "expiresInDays": "expire dans {days} j",
+        "expiresInHours": "expire dans {hours} h"
+      },
+      "inviteDialog": {
+        "title": "Inviter un coéquipier",
+        "description": "Il recevra une URL d'invitation pour rejoindre {orgName}.",
+        "fallbackOrgName": "l'organisation",
+        "url": "URL d'invitation",
+        "copy": "Copier",
+        "sendHint": "Envoyez cette URL à {email}. Elle expire dans 7 jours.",
+        "email": "E-mail",
+        "emailPlaceholder": "collegue@exemple.com",
+        "role": "Rôle",
+        "roleAgent": "Agent — usage quotidien",
+        "roleAdmin": "Admin — gérer équipe et paramètres",
+        "cancel": "Annuler",
+        "creating": "Création…",
+        "create": "Créer l'invitation",
+        "done": "Terminé"
+      },
+      "prompts": {
+        "revoke": "Révoquer cette invitation ?",
+        "remove": "Retirer {label} de l'organisation ?"
+      },
+      "toasts": {
+        "emailRequired": "L'e-mail est requis",
+        "inviteCreated": "Invitation créée",
+        "inviteFailed": "Échec de la création de l'invitation",
+        "urlCopied": "URL d'invitation copiée",
+        "copied": "Copié",
+        "revoked": "Invitation révoquée",
+        "revokeFailed": "Échec de la révocation",
+        "roleUpdated": "Rôle mis à jour",
+        "roleUpdateFailed": "Échec du changement de rôle",
+        "memberRemoved": "Membre retiré",
+        "removeFailed": "Échec du retrait"
+      }
+    },
+    "whatsapp": {
+      "loadFailed": "Échec du chargement de la configuration WhatsApp",
+      "resetBanner": {
+        "title": "Le token enregistré ne peut pas être déchiffré"
+      },
+      "status": {
+        "connected": "Connecté",
+        "notConnected": "Non connecté",
+        "connectedDescription": "Votre API WhatsApp Business est connectée et prête à envoyer/recevoir des messages.",
+        "notConnectedDefault": "Configurez vos identifiants Meta API ci-dessous pour connecter votre compte WhatsApp Business."
+      },
+      "credentials": {
+        "title": "Identifiants API",
+        "description": "Saisissez vos identifiants Meta WhatsApp Business API.",
+        "phoneNumberId": "Phone Number ID",
+        "phoneNumberIdPlaceholder": "ex. 100234567890123",
+        "wabaId": "WhatsApp Business Account ID",
+        "wabaIdPlaceholder": "ex. 100234567890456",
+        "accessToken": "Token d'accès permanent",
+        "accessTokenPlaceholder": "Saisissez votre token d'accès",
+        "tokenHidden": "Token masqué pour la sécurité. Re-saisissez-le pour mettre à jour la configuration.",
+        "verifyToken": "Token de vérification webhook",
+        "verifyTokenPlaceholder": "Créez un token de vérification personnalisé",
+        "verifyTokenHint": "Une chaîne personnalisée que vous créez. Doit correspondre au token défini dans les paramètres webhook Meta."
+      },
+      "webhook": {
+        "title": "Configuration webhook",
+        "description": "Utilisez cette URL comme webhook callback dans le tableau de bord Meta App.",
+        "callbackUrl": "URL de webhook callback",
+        "urlCopied": "URL webhook copiée"
+      },
+      "actions": {
+        "save": "Enregistrer la configuration",
+        "saving": "Enregistrement…",
+        "test": "Tester la connexion API",
+        "testing": "Test…",
+        "reset": "Réinitialiser la configuration",
+        "resetting": "Réinitialisation…"
+      },
+      "toasts": {
+        "phoneNumberIdRequired": "Le Phone Number ID est requis",
+        "tokenRequiredInitial": "Le token d'accès est requis pour la configuration initiale",
+        "tokenReenterRequired": "Veuillez re-saisir le token d'accès pour enregistrer les modifications",
+        "connectedTo": "Connecté à {name}",
+        "savedSuccess": "Configuration enregistrée avec succès",
+        "saveFailed": "Échec de l'enregistrement de la configuration",
+        "apiSuccess": "Connexion API réussie",
+        "apiFailed": "Connexion API échouée",
+        "testFailed": "Test de connexion échoué. Vérifiez le réseau et réessayez.",
+        "resetConfirm": "Cela supprimera la configuration WhatsApp actuelle pour vous permettre de la re-saisir. Continuer ?",
+        "resetSuccess": "Configuration effacée. Vous pouvez maintenant re-saisir vos identifiants.",
+        "resetFailed": "Échec de la réinitialisation de la configuration"
+      },
+      "setup": {
+        "title": "Instructions de configuration",
+        "description": "Suivez ces étapes pour connecter votre API WhatsApp Business.",
+        "step1Title": "Créer une application Meta",
+        "step1": {
+          "1": "Allez sur developers.facebook.com",
+          "2": "Cliquez sur « My Apps » puis « Create App »",
+          "3": "Sélectionnez « Business » comme type d'application",
+          "4": "Remplissez les détails de l'application et créez"
+        },
+        "step2Title": "Ajouter le produit WhatsApp",
+        "step2": {
+          "1": "Dans le dashboard de votre app, cliquez sur « Add Product »",
+          "2": "Trouvez « WhatsApp » et cliquez sur « Set Up »",
+          "3": "Suivez l'assistant pour lier votre entreprise"
+        },
+        "step3Title": "Obtenir les identifiants API",
+        "step3": {
+          "1": "Allez dans WhatsApp > API Setup",
+          "2": "Copiez votre Phone Number ID",
+          "3": "Copiez votre WhatsApp Business Account ID",
+          "4": "Générez un token d'accès permanent depuis Business Settings > System Users"
+        },
+        "step4Title": "Configurer les webhooks",
+        "step4": {
+          "1": "Allez dans WhatsApp > Configuration",
+          "2": "Cliquez sur « Edit » dans la section Webhook",
+          "3": "Collez l'URL de webhook callback ci-dessus",
+          "4": "Saisissez le même token de vérification défini ici",
+          "5": "Abonnez-vous au champ webhook « messages »"
+        },
+        "docs": "Documentation API WhatsApp Meta"
+      }
+    },
+    "templates": {
+      "title": "Modèles de messages",
+      "subtitle": "Créez et gérez vos modèles de messages WhatsApp. Meta exige que chaque modèle soit approuvé dans WhatsApp Manager avant envoi — utilisez « Sync depuis Meta » pour récupérer la liste approuvée.",
+      "sync": "Sync depuis Meta",
+      "syncing": "Synchronisation…",
+      "syncTitle": "Récupérer les modèles approuvés depuis votre compte Meta WhatsApp Business",
+      "newTemplate": "Nouveau modèle",
+      "noTemplatesTitle": "Aucun modèle pour l'instant.",
+      "noTemplatesHint": "Créez votre premier modèle de message pour démarrer.",
+      "loadFailed": "Échec du chargement des modèles",
+      "statuses": {
+        "Draft": "Brouillon",
+        "Pending": "En attente",
+        "Approved": "Approuvé",
+        "Rejected": "Rejeté"
+      },
+      "dialog": {
+        "title": "Nouveau modèle de message",
+        "description": "Créez un nouveau modèle de message WhatsApp.",
+        "name": "Nom du modèle",
+        "namePlaceholder": "ex. order_confirmation",
+        "category": "Catégorie",
+        "language": "Langue",
+        "languageHint": "Doit correspondre exactement au code langue sous lequel le modèle est approuvé chez Meta — ex. en_US et en sont distincts.",
+        "headerType": "Type d'en-tête",
+        "headerNone": "Aucun",
+        "bodyText": "Corps du message",
+        "bodyPlaceholder": "Saisissez le corps de votre modèle. Utilisez '{{1}}', '{{2}}' pour les variables.",
+        "footerText": "Texte de pied de page",
+        "footerPlaceholder": "Texte de pied de page (optionnel)",
+        "cancel": "Annuler",
+        "create": "Créer le modèle",
+        "creating": "Création…"
+      },
+      "toasts": {
+        "nameRequired": "Le nom du modèle est requis",
+        "bodyRequired": "Le corps du message est requis",
+        "notAuthenticated": "Non authentifié",
+        "created": "Modèle créé",
+        "createFailed": "Échec de la création du modèle",
+        "deleted": "Modèle supprimé",
+        "deleteFailed": "Échec de la suppression du modèle",
+        "syncSuccess": "{count, plural, one {# modèle synchronisé} other {# modèles synchronisés}} depuis Meta",
+        "syncStats": " ({inserted} nouveaux, {updated} mis à jour)",
+        "syncFailedSome": "Échec sync : {names}",
+        "syncFailedMore": ", +{count} de plus",
+        "syncTruncated": "Limite de pagination Meta atteinte — d'autres modèles peuvent exister. Contactez le support si cela persiste.",
+        "syncFailed": "Échec de la synchronisation des modèles",
+        "syncFailedGeneric": "Sync échoué (HTTP {status})"
+      }
     }
   }
 }
