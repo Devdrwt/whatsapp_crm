@@ -7,6 +7,49 @@
 
 ---
 
+## PR 9b — Localisation FR (Automatisations)
+**Branche** : `dev`
+
+Module Automatisations entièrement en français : liste avec
+templates de démarrage rapide, builder canvas (déclencheur + 11
+types d'étapes + conditions branchées), édition, logs d'exécution.
+
+### Changed
+- [src/lib/automations/trigger-meta.ts](../src/lib/automations/trigger-meta.ts) :
+  `TRIGGER_META` n'a plus de `label` — uniquement `pillClass`. Le
+  libellé est traduit via `t('automations.triggers.*')` au call
+  site. `formatRelative()` prend désormais un translator + locale
+  pour rendre « il y a 5 min » / « 5m ago » selon la langue active.
+- [src/app/(dashboard)/automations/page.tsx](../src/app/(dashboard)/automations/page.tsx) :
+  header, dropdowns d'action, dialog de suppression, 4 templates
+  (Welcome / Out of Office / Lead Qualifier / Follow-Up), card
+  (run count en ICU plural, dernier run relatif), toasts.
+- [src/components/automations/automation-builder.tsx](../src/components/automations/automation-builder.tsx) :
+  TriggerCard, 11 step types (StepEditor + AddButton), branches
+  Oui/Non, boutons Save/Save Draft, déplacer haut/bas, preview
+  per-step traduit, validation toasts.
+- [src/app/(dashboard)/automations/[id]/logs/page.tsx](../src/app/(dashboard)/automations/[id]/logs/page.tsx) :
+  header, empty state, badges de statut (Succès / Partiel / Erreur),
+  compteur d'étapes en ICU plural, format relatif locale-aware.
+- [src/app/(dashboard)/automations/[id]/edit/page.tsx](../src/app/(dashboard)/automations/[id]/edit/page.tsx) :
+  message d'erreur + bouton retour.
+
+### Added
+- Branche `automations.*` dans [messages/fr.json](../messages/fr.json) /
+  [messages/en.json](../messages/en.json) (~140 clés sous `triggers`,
+  `triggerHints`, `steps`, `relative`, `page`, `builder`, `logs`,
+  `edit`). Compteurs en ICU plural (`{count, plural, ...}`).
+
+### Notes
+- Le composant `AutomationBuilder` est très imbriqué (TriggerCard,
+  StepList, StepRenderer, StepEditor, ConditionBranches,
+  AddButton). Pour éviter ~7 appels `useTranslations` séparés, le
+  builder appelle 4 hooks au top-level (`t`, `tSteps`, `tTriggers`,
+  `tTriggerHints`) et les passe en props aux sous-composants. Idiom
+  « hook au sommet, prop en bas » identique à pipelines-settings.
+
+---
+
 ## PR 9a — Localisation FR (Agent IA)
 **Branche** : `dev`
 

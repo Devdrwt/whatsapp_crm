@@ -308,6 +308,210 @@
       "saveFailed": "Échec de l'enregistrement des paramètres"
     }
   },
+  "automations": {
+    "triggers": {
+      "new_message_received": "Nouveau message",
+      "first_inbound_message": "1er message du contact",
+      "keyword_match": "Mot-clé",
+      "new_contact_created": "Nouveau contact",
+      "conversation_assigned": "Conversation assignée",
+      "tag_added": "Tag ajouté",
+      "time_based": "Récurrente"
+    },
+    "triggerHints": {
+      "new_message_received": "N'importe quel message entrant",
+      "first_inbound_message": "La 1re fois que ce contact vous écrit (fonctionne aussi pour les contacts ajoutés manuellement)",
+      "keyword_match": "Le message contient un mot-clé donné",
+      "new_contact_created": "Quand un contact est créé automatiquement à partir d'un message entrant",
+      "conversation_assigned": "Quand une conversation est assignée à un agent",
+      "tag_added": "Quand un tag est ajouté à un contact",
+      "time_based": "Sur une planification récurrente"
+    },
+    "steps": {
+      "send_message": "Envoyer un message",
+      "send_template": "Envoyer un modèle",
+      "add_tag": "Ajouter un tag",
+      "remove_tag": "Retirer un tag",
+      "assign_conversation": "Assigner la conversation",
+      "update_contact_field": "Mettre à jour un champ contact",
+      "create_deal": "Créer une affaire",
+      "wait": "Attendre",
+      "condition": "Condition (Si/Sinon)",
+      "send_webhook": "Envoyer un webhook",
+      "close_conversation": "Fermer la conversation"
+    },
+    "relative": {
+      "never": "jamais",
+      "justNow": "à l'instant",
+      "minutesAgo": "il y a {n} min",
+      "hoursAgo": "il y a {n} h",
+      "daysAgo": "il y a {n} j"
+    },
+    "page": {
+      "title": "Automatisations",
+      "subtitle": "Construisez des flux qui réagissent automatiquement aux événements WhatsApp®.",
+      "create": "Créer une automatisation",
+      "retry": "Réessayer",
+      "loadFailed": "Échec du chargement des automatisations",
+      "templatesTitle": "Modèles de démarrage rapide",
+      "emptyTitle": "Aucune automatisation pour l'instant",
+      "emptyHint": "Choisissez un modèle ci-dessus ou créez-en une de zéro.",
+      "templates": {
+        "welcome_message": {
+          "name": "Message de bienvenue",
+          "description": "Répondre automatiquement aux nouveaux contacts avec un mot d'accueil."
+        },
+        "out_of_office": {
+          "name": "Absence",
+          "description": "Répondre automatiquement hors horaires pour que personne ne reste sans réponse."
+        },
+        "lead_qualifier": {
+          "name": "Qualification lead",
+          "description": "Poser des questions de qualification pour filtrer les leads entrants."
+        },
+        "follow_up_reminder": {
+          "name": "Relance",
+          "description": "Programmer une relance automatique après un délai."
+        }
+      },
+      "card": {
+        "active": "actif",
+        "runs": "{count, plural, one {# exécution} other {# exécutions}}",
+        "lastRun": "dernier {time}",
+        "deactivate": "Désactiver",
+        "activate": "Activer",
+        "openMenu": "Ouvrir le menu",
+        "edit": "Modifier",
+        "duplicate": "Dupliquer",
+        "logs": "Voir les logs",
+        "delete": "Supprimer"
+      },
+      "toasts": {
+        "activated": "Automatisation activée",
+        "paused": "Automatisation en pause",
+        "updateFailed": "Échec de la mise à jour",
+        "duplicated": "Automatisation dupliquée",
+        "duplicateFailed": "Échec de la duplication",
+        "deleted": "Automatisation supprimée",
+        "deleteFailed": "Échec de la suppression"
+      },
+      "deleteDialog": {
+        "title": "Supprimer l'automatisation",
+        "descriptionPrefix": "Cette action supprime définitivement",
+        "descriptionSuffix": "et son historique d'exécution. Elle est irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      }
+    },
+    "builder": {
+      "back": "Retour aux automatisations",
+      "namePlaceholder": "Automatisation sans titre",
+      "active": "Active",
+      "activeAria": "Active",
+      "save": "Enregistrer",
+      "saveDraft": "Enregistrer le brouillon",
+      "untitled": "Automatisation sans titre",
+      "trigger": "Déclencheur",
+      "triggerType": "Type de déclencheur",
+      "keywordsLabel": "Mots-clés (séparés par des virgules)",
+      "matchType": "Type de correspondance",
+      "matchTypes": {
+        "contains": "Contient",
+        "exact": "Exact"
+      },
+      "tagIdPlaceholder": "ID du tag",
+      "schedulePlaceholder": "Expression cron ou HH:mm",
+      "stepKind": {
+        "condition": "Condition",
+        "wait": "Attente",
+        "action": "Action"
+      },
+      "addStep": "Ajouter une étape",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "delete": "Supprimer",
+      "branches": {
+        "yes": "Oui",
+        "no": "Non"
+      },
+      "preview": {
+        "noText": "pas encore de texte",
+        "pickTemplate": "choisissez un modèle",
+        "whenSubject": "quand {subject}",
+        "noUrl": "pas d'URL"
+      },
+      "fields": {
+        "messageText": "Texte du message",
+        "messagePlaceholder": "Bonjour ! Merci de nous écrire…",
+        "templateName": "Nom du modèle",
+        "language": "Langue",
+        "tagId": "ID du tag",
+        "mode": "Mode",
+        "modes": {
+          "round_robin": "Round-robin",
+          "specific": "Agent spécifique"
+        },
+        "agentId": "ID de l'agent",
+        "field": "Champ",
+        "fields": {
+          "name": "Nom",
+          "email": "E-mail",
+          "company": "Société"
+        },
+        "value": "Valeur",
+        "pipelineId": "ID du pipeline",
+        "stageId": "ID de l'étape",
+        "title": "Intitulé",
+        "amount": "Quantité",
+        "unit": "Unité",
+        "units": {
+          "minutes": "Minutes",
+          "hours": "Heures",
+          "days": "Jours"
+        },
+        "subject": "Sujet",
+        "subjects": {
+          "tag_presence": "Présence d'un tag",
+          "contact_field": "Champ contact",
+          "message_content": "Contenu du message",
+          "time_of_day": "Plage horaire"
+        },
+        "operand": "Opérande",
+        "operandPlaceholders": {
+          "time_of_day": "HH:mm-HH:mm",
+          "contact_field": "name / email / company",
+          "tag_presence": "ID du tag"
+        },
+        "url": "URL",
+        "bodyTemplate": "Modèle de corps (JSON)"
+      },
+      "closeConversationHint": "Définit le statut de la conversation à « fermée ». Aucune configuration nécessaire.",
+      "toasts": {
+        "saveFailed": "Échec de l'enregistrement",
+        "saved": "Automatisation enregistrée",
+        "created": "Automatisation créée"
+      }
+    },
+    "logs": {
+      "back": "Retour",
+      "executionLogs": "Logs d'exécution",
+      "emptyTitle": "Aucune exécution pour l'instant",
+      "emptyHint": "Déclenchez cette automatisation pour voir les exécutions ici.",
+      "loadFailed": "Échec du chargement des logs",
+      "unknownContact": "Contact inconnu",
+      "noSteps": "Aucune étape enregistrée.",
+      "stepsCount": "{count, plural, one {# étape} other {# étapes}}",
+      "status": {
+        "success": "Succès",
+        "partial": "Partiel",
+        "error": "Erreur"
+      }
+    },
+    "edit": {
+      "loadFailed": "Échec du chargement ({status})",
+      "back": "Retour aux automatisations"
+    }
+  },
   "broadcasts": {
     "statuses": {
       "draft": "Brouillon",
