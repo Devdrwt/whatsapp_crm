@@ -21,6 +21,8 @@
 11. [Réglages](#réglages)
 12. [Bonnes pratiques WhatsApp](#bonnes-pratiques-whatsapp)
 13. [Dépannage](#dépannage)
+14. [FAQ](#faq)
+15. [Guide de recette — comment tester](#guide-de-recette--comment-tester)
 
 ---
 
@@ -417,6 +419,347 @@ champ contact.
 La bascule est dans le **header** (icône soleil / lune, en haut à
 droite). Le choix s'enregistre sur cet appareil. Pour repartir sur le
 choix de l'OS, va dans **Settings → Appearance → System**.
+
+---
+
+## FAQ
+
+### Compte & organisation
+
+**Combien d'utilisateurs puis-je avoir dans mon organisation ?**
+Pas de limite technique imposée. Le plan **trial** par défaut comporte
+2 agents max (configurable côté Drwintech). Au-delà, on bascule sur
+*starter* / *pro*.
+
+**Puis-je appartenir à plusieurs organisations ?**
+Oui. Tu vois ton org active dans le sélecteur en haut du header
+(icône immeuble + nom). Clique pour switcher ou en créer une autre.
+Chaque org a ses contacts, conversations, deals, etc. — strictement
+isolés.
+
+**L'invitation que j'ai envoyée a expiré. Que faire ?**
+Les invitations sont valides **7 jours**. Va dans Settings → Team
+→ révoque l'ancienne et recrée-en une nouvelle. Le destinataire
+reçoit une nouvelle URL.
+
+**J'essaie d'accepter une invitation et l'app me dit *email mismatch*.**
+L'invitation a été envoyée à `marie@…` et tu es connecté en
+`pierre@…`. Déconnecte-toi (lien dans le message d'erreur) et
+reconnecte-toi avec l'email exact de l'invitation, OU demande au
+propriétaire de t'envoyer une nouvelle invitation à ton vrai email.
+
+**Comment retirer un membre ?**
+Settings → Team → menu `…` à côté du membre → *Remove from
+organization*. Le propriétaire (owner) ne peut pas être retiré et ne
+peut pas se retirer lui-même.
+
+### WhatsApp
+
+**Mon broadcast est *failed* sur certains destinataires.**
+Clique sur le broadcast pour voir la cause par destinataire :
+typiquement *numéro invalide*, *opt-out client* (le contact a fait
+"stop"), ou *template non approuvé pour cette langue*. Tu peux
+relancer après correction (créer un nouveau broadcast filtré sur les
+contacts à recibler).
+
+**Pourquoi je ne peux pas envoyer de texte libre à un client qui ne
+m'a pas répondu depuis longtemps ?**
+Règle Meta : passé **24 h** sans message du client, tu ne peux que
+lui envoyer un **template approuvé**. C'est une restriction côté Meta,
+pas Drwintech. Utilise un template *Utility* ou *Marketing*.
+
+**Mon numéro WhatsApp est suspendu / a un mauvais rating.**
+Va sur [business.facebook.com](https://business.facebook.com) → WhatsApp Manager → *Quality rating*.
+Trop de signalements de spam ou de blocages déclenchent la suspension.
+Pour réhabiliter : segmenter mieux tes audiences, espacer les
+broadcasts, demander un *opt-in* propre, répondre vite aux questions
+entrantes.
+
+**Comment importer mes contacts existants ?**
+Contacts → bouton **Import** → uploader un CSV. L'assistant te laisse
+mapper chaque colonne (nom, téléphone, email, tags, champs
+personnalisés). Les doublons sur le téléphone sont **fusionnés**, pas
+dupliqués.
+
+### Broadcasts, automations, flows
+
+**Différence entre *Automation* et *Flow* ?**
+- **Automation** : règle « quand X arrive, fais Y ». Linéaire ou avec
+  branches conditionnelles, sans interaction client (l'agent peut
+  envoyer un message, taguer, attendre, appeler un webhook).
+- **Flow** : conversation guidée par **boutons / listes** que le
+  client tape. Idéal pour menus, qualification, capture d'info en
+  libre-service.
+
+Si un même client peut déclencher les deux, le **flow gagne** :
+l'automation `new_message` est suspendue pour éviter la double
+réponse.
+
+**Mon flow ne démarre pas sur le mot-clé que j'ai défini.**
+- Le flow est-il **actif** (status `active`, pas `draft`) ?
+- Le mot-clé est-il bien orthographié dans `trigger_config` ? La
+  comparaison est insensible à la casse.
+- Le client est-il déjà dans un autre flow actif ? Un contact ne peut
+  avoir qu'**un run actif à la fois** (par org).
+
+**Le client a tapé autre chose qu'un bouton — que se passe-t-il ?**
+Selon le `fallback_policy` du flow : *reprompt* (re-propose la
+question, jusqu'à N fois), *handoff* (bascule humain — statut
+*Pending* dans l'inbox), *end* (termine), ou *ignore* (rien). Par
+défaut : reprompt × 2 puis handoff.
+
+### Agent IA
+
+**L'agent IA est-il facturé ?**
+À l'usage côté Anthropic (modèle Sonnet ou Haiku). Tarifs très bas
+côté Haiku (~$1 / million de tokens input). Pour une PME avec 50
+conversations IA / jour, compter quelques dollars par mois. **Côté
+Drwintech, on facture l'IA en pass-through** (le coût Anthropic est
+répercuté avec une faible marge).
+
+**L'agent IA donne une réponse incorrecte.**
+Va dans Settings → AI Agent et **édite la base de connaissance** : si
+l'info n'y est pas, l'agent ne la connaît pas (il n'invente jamais).
+Si l'info y est mais l'agent la formule mal, ajuste la **persona**
+("toujours répondre par une phrase courte", "ne jamais promettre une
+date").
+
+**L'agent IA répond *« Je transmets votre demande à un conseiller »*
+trop souvent.**
+C'est le **fallback message** : il s'active quand l'agent ne trouve
+PAS l'info dans la base. Étoffe la base de connaissance (FAQ,
+catalogue produit, prix, horaires) pour réduire ces cas.
+
+**Comment basculer manuellement une conversation IA → humain ?**
+Dans l'inbox, change le statut de la conversation de *Open* à
+*Pending*, ou assigne-la à un agent humain. Le flow / l'automation
+respecte le statut et l'agent IA reste silencieux tant que la
+conversation est sous responsabilité humaine.
+
+### Données
+
+**Mes données sont-elles sauvegardées ?**
+Oui, côté Supabase (PostgreSQL avec PITR — Point-in-Time Recovery —
+selon le plan choisi par Drwintech). Une org peut être **exportée à
+la demande** (sujet à venir : bouton *Export GDPR* dans Settings).
+
+**Je supprime un contact — que devient l'historique ?**
+La conversation et les broadcasts envoyés à ce contact **survivent**
+avec le `contact_id = NULL` (ils s'affichent comme *Contact supprimé*).
+Pas de perte d'audit ni de comptes broadcast.
+
+**Multi-langue ?**
+L'interface est en anglais pour l'instant (français côté guide et
+documentation). Sur les templates WhatsApp, chaque langue est un
+**template séparé** côté Meta, à approuver indépendamment.
+
+---
+
+## Guide de recette — comment tester
+
+> Liste de scénarios à passer avant de mettre en production un nouveau
+> client, après une livraison de fonctionnalité, ou comme **smoke test
+> hebdomadaire**. Chaque scénario : **Setup → Action → Attendu**.
+> Coche quand c'est vert.
+
+### 1. Compte & onboarding
+
+**1.1 Inscription**
+- **Setup** : nouveau compte Supabase Auth (`test@drwintech.com`).
+- **Action** : ouvrir l'app → tu es redirigé sur `/login` → créer un
+  compte via `/signup`.
+- **Attendu** : tu atterris sur `/onboarding/create-org`, tu crées
+  une org, tu arrives sur `/dashboard`.
+
+**1.2 Connexion existante**
+- **Setup** : un user avec une org déjà.
+- **Action** : login.
+- **Attendu** : direct sur `/dashboard`, sélecteur d'org en haut.
+
+**1.3 Switch d'org**
+- **Setup** : un user qui appartient à 2 orgs.
+- **Action** : cliquer le sélecteur d'org → choisir l'autre.
+- **Attendu** : page se rafraîchit, les données changent
+  (contacts/tags/deals de la nouvelle org), aucune fuite de l'org
+  précédente.
+
+### 2. Connexion WhatsApp
+
+**2.1 Première connexion d'un numéro**
+- **Setup** : un compte Meta Business avec WABA + numéro vérifié.
+- **Action** : Settings → WhatsApp Config → coller Phone Number ID,
+  WABA ID, Access Token → **Save & verify**.
+- **Attendu** : statut passe à **Connected**, sync des templates Meta
+  pour qu'ils apparaissent dans Templates.
+
+**2.2 Webhook entrant**
+- **Setup** : webhook configuré côté Meta sur `https://<domaine>/api/whatsapp/webhook`.
+- **Action** : envoyer un message WhatsApp à ton numéro depuis un
+  téléphone perso.
+- **Attendu** : la conversation apparaît dans Inbox en quelques
+  secondes ; le contact est auto-créé si nouveau.
+
+### 3. Contacts
+
+**3.1 Création manuelle**
+- **Action** : Contacts → New Contact → nom + téléphone E.164.
+- **Attendu** : le contact apparaît dans la liste, taguer/déduplication OK.
+
+**3.2 Import CSV**
+- **Setup** : CSV de 5+ lignes (nom, téléphone, email).
+- **Action** : Contacts → Import → upload, mapper les colonnes.
+- **Attendu** : les contacts créés en bulk, doublons fusionnés sur
+  le téléphone.
+
+### 4. Inbox
+
+**4.1 Envoi de message**
+- **Setup** : une conversation ouverte avec un contact qui t'a écrit
+  dans les 24 h.
+- **Action** : taper un texte → Send.
+- **Attendu** : message envoyé sur WhatsApp, status `sent` puis
+  `delivered`/`read` au fil des accusés Meta.
+
+**4.2 Envoi de template (hors fenêtre 24 h)**
+- **Setup** : un contact qui n'a pas écrit depuis ≥ 24 h.
+- **Action** : icône template → choisir un template approuvé.
+- **Attendu** : message template envoyé, status `sent`.
+
+**4.3 Assignation**
+- **Setup** : org avec ≥ 2 membres.
+- **Action** : ouvrir une conversation → *Assign to* → choisir un
+  collègue.
+- **Attendu** : la liste *Assign to* ne montre **que les membres de
+  l'org active** (pas d'autres orgs). L'assignation est persistée et
+  visible dans le sidebar.
+
+### 5. Pipelines & deals
+
+**5.1 Création pipeline + étapes**
+- **Action** : Pipelines → Settings → New pipeline → ajouter 3 étapes.
+- **Attendu** : pipeline visible dans le board Kanban, étapes
+  colorées et ordonnées.
+
+**5.2 Création deal**
+- **Setup** : pipeline + au moins 1 contact.
+- **Action** : New Deal → titre + montant + contact + étape.
+- **Attendu** : carte deal dans la bonne colonne du pipeline. Drag &
+  drop entre étapes met à jour `stage_id`.
+
+### 6. Broadcasts
+
+**6.1 Création + envoi immédiat**
+- **Setup** : ≥ 3 contacts taggés `client-fidele`.
+- **Action** : Broadcasts → New Broadcast → étape 1 choisir un
+  template approuvé → étape 2 filtrer sur tag `client-fidele` →
+  étape 3 personnaliser variables → étape 4 *Send now*.
+- **Attendu** : statut passe `draft → scheduled → sending → sent`,
+  compteurs `sent_count` / `delivered_count` / `read_count` montent
+  au fil des accusés Meta.
+
+**6.2 Broadcast programmé**
+- **Action** : étape 4 *Schedule* → date+heure futur.
+- **Attendu** : statut `scheduled` jusqu'à l'heure, puis `sending`.
+
+### 7. Automations
+
+**7.1 Auto-réponse sur mot-clé**
+- **Action** : Automations → New → trigger `keyword_match` avec mot
+  `prix` → étape `Send Message` (texte) → Activate.
+- **Attendu** : un message entrant contenant *prix* déclenche
+  l'envoi automatique. Vérifier dans **Logs**.
+
+**7.2 Wait + branch**
+- **Action** : automation avec `Wait 1 minute` puis `Send Message`.
+- **Attendu** : la 1re étape s'exécute immédiatement, la 2e attend
+  ~60 s (drainée par le cron) puis s'envoie.
+
+### 8. Flows
+
+**8.1 Welcome menu**
+- **Setup** : Flows → New from template → *Welcome menu*.
+- **Action** : Activate, puis envoyer un message au numéro.
+- **Attendu** : le flow démarre, envoie le menu avec boutons. Taper
+  un bouton avance correctement, taper un texte libre déclenche le
+  fallback (reprompt / handoff selon policy).
+
+**8.2 Collect input**
+- **Action** : flow avec nœud `collect_input` qui capture un email
+  puis l'utilise dans un message suivant via `{{vars.email}}`.
+- **Attendu** : la variable est interpolée correctement.
+
+### 9. Agent IA
+
+**9.1 Activation + réponse libre**
+- **Setup** : Settings → AI Agent → enable, persona simple, knowledge
+  base avec 3-4 infos (ex. horaires, prix d'1 produit, politique de
+  retour).
+- **Action** : envoyer un message libre type *"vous êtes ouverts le
+  samedi ?"* depuis un téléphone test (le contact ne doit être dans
+  aucun flow actif, et le message ne doit pas matcher une automation
+  `keyword`).
+- **Attendu** : l'agent répond en s'appuyant sur la knowledge base.
+
+**9.2 Fallback**
+- **Action** : message dont la réponse n'est PAS dans la knowledge
+  base.
+- **Attendu** : l'agent répond exactement avec le **fallback message**
+  configuré.
+
+### 10. Team / multi-agents
+
+**10.1 Invitation**
+- **Setup** : être owner / admin.
+- **Action** : Settings → Team → Invite → email + rôle agent →
+  copier l'URL.
+- **Attendu** : invitation visible dans la liste *Pending*.
+
+**10.2 Acceptation**
+- **Setup** : créer le user invité côté Supabase Auth (Auto Confirm).
+- **Action** : navigation privée → coller l'URL d'invitation → login
+  → cliquer *Accept invitation*.
+- **Attendu** : atterrissage sur `/dashboard` de l'org de l'inviteur,
+  les données de cette org sont visibles, `org_members` a une
+  nouvelle ligne.
+
+**10.3 Gardes par rôle**
+- **Setup** : se connecter en `agent`.
+- **Attendu** : onglet Team visible mais **pas de bouton Invite ni
+  de menu d'actions** sur les membres. La liste *Pending invitations*
+  est cachée.
+
+**10.4 Isolation cross-org**
+- **Setup** : 2 orgs distinctes A et B, un user dans chacune.
+- **Action** : créer des contacts/tags dans A, switcher sur B.
+- **Attendu** : aucune donnée de A visible dans B. Réciproquement.
+
+### 11. Thème
+
+**11.1 Bascule clair/sombre**
+- **Action** : cliquer l'icône soleil/lune dans le header (ou la
+  sidebar).
+- **Attendu** : tout l'UI bascule instantanément, choix sauvegardé
+  (recharge la page → mode conservé).
+
+**11.2 Réduire la sidebar (desktop)**
+- **Action** : cliquer le bouton **Collapse** en bas de la nav.
+- **Attendu** : sidebar passe à largeur réduite (icônes seulement),
+  choix persiste après reload.
+
+### 12. Smoke test rapide (5 minutes)
+À faire après chaque déploiement, dans l'ordre :
+1. ☐ Login sur un compte existant → atterrissage dashboard, sélecteur
+   d'org visible.
+2. ☐ Inbox → ouvrir une conversation, envoyer un texte, vérifier le
+   `sent` status.
+3. ☐ Settings → Team → onglet visible, liste des membres OK.
+4. ☐ Settings → AI Agent → édition + save → toast de succès, valeur
+   conservée au reload.
+5. ☐ Bascule clair/sombre → instantané + sauvegardé.
+6. ☐ Switch d'org (si applicable) → données différentes, aucune fuite.
+
+Si une étape échoue : ouvrir une issue immédiatement avec le
+contexte (org, user, étape, message d'erreur, console navigateur).
 
 ---
 
