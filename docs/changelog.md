@@ -7,6 +7,26 @@
 
 ---
 
+## PR 9a — Localisation FR (Agent IA)
+**Branche** : `dev`
+
+Panneau Settings → AI Agent entièrement en français : activation,
+nom de l'agent, sélection du modèle (Sonnet / Haiku), personnalité,
+base de connaissance, message de repli, toasts.
+
+### Changed
+- [src/components/settings/ai-agent-panel.tsx](../src/components/settings/ai-agent-panel.tsx) :
+  toutes les chaînes traduites. `MODEL_OPTIONS` réduit à
+  `{value, key}` — le label se résout via `t(\`models.${key}\`)`.
+  Placeholders et hints en FR (« Café Américano : 5 TND », horaires
+  « Lun-Ven 9 h-18 h »).
+
+### Added
+- Branche `aiAgent.*` dans [messages/fr.json](../messages/fr.json) /
+  [messages/en.json](../messages/en.json) (~25 clés).
+
+---
+
 ## PR 8c — Localisation FR (Broadcasts)
 **Branche** : `dev`
 

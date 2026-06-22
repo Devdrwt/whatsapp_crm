@@ -279,6 +279,35 @@
       }
     }
   },
+  "aiAgent": {
+    "title": "AI Agent",
+    "description": "Auto-reply to inbound WhatsApp messages that no flow or automation handles, using your business knowledge base.",
+    "enable": "Enable AI agent",
+    "enableHint": "When off, unmatched messages are left for a human.",
+    "agentName": "Agent name",
+    "agentNamePlaceholder": "e.g. Sofia",
+    "model": "Model",
+    "models": {
+      "sonnet": "Sonnet 4.6 — best quality",
+      "haiku": "Haiku 4.5 — faster / cheaper"
+    },
+    "persona": "Persona & tone",
+    "personaPlaceholder": "How should the agent speak? e.g. friendly, professional, always offer to help further.",
+    "knowledgeBase": "Knowledge base",
+    "knowledgeBaseHint": "Paste your menu, prices, FAQ, hours, policies. The agent only answers from this content.",
+    "knowledgeBasePlaceholder": "Opening hours: Mon–Fri 9am–6pm. Americano: $45…",
+    "fallbackMessage": "Fallback message",
+    "fallbackMessageHint": "Sent verbatim when the agent doesn't know the answer.",
+    "saving": "Saving…",
+    "save": "Save",
+    "toasts": {
+      "loadFailed": "Failed to load AI agent settings",
+      "notAuthenticated": "Not authenticated",
+      "nameRequired": "Agent name is required",
+      "saved": "AI agent settings saved",
+      "saveFailed": "Failed to save AI agent settings"
+    }
+  },
   "broadcasts": {
     "statuses": {
       "draft": "Draft",

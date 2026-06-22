@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Loader2, Bot } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -23,17 +24,15 @@ import type { AiAgentModel } from '@/types';
 const DEFAULT_FALLBACK =
   'Je n’ai pas cette information, je transmets votre demande à un conseiller.';
 
-const MODEL_OPTIONS: { value: AiAgentModel; label: string }[] = [
-  { value: 'claude-sonnet-4-6', label: 'Sonnet 4.6 — meilleure qualité' },
-  {
-    value: 'claude-haiku-4-5-20251001',
-    label: 'Haiku 4.5 — plus rapide / économique',
-  },
+const MODEL_OPTIONS: { value: AiAgentModel; key: 'sonnet' | 'haiku' }[] = [
+  { value: 'claude-sonnet-4-6', key: 'sonnet' },
+  { value: 'claude-haiku-4-5-20251001', key: 'haiku' },
 ];
 
 export function AiAgentPanel() {
   const supabase = createClient();
   const { user, loading: authLoading, activeOrgId, orgsLoading } = useAuth();
+  const t = useTranslations('aiAgent');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -75,7 +74,7 @@ export function AiAgentPanel() {
       }
     } catch (err) {
       console.error('Failed to fetch AI agent config:', err);
-      toast.error('Failed to load AI agent settings');
+      toast.error(t('toasts.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -83,11 +82,11 @@ export function AiAgentPanel() {
 
   async function handleSave() {
     if (!user || !activeOrgId) {
-      toast.error('Not authenticated');
+      toast.error(t('toasts.notAuthenticated'));
       return;
     }
     if (!agentName.trim()) {
-      toast.error('Agent name is required');
+      toast.error(t('toasts.nameRequired'));
       return;
     }
     try {
@@ -106,10 +105,10 @@ export function AiAgentPanel() {
         { onConflict: 'org_id' },
       );
       if (error) throw error;
-      toast.success('AI agent settings saved');
+      toast.success(t('toasts.saved'));
     } catch (err) {
       console.error('Save error:', err);
-      toast.error('Failed to save AI agent settings');
+      toast.error(t('toasts.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -128,11 +127,10 @@ export function AiAgentPanel() {
       <div>
         <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Bot className="size-5" />
-          AI Agent
+          {t('title')}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Auto-reply to inbound WhatsApp messages that no flow or automation
-          handles, using your business knowledge base.
+          {t('description')}
         </p>
       </div>
 
@@ -140,25 +138,25 @@ export function AiAgentPanel() {
         <CardContent className="space-y-5 pt-5">
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-foreground">Enable AI agent</Label>
+              <Label className="text-foreground">{t('enable')}</Label>
               <p className="text-xs text-muted-foreground mt-0.5">
-                When off, unmatched messages are left for a human.
+                {t('enableHint')}
               </p>
             </div>
             <Switch checked={enabled} onCheckedChange={setEnabled} />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground">Agent name</Label>
+            <Label className="text-foreground">{t('agentName')}</Label>
             <Input
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
-              placeholder="e.g. Sofia"
+              placeholder={t('agentNamePlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground">Model</Label>
+            <Label className="text-foreground">{t('model')}</Label>
             <Select
               value={model}
               onValueChange={(v) => setModel(v as AiAgentModel)}
@@ -169,7 +167,7 @@ export function AiAgentPanel() {
               <SelectContent>
                 {MODEL_OPTIONS.map((o) => (
                   <SelectItem key={o.value} value={o.value}>
-                    {o.label}
+                    {t(`models.${o.key}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -177,33 +175,32 @@ export function AiAgentPanel() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground">Persona &amp; tone</Label>
+            <Label className="text-foreground">{t('persona')}</Label>
             <Textarea
               value={persona}
               onChange={(e) => setPersona(e.target.value)}
-              placeholder="How should the agent speak? e.g. friendly, professional, always offer to help further."
+              placeholder={t('personaPlaceholder')}
               className="min-h-24"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground">Knowledge base</Label>
+            <Label className="text-foreground">{t('knowledgeBase')}</Label>
             <p className="text-xs text-muted-foreground">
-              Paste your menu, prices, FAQ, hours, policies. The agent only
-              answers from this content.
+              {t('knowledgeBaseHint')}
             </p>
             <Textarea
               value={knowledgeBase}
               onChange={(e) => setKnowledgeBase(e.target.value)}
-              placeholder="Opening hours: Mon–Fri 9am–6pm. Americano: $45..."
+              placeholder={t('knowledgeBasePlaceholder')}
               className="min-h-40"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground">Fallback message</Label>
+            <Label className="text-foreground">{t('fallbackMessage')}</Label>
             <p className="text-xs text-muted-foreground">
-              Sent verbatim when the agent doesn&apos;t know the answer.
+              {t('fallbackMessageHint')}
             </p>
             <Textarea
               value={fallbackMessage}
@@ -221,10 +218,10 @@ export function AiAgentPanel() {
               {saving ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
-                'Save'
+                t('save')
               )}
             </Button>
           </div>

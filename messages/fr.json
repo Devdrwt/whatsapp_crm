@@ -279,6 +279,35 @@
       }
     }
   },
+  "aiAgent": {
+    "title": "Agent IA",
+    "description": "Répond automatiquement aux messages WhatsApp entrants qu'aucun parcours ou automatisation ne gère, en s'appuyant sur votre base de connaissance.",
+    "enable": "Activer l'agent IA",
+    "enableHint": "Désactivé, les messages non traités sont laissés à un humain.",
+    "agentName": "Nom de l'agent",
+    "agentNamePlaceholder": "ex. Sofia",
+    "model": "Modèle",
+    "models": {
+      "sonnet": "Sonnet 4.6 — meilleure qualité",
+      "haiku": "Haiku 4.5 — plus rapide / économique"
+    },
+    "persona": "Personnalité & ton",
+    "personaPlaceholder": "Comment l'agent doit-il s'exprimer ? ex. amical, professionnel, propose toujours d'aider davantage.",
+    "knowledgeBase": "Base de connaissance",
+    "knowledgeBaseHint": "Collez votre menu, prix, FAQ, horaires, politiques. L'agent ne répond qu'à partir de ce contenu.",
+    "knowledgeBasePlaceholder": "Horaires : Lun-Ven 9 h-18 h. Café Américano : 5 TND…",
+    "fallbackMessage": "Message de repli",
+    "fallbackMessageHint": "Envoyé tel quel quand l'agent ne connaît pas la réponse.",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "toasts": {
+      "loadFailed": "Échec du chargement des paramètres de l'agent IA",
+      "notAuthenticated": "Non authentifié",
+      "nameRequired": "Le nom de l'agent est requis",
+      "saved": "Paramètres de l'agent IA enregistrés",
+      "saveFailed": "Échec de l'enregistrement des paramètres"
+    }
+  },
   "broadcasts": {
     "statuses": {
       "draft": "Brouillon",
