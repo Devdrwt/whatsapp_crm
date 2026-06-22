@@ -7,6 +7,78 @@
 
 ---
 
+## PR 11 — Email transactionnel : invitations via Resend
+**Branche** : `dev` · **Dépendance** : `resend@^6`
+
+Premier email transactionnel : quand un owner/admin crée une
+invitation depuis Settings → Team, l'invité reçoit un vrai e-mail
+bilingue avec un CTA « Accepter l'invitation ». Le bouton
+« Copier l'URL » reste affiché — le flux marche dans les deux
+sens (avec ou sans email).
+
+### Added
+- [src/lib/email/resend.ts](../src/lib/email/resend.ts) :
+  client Resend lazy-init + `isEmailEnabled()` + `sendEmail()` qui
+  swallow ses propres erreurs (jamais throw, jamais bloque la
+  réponse API). Sans `RESEND_API_KEY`, log + skip — l'invitation
+  est tout de même créée.
+- [src/lib/email/templates/invitation.ts](../src/lib/email/templates/invitation.ts) :
+  template HTML+text bilingue, fonction pure. Pas de dépendance
+  Resend ; reçoit `{locale, inviterName, orgName, acceptUrl, role}`
+  et renvoie `{subject, html, text}`. Tables imbriquées + styles
+  inline (compatibilité clients mail). Accent emerald Drwintech.
+  Échappement HTML appliqué uniquement aux champs user (`inviter`,
+  `org`, `url`) ; pas aux strings auteur (sinon `Accepter
+  l'invitation` devient `l&#39;invitation`).
+- [src/lib/email/templates/invitation.test.ts](../src/lib/email/templates/invitation.test.ts) :
+  5 cas — rendu FR, rendu EN, XSS escape (script + entités),
+  labels de rôles traduits, brand+expiry présents.
+
+### Changed
+- [src/app/api/orgs/invitations/route.ts](../src/app/api/orgs/invitations/route.ts) :
+  après l'upsert réussi, fire-and-forget l'email d'invitation —
+  pas de `await`, le helper swallow ses erreurs, l'API répond
+  immédiatement avec le token. Récupère le nom de l'inviter
+  (profile), le nom de l'org, et la locale active. URL absolue
+  construite depuis `NEXT_PUBLIC_SITE_URL` (fallback : origin de
+  la requête).
+- [.env.local.example](../.env.local.example) : ajoute les
+  variables `RESEND_API_KEY` et `EMAIL_FROM` avec instructions
+  (vérification de domaine sur Resend obligatoire pour la prod).
+
+### Notes
+- **Dégradation gracieuse partout** : sans `RESEND_API_KEY`,
+  l'invitation est créée, l'URL revient dans la réponse, le
+  Team panel l'affiche, l'inviteur la copie. Si Resend renvoie
+  une erreur (domaine non vérifié, throttling, etc.), même
+  comportement.
+- **Domaine d'envoi** : par défaut `Drwintech <onboarding@resend.dev>`
+  (sandbox Resend — délivrabilité limitée, OK pour les tests).
+  Pour la prod : vérifier `drwintech.com` (ou autre) sur
+  resend.com → Domains, puis poser `EMAIL_FROM` en conséquence.
+- **Locale du mail** : copie la langue active de l'inviteur
+  (cookie `drwintech.locale`). Si l'invitée parle français mais
+  qu'un admin anglophone l'invite, elle recevra l'email en
+  anglais. Acceptable pour la v1 ; cas marginal.
+- **Tests opt-in préservés** : le test de parité FR↔EN reste
+  vert (aucune nouvelle clé i18n — les strings du template
+  vivent dans le fichier TypeScript, pas dans `messages/*.json`,
+  car le template n'a pas besoin du moteur next-intl côté
+  serveur). Trade-off conscient : 2 sources de vérité pour les
+  traductions, mais le template a 13 strings vs ~1 200 dans
+  l'app ; le coût de maintenance est négligeable et garde la
+  fonction pure (testable sans provider React).
+
+### Suite (post-PR 11)
+1. **Email signup-welcome** + **password-reset-template** (à
+   brancher dans Supabase Auth, ~2 h chacun).
+2. **Onboarding WhatsApp BSP** (360dialog ou équivalent) — gros
+   chantier, demande partenariat.
+3. **Facturation locale** (Konnect / Paymee / Flutterwave).
+4. **Back-office super-admin Drwintech**.
+
+---
+
 ## PR 10 — Localisation FR (Settings restants — onglets et panneaux)
 **Branche** : `dev`
 

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveOrgIdFromCookies } from "@/lib/orgs/active-org";
+import { getActiveLocale } from "@/lib/i18n/active-locale";
+import { sendEmail } from "@/lib/email/resend";
+import { renderInvitationEmail } from "@/lib/email/templates/invitation";
 
 /**
  * Org invitations endpoint (Team management).
@@ -115,6 +118,69 @@ export async function POST(request: Request) {
     }
     console.error("[invitations] upsert failed:", error);
     return NextResponse.json({ error: "Insert failed" }, { status: 500 });
+  }
+
+  // Fire-and-forget invitation email. The DB row is already saved
+  // and the API response carries the token + URL for the inviter to
+  // hand-deliver if the email fails — so we never await this and we
+  // never let it throw past the catch.
+  try {
+    // Inviter display name + org name for the subject line. Two
+    // tiny lookups, parallelized. Either one missing is fine — we
+    // fall back gracefully so the email still sends.
+    const [profileRes, orgRes] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("organizations")
+        .select("name")
+        .eq("id", orgId)
+        .maybeSingle(),
+    ]);
+
+    const inviterName =
+      profileRes.data?.full_name?.trim() ||
+      profileRes.data?.email ||
+      user.email ||
+      "Drwintech";
+    const orgName = orgRes.data?.name?.trim() || "Drwintech";
+    const locale = await getActiveLocale();
+
+    // Build the absolute /accept-invite/<token> URL. NEXT_PUBLIC_SITE_URL
+    // is set per-deployment (.env.local); fall back to the request
+    // origin so dev still works without that env.
+    const origin =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+      new URL(request.url).origin;
+    const acceptUrl = `${origin}/accept-invite/${token}`;
+
+    const rendered = renderInvitationEmail({
+      locale,
+      inviterName,
+      orgName,
+      acceptUrl,
+      role: role as InviteRole,
+    });
+
+    // Never await — Resend can take a second or two, the inviter
+    // shouldn't wait. The send helper already swallows its own
+    // errors, but we wrap once more for safety.
+    void sendEmail({
+      to: email,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+    }).catch((err) => {
+      console.error("[invitations] email send failed:", err);
+    });
+  } catch (err) {
+    // Profile / org lookup or template rendering blew up. Log and
+    // move on — the invitation row + the URL in the response are
+    // still good.
+    console.error("[invitations] email pipeline failed:", err);
   }
 
   return NextResponse.json({ invitation: data }, { status: 201 });
