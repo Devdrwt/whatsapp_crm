@@ -7,6 +7,71 @@
 
 ---
 
+## PR 7 — Localisation FR (Inbox)
+**Branche** : `dev`
+
+Suite de la PR 6. Toute la surface **Inbox** passe en français, sous
+la racine i18n `inbox.*`. C'est la surface la plus consultée du
+produit — désormais entièrement utilisable sans toucher à l'anglais.
+
+### Changed
+- [src/app/(dashboard)/inbox/page.tsx](../src/app/(dashboard)/inbox/page.tsx) :
+  bannière « WhatsApp non connecté » traduite.
+- [src/components/inbox/conversation-list.tsx](../src/components/inbox/conversation-list.tsx) :
+  placeholder de recherche, filtres (Toutes / Ouvertes / En attente /
+  Fermées), états vides, libellés « Inconnu » et « Pas encore de
+  message ». Le calcul `formatDistanceToNow` honore la locale active
+  (`date-fns/locale/fr` ou `enUS`) → les « il y a 2 h » /
+  « 2 hours ago » suivent la langue.
+- [src/components/inbox/message-thread.tsx](../src/components/inbox/message-thread.tsx) :
+  empty state, libellés Status / Assign / Unassign / « (moi) »,
+  badges de session (Expirée / N h restantes / N min restantes),
+  séparateurs de date (Aujourd'hui / Hier + format de date
+  localisé), libellés d'auteur (« Vous » / fallback « Client »),
+  toasts d'erreur (envoi, envoi de modèle, assignation, réaction).
+  `STATUS_OPTIONS` réduit à `{value, color}` — le label est résolu
+  via `t(\`statusOptions.${value}\`)`.
+- [src/components/inbox/message-composer.tsx](../src/components/inbox/message-composer.tsx) :
+  placeholders (normal et session expirée), bannière 24 h, bouton
+  Templates, aria-label d'envoi, indication « Tapez « / » pour
+  réponses rapides ».
+- [src/components/inbox/message-actions.tsx](../src/components/inbox/message-actions.tsx) :
+  aria-labels (Réagir / Répondre / Copier / Réagir avec {emoji}),
+  toasts (Rien à copier / Copié / Copie échouée).
+- [src/components/inbox/message-bubble.tsx](../src/components/inbox/message-bubble.tsx) :
+  badge `Template`, « Réponse bouton », « Position partagée »,
+  fallbacks media (« {label} indisponible » → Image / Vidéo / Audio
+  / Document), alt d'image, fallback message non supporté.
+- [src/components/inbox/reply-quote.tsx](../src/components/inbox/reply-quote.tsx) :
+  aria « Annuler la réponse ». Signature de `buildReplyPreview`
+  étendue avec un argument `t` (`useTranslations('inbox.replyQuote')`)
+  — le caller dans `message-thread` passe le translator. Cleaner que
+  de propager un dict statique.
+- [src/components/inbox/contact-sidebar.tsx](../src/components/inbox/contact-sidebar.tsx) :
+  empty state, en-têtes Tags / Affaires actives / Notes, placeholder
+  « Ajouter une note… ».
+- [src/components/inbox/template-picker.tsx](../src/components/inbox/template-picker.tsx) :
+  titre du dialog, descriptions (pick / fill), états vides, libellés
+  Variable / Aperçu / Retour / Envoyer le modèle / Annuler.
+
+### Added
+- Branche `inbox.*` dans [messages/fr.json](../messages/fr.json) et
+  [messages/en.json](../messages/en.json) (~110 clés organisées par
+  composant : `page`, `conversationList`, `thread`, `composer`,
+  `actions`, `replyQuote`, `bubble`, `contactSidebar`,
+  `templatePicker`).
+
+### Notes
+- Date-locale dynamique : `useLocale()` → `fr`/`enUS` de `date-fns`,
+  passé à `formatDistanceToNow` (liste de conversations) et `format`
+  (séparateurs de jour dans le thread).
+- Le test de parité (PR 6) couvre automatiquement les ~110 nouvelles
+  clés — si une clé FR est ajoutée sans EN (ou vice-versa), CI rouge.
+- Reste pour PR 8-10 : Contacts, Pipelines, Broadcasts, Automations,
+  Flows, Settings détaillés.
+
+---
+
 ## PR 6 — Localisation FR (socle i18n + frame)
 **Branche** : `dev` · **Dépendance** : `next-intl@^4`
 

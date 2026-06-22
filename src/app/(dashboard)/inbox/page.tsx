@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import type { Conversation, Message, Contact, ConversationStatus } from "@/types";
 import { useRealtime } from "@/hooks/use-realtime";
@@ -17,6 +18,7 @@ export default function InboxPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { activeOrgId, orgsLoading } = useAuth();
+  const t = useTranslations("inbox.page");
   /**
    * `?c=<id>` deep-link support. Used when landing here from the
    * dashboard's recent-conversations list so the right thread opens
@@ -508,7 +510,7 @@ export default function InboxPage() {
         <div className="flex shrink-0 items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2">
           <WifiOff className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           <p className="text-xs text-amber-600 dark:text-amber-400">
-            WhatsApp® is not connected. Go to Settings to connect your account.
+            {t("whatsappNotConnected")}
           </p>
         </div>
       )}

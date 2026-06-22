@@ -8,6 +8,136 @@
     "back": "Back",
     "close": "Close"
   },
+  "inbox": {
+    "page": {
+      "whatsappNotConnected": "WhatsApp® is not connected. Go to Settings to connect your account."
+    },
+    "conversationList": {
+      "searchPlaceholder": "Search conversations…",
+      "filters": {
+        "all": "All",
+        "open": "Open",
+        "pending": "Pending",
+        "closed": "Closed"
+      },
+      "emptyResults": "No conversations found",
+      "noMessagesYet": "No messages yet",
+      "unknownName": "Unknown"
+    },
+    "thread": {
+      "emptyTitle": "Select a conversation",
+      "emptyHint": "Choose a conversation from the left to start messaging",
+      "backAria": "Back to conversations",
+      "refreshAria": "Refresh conversation",
+      "refreshTitle": "Refresh",
+      "statusFallback": "Status",
+      "statusOptions": {
+        "open": "Open",
+        "pending": "Pending",
+        "closed": "Closed"
+      },
+      "assignLabel": "Assign",
+      "assignedFallback": "Assigned",
+      "noTeammatesAvailable": "No teammates available",
+      "meSuffix": " (me)",
+      "unassign": "Unassign",
+      "emptyMessages": "No messages yet",
+      "emptyMessagesHint": "Send a template to start the conversation",
+      "session": {
+        "expired": "Expired",
+        "noCustomer": "No customer messages",
+        "hoursRemaining": "{hours}h remaining",
+        "minutesRemaining": "{minutes}m remaining"
+      },
+      "dateSeparator": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "author": {
+        "you": "You",
+        "customerFallback": "Customer"
+      },
+      "toasts": {
+        "sendFailed": "Failed to send: {reason}",
+        "templateSendFailed": "Failed to send template: {reason}",
+        "assignFailed": "Failed to update assignment",
+        "reactionFailed": "Reaction failed: {reason}",
+        "reactionTempWarning": "Wait for the message to finish sending"
+      },
+      "reasons": {
+        "network": "network error"
+      }
+    },
+    "composer": {
+      "placeholder": "Type a message… (Shift+Enter for new line)",
+      "placeholderExpired": "Session expired — use a template",
+      "sessionExpired": "24-hour session expired. Use a template to re-engage.",
+      "templatesButton": "Templates",
+      "templatesButtonTitle": "Send template",
+      "quickReplyHint": "Type '/' for quick replies",
+      "sendAria": "Send message"
+    },
+    "actions": {
+      "reactAria": "React",
+      "reactWithAria": "React with {emoji}",
+      "replyAria": "Reply",
+      "copyAria": "Copy",
+      "toasts": {
+        "nothingToCopy": "Nothing to copy",
+        "copied": "Copied",
+        "copyFailed": "Copy failed"
+      }
+    },
+    "replyQuote": {
+      "cancelAria": "Cancel reply",
+      "previews": {
+        "image": "[Image]",
+        "video": "[Video]",
+        "audio": "[Audio]",
+        "document": "[Document]",
+        "location": "[Location]",
+        "template": "[Template]",
+        "fallback": "[Message]"
+      }
+    },
+    "bubble": {
+      "mediaUnavailable": "{label} unavailable",
+      "mediaLabels": {
+        "image": "Image",
+        "video": "Video",
+        "audio": "Audio",
+        "document": "Document"
+      },
+      "templateBadge": "Template",
+      "locationShared": "Location shared",
+      "buttonReply": "Button reply",
+      "interactiveFallback": "[Interactive reply]",
+      "unsupportedFallback": "[Unsupported message type]",
+      "imageAlt": "Shared image"
+    },
+    "contactSidebar": {
+      "emptyState": "Select a conversation",
+      "tagsHeader": "Tags",
+      "noTags": "No tags",
+      "dealsHeader": "Active deals",
+      "noDeals": "No deals",
+      "notesHeader": "Notes",
+      "noteAddPlaceholder": "Add a note…"
+    },
+    "templatePicker": {
+      "titleSend": "Send template",
+      "descriptionPick": "Pick an approved WhatsApp template to send to this contact.",
+      "descriptionFill": "Fill in the placeholders to render this template. Meta requires every variable to be set.",
+      "emptyApproved": "No approved templates",
+      "emptyApprovedHint": "Approve a template in Meta WhatsApp Manager, then sync it from Settings → Templates.",
+      "previewLabel": "Preview",
+      "variableLabel": "Variable {name}",
+      "variablePlaceholder": "Value for {name}",
+      "back": "Back",
+      "send": "Send template",
+      "cancel": "Cancel"
+    }
+  },
   "auth": {
     "login": {
       "title": "Welcome back",

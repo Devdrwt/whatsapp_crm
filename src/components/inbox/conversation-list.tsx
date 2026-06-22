@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { Conversation, ConversationStatus } from "@/types";
 import { Search, ChevronDown } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, type Locale as DateLocale } from "date-fns";
+import { fr, enUS } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -13,7 +15,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ConversationListProps {
@@ -36,12 +37,8 @@ const STATUS_COLORS: Record<ConversationStatus, string> = {
   closed: "bg-muted-foreground",
 };
 
-const FILTER_OPTIONS: { label: string; value: ConversationStatus | "all" }[] = [
-  { label: "All", value: "all" },
-  { label: "Open", value: "open" },
-  { label: "Pending", value: "pending" },
-  { label: "Closed", value: "closed" },
-];
+const FILTER_VALUES = ["all", "open", "pending", "closed"] as const;
+type FilterValue = (typeof FILTER_VALUES)[number];
 
 export function ConversationList({
   activeConversationId,
@@ -50,8 +47,11 @@ export function ConversationList({
   onConversationsLoaded,
   resyncToken = 0,
 }: ConversationListProps) {
+  const t = useTranslations("inbox.conversationList");
+  const locale = useLocale();
+  const dateLocale = locale === "fr" ? fr : enUS;
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<ConversationStatus | "all">("all");
+  const [filter, setFilter] = useState<FilterValue>("all");
   const [loading, setLoading] = useState(true);
 
   // Keep the latest callback in a ref so the fetch effect below can
@@ -141,8 +141,6 @@ export function ConversationList({
     [onSelect]
   );
 
-  const activeFilter = FILTER_OPTIONS.find((o) => o.value === filter);
-
   return (
     // w-full on mobile so the list occupies the whole viewport when it's
     // the single pane showing; fixed 320px on desktop where it shares the
@@ -155,31 +153,29 @@ export function ConversationList({
           <Input
             value={search}
             onChange={handleSearchChange}
-            placeholder="Search conversations..."
+            placeholder={t("searchPlaceholder")}
             className="pl-9 text-sm focus:border-primary/50"
           />
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger className="inline-flex items-center justify-center h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground rounded-md hover:bg-accent">
-              {activeFilter?.label ?? "All"}
+              {t(`filters.${filter}`)}
               <ChevronDown className="h-3 w-3" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
           >
-            {FILTER_OPTIONS.map((opt) => (
+            {FILTER_VALUES.map((opt) => (
               <DropdownMenuItem
-                key={opt.value}
-                onClick={() => setFilter(opt.value)}
+                key={opt}
+                onClick={() => setFilter(opt)}
                 className={cn(
                   "text-sm",
-                  filter === opt.value
-                    ? "text-primary"
-                    : "text-foreground"
+                  filter === opt ? "text-primary" : "text-foreground"
                 )}
               >
-                {opt.label}
+                {t(`filters.${opt}`)}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -194,7 +190,7 @@ export function ConversationList({
           </div>
         ) : filtered.length === 0 ? (
           <div className="px-4 py-12 text-center">
-            <p className="text-sm text-muted-foreground">No conversations found</p>
+            <p className="text-sm text-muted-foreground">{t("emptyResults")}</p>
           </div>
         ) : (
           <div className="flex flex-col">
@@ -204,6 +200,8 @@ export function ConversationList({
                 conversation={conv}
                 isActive={conv.id === activeConversationId}
                 onSelect={handleSelect}
+                t={t}
+                dateLocale={dateLocale}
               />
             ))}
           </div>
@@ -217,15 +215,19 @@ interface ConversationItemProps {
   conversation: Conversation;
   isActive: boolean;
   onSelect: (conversation: Conversation) => void;
+  t: ReturnType<typeof useTranslations<"inbox.conversationList">>;
+  dateLocale: DateLocale;
 }
 
 function ConversationItem({
   conversation,
   isActive,
   onSelect,
+  t,
+  dateLocale,
 }: ConversationItemProps) {
   const contact = conversation.contact;
-  const displayName = contact?.name || contact?.phone || "Unknown";
+  const displayName = contact?.name || contact?.phone || t("unknownName");
   const initials = displayName.charAt(0).toUpperCase();
 
   const handleClick = useCallback(() => {
@@ -235,6 +237,7 @@ function ConversationItem({
   const timeAgo = conversation.last_message_at
     ? formatDistanceToNow(new Date(conversation.last_message_at), {
         addSuffix: false,
+        locale: dateLocale,
       })
     : "";
 
@@ -269,7 +272,7 @@ function ConversationItem({
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
           <p className="truncate text-xs text-muted-foreground">
-            {conversation.last_message_text || "No messages yet"}
+            {conversation.last_message_text || t("noMessagesYet")}
           </p>
           <div className="flex shrink-0 items-center gap-1.5">
             {conversation.unread_count > 0 && (

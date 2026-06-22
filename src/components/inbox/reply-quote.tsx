@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types";
 
@@ -21,6 +22,7 @@ export function ReplyQuote({
   preview,
   onDismiss,
 }: ReplyQuoteProps) {
+  const t = useTranslations("inbox.replyQuote");
   const isChip = !!onDismiss;
   return (
     <div
@@ -41,7 +43,7 @@ export function ReplyQuote({
         <button
           type="button"
           onClick={onDismiss}
-          aria-label="Cancel reply"
+          aria-label={t("cancelAria")}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" />
@@ -51,23 +53,35 @@ export function ReplyQuote({
   );
 }
 
-/** Build the one-line preview text shown inside a reply quote. */
-export function buildReplyPreview(message: Message): string {
-  if (message.content_text) return message.content_text;
-  switch (message.content_type) {
+/** Resolve the preview-text key in `inbox.replyQuote.previews` for a
+ *  message that has no text body. */
+function previewKey(
+  contentType: Message["content_type"],
+): "image" | "video" | "audio" | "document" | "location" | "template" | "fallback" {
+  switch (contentType) {
     case "image":
-      return "[Image]";
     case "video":
-      return "[Video]";
     case "audio":
-      return "[Audio]";
     case "document":
-      return "[Document]";
     case "location":
-      return "[Location]";
     case "template":
-      return "[Template]";
+      return contentType;
     default:
-      return "[Message]";
+      return "fallback";
   }
+}
+
+/**
+ * Build the one-line preview text shown inside a reply quote.
+ *
+ * Accepts a `t` translator scoped to `inbox.replyQuote` so callers in
+ * client components (message-thread) can pass `useTranslations(...)`
+ * straight through — no extra plumbing per call site.
+ */
+export function buildReplyPreview(
+  message: Message,
+  t: (key: `previews.${ReturnType<typeof previewKey>}`) => string,
+): string {
+  if (message.content_text) return message.content_text;
+  return t(`previews.${previewKey(message.content_type)}`);
 }

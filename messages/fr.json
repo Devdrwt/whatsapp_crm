@@ -8,6 +8,136 @@
     "back": "Retour",
     "close": "Fermer"
   },
+  "inbox": {
+    "page": {
+      "whatsappNotConnected": "WhatsApp® n'est pas connecté. Allez dans Paramètres pour connecter votre compte."
+    },
+    "conversationList": {
+      "searchPlaceholder": "Rechercher dans les conversations…",
+      "filters": {
+        "all": "Toutes",
+        "open": "Ouvertes",
+        "pending": "En attente",
+        "closed": "Fermées"
+      },
+      "emptyResults": "Aucune conversation",
+      "noMessagesYet": "Pas encore de message",
+      "unknownName": "Inconnu"
+    },
+    "thread": {
+      "emptyTitle": "Sélectionnez une conversation",
+      "emptyHint": "Choisissez une conversation à gauche pour commencer à discuter",
+      "backAria": "Retour à la liste",
+      "refreshAria": "Actualiser la conversation",
+      "refreshTitle": "Actualiser",
+      "statusFallback": "Statut",
+      "statusOptions": {
+        "open": "Ouverte",
+        "pending": "En attente",
+        "closed": "Fermée"
+      },
+      "assignLabel": "Assigner",
+      "assignedFallback": "Assignée",
+      "noTeammatesAvailable": "Aucun coéquipier disponible",
+      "meSuffix": " (moi)",
+      "unassign": "Désassigner",
+      "emptyMessages": "Pas encore de message",
+      "emptyMessagesHint": "Envoyez un modèle pour démarrer la conversation",
+      "session": {
+        "expired": "Expirée",
+        "noCustomer": "Aucun message client",
+        "hoursRemaining": "{hours} h restantes",
+        "minutesRemaining": "{minutes} min restantes"
+      },
+      "dateSeparator": {
+        "today": "Aujourd'hui",
+        "yesterday": "Hier"
+      },
+      "author": {
+        "you": "Vous",
+        "customerFallback": "Client"
+      },
+      "toasts": {
+        "sendFailed": "Envoi échoué : {reason}",
+        "templateSendFailed": "Envoi du modèle échoué : {reason}",
+        "assignFailed": "Mise à jour de l'assignation échouée",
+        "reactionFailed": "Réaction échouée : {reason}",
+        "reactionTempWarning": "Attendez la fin de l'envoi du message"
+      },
+      "reasons": {
+        "network": "erreur réseau"
+      }
+    },
+    "composer": {
+      "placeholder": "Tapez un message… (Maj+Entrée pour aller à la ligne)",
+      "placeholderExpired": "Session expirée — utilisez un modèle",
+      "sessionExpired": "La fenêtre de 24 h est expirée. Utilisez un modèle pour relancer la conversation.",
+      "templatesButton": "Modèles",
+      "templatesButtonTitle": "Envoyer un modèle",
+      "quickReplyHint": "Tapez « / » pour les réponses rapides",
+      "sendAria": "Envoyer le message"
+    },
+    "actions": {
+      "reactAria": "Réagir",
+      "reactWithAria": "Réagir avec {emoji}",
+      "replyAria": "Répondre",
+      "copyAria": "Copier",
+      "toasts": {
+        "nothingToCopy": "Rien à copier",
+        "copied": "Copié",
+        "copyFailed": "Copie échouée"
+      }
+    },
+    "replyQuote": {
+      "cancelAria": "Annuler la réponse",
+      "previews": {
+        "image": "[Image]",
+        "video": "[Vidéo]",
+        "audio": "[Audio]",
+        "document": "[Document]",
+        "location": "[Position]",
+        "template": "[Modèle]",
+        "fallback": "[Message]"
+      }
+    },
+    "bubble": {
+      "mediaUnavailable": "{label} indisponible",
+      "mediaLabels": {
+        "image": "Image",
+        "video": "Vidéo",
+        "audio": "Audio",
+        "document": "Document"
+      },
+      "templateBadge": "Modèle",
+      "locationShared": "Position partagée",
+      "buttonReply": "Réponse bouton",
+      "interactiveFallback": "[Réponse interactive]",
+      "unsupportedFallback": "[Type de message non pris en charge]",
+      "imageAlt": "Image partagée"
+    },
+    "contactSidebar": {
+      "emptyState": "Sélectionnez une conversation",
+      "tagsHeader": "Tags",
+      "noTags": "Aucun tag",
+      "dealsHeader": "Affaires actives",
+      "noDeals": "Aucune affaire",
+      "notesHeader": "Notes",
+      "noteAddPlaceholder": "Ajouter une note…"
+    },
+    "templatePicker": {
+      "titleSend": "Envoyer un modèle",
+      "descriptionPick": "Choisissez un modèle WhatsApp approuvé à envoyer à ce contact.",
+      "descriptionFill": "Renseignez les variables pour générer ce modèle. Meta exige que toutes les variables soient remplies.",
+      "emptyApproved": "Aucun modèle approuvé",
+      "emptyApprovedHint": "Faites approuver un modèle dans Meta WhatsApp Manager, puis synchronisez-le depuis Paramètres → Modèles.",
+      "previewLabel": "Aperçu",
+      "variableLabel": "Variable {name}",
+      "variablePlaceholder": "Valeur pour {name}",
+      "back": "Retour",
+      "send": "Envoyer le modèle",
+      "cancel": "Annuler"
+    }
+  },
   "auth": {
     "login": {
       "title": "Bon retour",
