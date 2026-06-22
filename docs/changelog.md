@@ -7,6 +7,102 @@
 
 ---
 
+## PR 13 — Back-office super-admin Drwintech
+**Branche** : `dev` · **Migration** : `019_super_admin_and_suspend.sql`
+
+Console interne pour l'équipe Drwintech : voir toutes les
+organisations de la plateforme, leurs membres, leur statut, et
+suspendre / réactiver une organisation depuis une seule page.
+
+### Database (migration 019)
+- `organizations.suspended_at TIMESTAMPTZ` + `suspended_reason TEXT` +
+  index partiel (les orgs suspendues étant rares, l'index ne
+  contient que les rangées non-NULL).
+- `is_super_admin()` `STABLE SECURITY DEFINER` — wrap autour du
+  check `profiles.role = 'super_admin'`. Anti-récursion : la
+  policy sur `profiles` elle-même utilise cette fonction sans
+  boucler. Même pattern que `user_in_org()` / `user_org_role()`
+  de la migration 015.
+- 4 policies RLS additives (super-admin uniquement) :
+  - SELECT sur `organizations`, `org_members`, `profiles` (vues
+    cross-org pour la console).
+  - UPDATE sur `organizations` (pour le suspend).
+  Les policies par-org existantes restent en place — un super-admin
+  satisfait l'une OU l'autre.
+- **Note** : la lecture des tables tenant (contacts, messages,
+  conversations) n'est PAS ouverte aux super-admins par défaut.
+  Le support deep-dive passe par un `SET LOCAL ROLE service_role`
+  dans une session SQL Editor — auditable et explicite.
+
+### Added
+- [src/lib/admin/guard.ts](../src/lib/admin/guard.ts) :
+  `assertSuperAdmin()` (redirige vers `/login` ou `/dashboard`) +
+  `checkSuperAdmin()` (renvoie `null`, pour les Route Handlers).
+- [src/lib/admin/guard.test.ts](../src/lib/admin/guard.test.ts) :
+  6 cas (no user, non-admin, super-admin) sur les deux variantes.
+- [src/app/(admin)/admin/layout.tsx](../src/app/(admin)/admin/layout.tsx) :
+  gate `assertSuperAdmin()` avant tout rendu.
+- [src/app/(admin)/admin/page.tsx](../src/app/(admin)/admin/page.tsx) :
+  Server Component qui fetch orgs + membres en parallèle, calcule
+  stats (total / actives / suspendues / total membres), rend une
+  bande de 4 cartes + le tableau orgs.
+- [src/components/admin/orgs-table.tsx](../src/components/admin/orgs-table.tsx) :
+  client component pour le tableau + dialogs Suspend (avec champ
+  raison) / Reactivate. Refresh via `router.refresh()` après mutation.
+- [src/app/api/admin/orgs/[id]/suspend/route.ts](../src/app/api/admin/orgs/[id]/suspend/route.ts) :
+  POST suspend (avec raison optionnelle) + DELETE unsuspend. Gate
+  via `checkSuperAdmin()`. RLS policy `Super-admins update
+  organizations` autorise l'écriture.
+- [src/app/suspended/page.tsx](../src/app/suspended/page.tsx) :
+  écran « organisation suspendue » avec le nom de l'org + la
+  raison (si fournie) + lien switch d'org + contact support.
+
+### Changed
+- [src/middleware.ts](../src/middleware.ts) :
+  - Auth-wall étendu à `/admin/*`, `/suspended`, `/api/admin/*`.
+  - Le `org_members` SELECT du gate org joint maintenant
+    `organizations` pour récupérer `suspended_at` en une seule
+    round-trip. Si l'org active est suspendue → redirect 302 vers
+    `/suspended` (sauf si déjà sur la page ou en onboarding pour
+    créer une autre org).
+- [src/components/layout/sidebar.tsx](../src/components/layout/sidebar.tsx) :
+  entrée « Console super-admin » dans le menu compte, conditionnée
+  à `profile?.role === 'super_admin'`. Icône `ShieldCheck` primary.
+
+### Added — i18n
+- Branches `admin.*` et `suspended.*` dans
+  [messages/fr.json](../messages/fr.json) / [messages/en.json](../messages/en.json) —
+  ~50 nouvelles clés (stats, table headers, dialogs, toasts,
+  suspended-page CTA).
+
+### Bootstrap du premier super-admin
+
+Aucun super-admin n'existe par défaut. Pour en désigner un :
+
+```sql
+UPDATE profiles SET role = 'super_admin'
+ WHERE email = 'admin@drwintech.com';
+```
+
+Au prochain reload, l'utilisateur voit « Console super-admin »
+dans son menu compte et peut accéder à `/admin`.
+
+### Tests d'isolation
+La suite cross-org (PR 5) reste valide : les nouvelles policies
+sont additives — un user non super-admin satisfait toujours
+uniquement la policy par-org. Si la suite est lancée avec un user
+de test (sans `role = 'super_admin'`), tout passe vert comme avant.
+
+### Notes & limites v1
+- Pas de **per-org detail page** profonde (clic sur org = pas
+  encore disponible). Pour la v1 le tableau + le statut + le
+  suspend suffisent. Sujet d'une future PR si besoin.
+- Pas de **audit log** des actions admin. Sujet d'une future PR.
+- Pas de **quotas** / **billing tiers** — Drwintech gère le
+  pricing manuellement pour le moment.
+
+---
+
 ## PR 12 — Templates Supabase Auth en français
 **Branche** : `dev`
 

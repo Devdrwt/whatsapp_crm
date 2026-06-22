@@ -8,6 +8,65 @@
     "back": "Back",
     "close": "Close"
   },
+  "admin": {
+    "title": "Drwintech Console",
+    "subtitle": "Platform view: organizations, members, suspension.",
+    "openMenu": "Super admin console",
+    "stats": {
+      "totalOrgs": "Organizations",
+      "activeOrgs": "Active",
+      "suspendedOrgs": "Suspended",
+      "totalMembers": "Total members"
+    },
+    "orgsTable": {
+      "title": "Organizations",
+      "headers": {
+        "name": "Name",
+        "owner": "Owner",
+        "members": "Members",
+        "createdAt": "Created",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "empty": "No organizations yet.",
+      "membersCount": "{count, plural, one {# member} other {# members}}",
+      "statusActive": "Active",
+      "statusSuspended": "Suspended",
+      "suspend": "Suspend",
+      "unsuspend": "Reactivate",
+      "suspendedAt": "Suspended on {date}"
+    },
+    "suspendDialog": {
+      "title": "Suspend {orgName}",
+      "description": "Members won't be able to access the organization while it's suspended. They see a \"suspended\" screen instead of the dashboard. Reversible anytime.",
+      "reasonLabel": "Reason (internal — not shown to the customer)",
+      "reasonPlaceholder": "e.g. unpaid invoice, webhook abuse, customer request…",
+      "cancel": "Cancel",
+      "suspending": "Suspending…",
+      "confirm": "Suspend"
+    },
+    "unsuspendDialog": {
+      "title": "Reactivate {orgName}",
+      "description": "Members regain access immediately.",
+      "cancel": "Cancel",
+      "unsuspending": "Reactivating…",
+      "confirm": "Reactivate"
+    },
+    "toasts": {
+      "suspended": "Organization suspended",
+      "unsuspended": "Organization reactivated",
+      "loadFailed": "Failed to load",
+      "actionFailed": "Action failed"
+    }
+  },
+  "suspended": {
+    "title": "This organization is suspended",
+    "description": "Access to <strong>{orgName}</strong> is temporarily blocked. Contact the Drwintech team to restore service.",
+    "reasonLabel": "Reason given:",
+    "switchOrg": "Switch to another organization",
+    "signOut": "Sign out",
+    "contactSupport": "Contact support: admin@drwintech.com"
+  },
   "contacts": {
     "page": {
       "title": "Contacts",

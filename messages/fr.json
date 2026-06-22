@@ -8,6 +8,65 @@
     "back": "Retour",
     "close": "Fermer"
   },
+  "admin": {
+    "title": "Console Drwintech",
+    "subtitle": "Vue plateforme : organisations, membres, suspension.",
+    "openMenu": "Console super-admin",
+    "stats": {
+      "totalOrgs": "Organisations",
+      "activeOrgs": "Actives",
+      "suspendedOrgs": "Suspendues",
+      "totalMembers": "Membres au total"
+    },
+    "orgsTable": {
+      "title": "Organisations",
+      "headers": {
+        "name": "Nom",
+        "owner": "Propriétaire",
+        "members": "Membres",
+        "createdAt": "Créée le",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "empty": "Aucune organisation pour l'instant.",
+      "membersCount": "{count, plural, one {# membre} other {# membres}}",
+      "statusActive": "Active",
+      "statusSuspended": "Suspendue",
+      "suspend": "Suspendre",
+      "unsuspend": "Réactiver",
+      "suspendedAt": "Suspendue le {date}"
+    },
+    "suspendDialog": {
+      "title": "Suspendre {orgName}",
+      "description": "Les membres ne pourront plus accéder à l'organisation tant qu'elle est suspendue. Elles voient un écran « organisation suspendue » à la place du dashboard. Réversible à tout moment.",
+      "reasonLabel": "Raison (interne — non affichée au client)",
+      "reasonPlaceholder": "ex. non-paiement, abus webhook, demande client…",
+      "cancel": "Annuler",
+      "suspending": "Suspension…",
+      "confirm": "Suspendre"
+    },
+    "unsuspendDialog": {
+      "title": "Réactiver {orgName}",
+      "description": "Les membres retrouveront l'accès immédiatement.",
+      "cancel": "Annuler",
+      "unsuspending": "Réactivation…",
+      "confirm": "Réactiver"
+    },
+    "toasts": {
+      "suspended": "Organisation suspendue",
+      "unsuspended": "Organisation réactivée",
+      "loadFailed": "Échec du chargement",
+      "actionFailed": "L'opération a échoué"
+    }
+  },
+  "suspended": {
+    "title": "Cette organisation est suspendue",
+    "description": "L'accès à <strong>{orgName}</strong> est temporairement bloqué. Contactez l'équipe Drwintech pour rétablir le service.",
+    "reasonLabel": "Raison fournie :",
+    "switchOrg": "Choisir une autre organisation",
+    "signOut": "Se déconnecter",
+    "contactSupport": "Contacter le support : admin@drwintech.com"
+  },
   "contacts": {
     "page": {
       "title": "Contacts",

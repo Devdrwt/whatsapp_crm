@@ -24,6 +24,7 @@ import {
   X,
   ChevronsLeft,
   ChevronsRight,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Avatar,
@@ -84,6 +85,8 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
   const { resolved, toggle } = useTheme();
   const totalUnread = useTotalUnread();
   const t = useTranslations("layout.sidebar");
+  const tAdmin = useTranslations("admin");
+  const isSuperAdmin = profile?.role === "super_admin";
 
   // Desktop-only collapsed state. Persists across reloads via
   // localStorage. The mobile drawer always renders full-width — `lg:`
@@ -404,6 +407,17 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 <Settings className="size-4" />
                 {t("userMenu.settings")}
               </DropdownMenuItem>
+              {isSuperAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    render={<Link href="/admin" onClick={onClose} />}
+                  >
+                    <ShieldCheck className="size-4 text-primary" />
+                    {tAdmin("openMenu")}
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
                 <LogOut className="size-4" />
