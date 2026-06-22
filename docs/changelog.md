@@ -7,6 +7,49 @@
 
 ---
 
+## PR 5 — Tests d'isolation cross-org au CI
+**Branche** : `dev`
+
+**Filet de sécurité non négociable** avant le 1er client payant
+(étude de faisabilité §4.9). Une suite Vitest qui prouve, sur 6
+tables sensibles, que la RLS org-based de PR 3 isole correctement
+les organisations entre elles.
+
+### Added
+- [src/lib/orgs/isolation.test.ts](../src/lib/orgs/isolation.test.ts) :
+  suite cross-org. Pour chaque table (`contacts`, `tags`,
+  `broadcasts`, `flows`, `ai_agent_configs`, `conversations`),
+  3 invariants asserts :
+  1. Owner CAN insert+read in his own org.
+  2. Member CANNOT see rows from another org (RLS USING).
+  3. Member CANNOT insert with another org's `org_id` (RLS WITH CHECK).
+- [src/lib/orgs/__test-utils.ts](../src/lib/orgs/__test-utils.ts) :
+  helpers `createAdminClient`, `createTestUser` (signup via admin +
+  signIn), `createOrgFor` (RPC `create_organization`),
+  `cleanup` (DELETE org puis user, ordre dicté par
+  `organizations.owner_id ON DELETE RESTRICT`).
+- [.env.test.example](../.env.test.example) : documente les 3 env
+  vars nécessaires et la procédure de provisionnement d'un projet
+  Supabase de test.
+
+### Changed
+- [vitest.config.ts](../vitest.config.ts) : forward
+  `TEST_SUPABASE_URL` / `TEST_SUPABASE_ANON_KEY` /
+  `TEST_SUPABASE_SERVICE_ROLE_KEY` depuis `process.env` vers le
+  runtime des tests (default `""` si absent).
+
+### Notes
+- **Opt-in** : sans la trio `TEST_SUPABASE_*`, la suite `skipIf`
+  proprement. `npm test` et le CI ([.github/workflows/ci.yml](../.github/workflows/ci.yml))
+  continuent de passer (171 tests existants, suite d'isolation grise).
+- **Use a DEDICATED test Supabase project** — la suite crée et détruit
+  des vrais users / orgs / rows. Ne jamais pointer sur dev ou prod.
+- **Brancher dans le CI** : créer 3 GitHub Secrets, les exposer dans
+  le bloc `env:` du job `check`. Sujet d'une PR ops dédiée quand le
+  projet de test sera prêt.
+
+---
+
 ## PR 4 — Multi-agents + invitations
 **Branche** : `dev` · **Migration** : `018_invitations_accept_fn.sql`
 
