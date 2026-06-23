@@ -1,4 +1,6 @@
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * Active-organization cookie helpers (server-side).
@@ -45,4 +47,70 @@ export async function setActiveOrgCookie(orgId: string): Promise<void> {
 export async function clearActiveOrgCookie(): Promise<void> {
   const store = await cookies();
   store.delete(ACTIVE_ORG_COOKIE);
+}
+
+/** Result of `requireOrgMembership()` — either the validated context
+ *  or a ready-to-return JSON response with the appropriate status. */
+export type OrgMembershipGuard =
+  | {
+      ok: true;
+      user: { id: string; email?: string | null };
+      orgId: string;
+      supabase: Awaited<ReturnType<typeof createClient>>;
+    }
+  | { ok: false; response: NextResponse };
+
+/**
+ * Auth + active-org-membership gate for API routes that combine the
+ * cookie-borne org id with the service-role client.
+ *
+ * The middleware reconciles the cookie on each page navigation, but
+ * API routes don't go through that reconciliation — so a client that
+ * tampered with `drwintech.org-id` in DevTools can reach a route with
+ * an org id they don't belong to. Routes that then use the service
+ * role (which bypasses RLS) end up writing into the wrong tenant.
+ *
+ * This helper closes that hole. It runs a SELECT against `org_members`
+ * via the AUTHENTICATED Supabase client — the RLS policy filters out
+ * other tenants, so a returned row proves membership.
+ *
+ * Usage:
+ *   const guard = await requireOrgMembership();
+ *   if (!guard.ok) return guard.response;
+ *   const { user, orgId, supabase } = guard;
+ *   // ...safe to use service-role with orgId now.
+ */
+export async function requireOrgMembership(): Promise<OrgMembershipGuard> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
+  }
+  const orgId = await getActiveOrgIdFromCookies();
+  if (!orgId) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: "No active organization" },
+        { status: 400 },
+      ),
+    };
+  }
+  const { data: membership } = await supabase
+    .from("org_members")
+    .select("org_id")
+    .eq("org_id", orgId)
+    .maybeSingle();
+  if (!membership) {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
+  }
+  return { ok: true, user, orgId, supabase };
 }

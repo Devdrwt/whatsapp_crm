@@ -7,6 +7,64 @@
 
 ---
 
+## PR 14 — Durcissement sécurité (cross-tenant + cron timing)
+**Branche** : `dev` · **Pas de migration** (code uniquement)
+
+Audit sécurité de l'ensemble du surface PR 1-13 → deux trous identifiés
+et corrigés avant la mise en recette.
+
+### Fixed
+- **Cross-tenant write via cookie forgé** — Cinq Route Handlers
+  combinaient l'`org_id` lu dans le cookie `drwintech.org-id` avec le
+  client `service-role` (qui contourne RLS), sans revérifier que
+  l'utilisateur appartenait à l'org. Un attaquant authentifié
+  pouvait, depuis l'onglet *Application → Cookies* de DevTools,
+  remplacer la valeur du cookie par l'UUID d'une org victime et
+  injecter une automation / un flow / déclencher l'engine dans cette
+  org. La cible la plus dangereuse : une automation `is_active=true`
+  avec un trigger `new_contact_created`, qui faisait ensuite partir
+  des messages WhatsApp depuis le numéro business de la victime à
+  chaque nouveau prospect entrant — usurpation de marque + phishing.
+- Routes concernées :
+  - `POST /api/automations`
+  - `GET /api/automations/[id]`
+  - `PATCH /api/automations/[id]`
+  - `DELETE /api/automations/[id]`
+  - `POST /api/automations/[id]/duplicate`
+  - `POST /api/automations/engine`
+  - `POST /api/flows`
+- **Compare cron non-timing-safe** — `/api/automations/cron`
+  utilisait `!==` pour comparer le `x-cron-secret`. Inconsistence
+  avec `/api/flows/cron` qui utilisait déjà `timingSafeEqual`.
+  Aligné sur le même pattern (length pre-check + `timingSafeEqual`).
+
+### Added
+- `requireOrgMembership()` dans
+  [src/lib/orgs/active-org.ts](../src/lib/orgs/active-org.ts) — un
+  garde unique qui (1) vérifie l'auth, (2) lit le cookie
+  `drwintech.org-id`, (3) **vérifie via le client authentifié + RLS
+  que l'utilisateur est membre de l'org nommée**, et renvoie soit le
+  contexte validé `{ user, orgId, supabase }` soit une `NextResponse`
+  prête à retourner (401 / 400 / 403). Tous les nouveaux Route
+  Handlers admin-client qui dépendent du cookie doivent passer par ce
+  helper.
+- 4 tests unitaires dans
+  [src/lib/orgs/active-org.test.ts](../src/lib/orgs/active-org.test.ts)
+  (cas pas-de-user / pas-de-cookie / non-membre / membre validé).
+
+### Pourquoi ce trou existait
+Le middleware réconcilie le cookie sur chaque visite d'une page
+`PROTECTED_PATHS`, mais **les routes `/api/*` ne sont pas dans cette
+liste** — donc le cookie atteignait les handlers sans re-validation.
+`requireOrgMembership` ferme la porte côté handler.
+
+### Vérification
+- `npm run typecheck` : ✓ propre.
+- `npm test` : ✓ 194 / 18 skipped (4 nouveaux tests pour le helper).
+- `npm run lint` : ✓ 0 erreur (warnings pré-existants inchangés).
+
+---
+
 ## PR 13 — Back-office super-admin Drwintech
 **Branche** : `dev` · **Migration** : `019_super_admin_and_suspend.sql`
 

@@ -1,23 +1,15 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
-import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
+import { requireOrgMembership } from '@/lib/orgs/active-org'
 
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { user, orgId } = guard
 
   const admin = supabaseAdmin()
   const { data: original, error: origErr } = await admin

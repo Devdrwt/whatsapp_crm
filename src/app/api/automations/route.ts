@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
 import { getTemplate } from '@/lib/automations/templates'
 import { insertSteps, type BuilderStepInput } from '@/lib/automations/steps-tree'
@@ -7,19 +6,12 @@ import {
   validateStepsForActivation,
   validateTriggerForActivation,
 } from '@/lib/automations/validate'
-import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
+import { requireOrgMembership } from '@/lib/orgs/active-org'
 
 export async function GET() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { orgId, supabase } = guard
 
   const { data, error } = await supabase
     .from('automations')
@@ -31,16 +23,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { user, orgId } = guard
 
   const body = await request.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })

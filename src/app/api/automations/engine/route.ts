@@ -1,29 +1,19 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { runAutomationsForTrigger } from '@/lib/automations/engine'
-import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
+import { requireOrgMembership } from '@/lib/orgs/active-org'
 import type { AutomationTriggerType } from '@/types'
 
 /**
  * Manual trigger for testing or for external integrations that want
- * to fire automations. Auth is required — the caller's user_id is
- * used so RLS-safe data remains per-user, and the active org is read
- * from the httpOnly cookie set by the middleware.
+ * to fire automations. Auth is required, and the caller must belong
+ * to the active org — `requireOrgMembership` runs that gate so a
+ * forged `drwintech.org-id` cookie can't fire automations in a tenant
+ * the caller isn't a member of.
  */
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json(
-      { error: 'No active organization' },
-      { status: 400 },
-    )
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { user, orgId } = guard
 
   const body = await request.json().catch(() => null)
   if (!body?.trigger_type) {

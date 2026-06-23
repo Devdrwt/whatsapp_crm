@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/automations/admin-client'
 import {
   loadStepsTree,
@@ -10,28 +9,16 @@ import {
   validateStepsForActivation,
   validateTriggerForActivation,
 } from '@/lib/automations/validate'
-import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
-
-async function requireUser() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  return user
-}
+import { requireOrgMembership } from '@/lib/orgs/active-org'
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
-  const user = await requireUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { orgId } = guard
 
   const admin = supabaseAdmin()
   const { data: automation, error } = await admin
@@ -53,13 +40,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
-  const user = await requireUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { orgId } = guard
 
   const body = await request.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
@@ -136,13 +119,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
-  const user = await requireUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { orgId } = guard
 
   const { error } = await supabaseAdmin()
     .from('automations')

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { getFlowTemplate } from '@/lib/flows/templates'
-import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
+import { requireOrgMembership } from '@/lib/orgs/active-org'
 
 /**
  * GET /api/flows — list the caller's flows.
@@ -14,31 +13,10 @@ import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
  * routes themselves are open.
  */
 
-async function requireUser(): Promise<
-  | { ok: true; userId: string; supabase: Awaited<ReturnType<typeof createClient>> }
-  | { ok: false; status: number; body: { error: string } }
-> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return { ok: false, status: 401, body: { error: 'Unauthorized' } }
-  }
-  return { ok: true, userId: user.id, supabase }
-}
-
 export async function GET() {
-  const guard = await requireUser()
-  if (!guard.ok) {
-    return NextResponse.json(guard.body, { status: guard.status })
-  }
-  const { supabase } = guard
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { orgId, supabase } = guard
 
   const { data, error } = await supabase
     .from('flows')
@@ -52,16 +30,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const guard = await requireUser()
-  if (!guard.ok) {
-    return NextResponse.json(guard.body, { status: guard.status })
-  }
-  const { userId } = guard
-
-  const orgId = await getActiveOrgIdFromCookies()
-  if (!orgId) {
-    return NextResponse.json({ error: 'No active organization' }, { status: 400 })
-  }
+  const guard = await requireOrgMembership()
+  if (!guard.ok) return guard.response
+  const { user, orgId } = guard
+  const userId = user.id
 
   const body = (await request.json().catch(() => null)) as
     | {
