@@ -1,0 +1,36 @@
+# Production stack for the Hostinger VPS (nginx front, certbot SSL).
+# Pattern: aligned on /opt/drwintech/docker-compose.yml.
+#
+# wacrm is a Next.js standalone server; the database is Supabase (cloud),
+# so no sidecar DB container is needed.
+#
+# The host nginx terminates TLS for drwt-crm.drwintech.com and proxies
+# to 127.0.0.1:3200 -> this container's port 3000. Secrets go into the
+# `.env` next to this file (see .env.production.example).
+
+services:
+  app:
+    image: ${APP_IMAGE:-ghcr.io/devdrwt/wacrm:latest}
+    restart: unless-stopped
+    environment:
+      # --- Public (baked at build time, repeated here for completeness;
+      # Next reads these at runtime too for server-side absolute URLs) ---
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      # --- Server-only secrets (never exposed to the client) ---
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      META_APP_SECRET: ${META_APP_SECRET}
+      AUTOMATION_CRON_SECRET: ${AUTOMATION_CRON_SECRET}
+      # --- Email (Resend) — optional; without RESEND_API_KEY the
+      # invitation flow gracefully falls back to "Copy link". ---
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-Drwintech <onboarding@resend.dev>}
+    ports:
+      # Loopback only — host nginx reverse-proxies to this.
+      - "127.0.0.1:3200:3000"
+    networks: [web]
+
+networks:
+  web:

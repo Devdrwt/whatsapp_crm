@@ -62,6 +62,24 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   /**
+   * Standalone output for the Docker production image. Produces a
+   * minimal .next/standalone bundle (server.js + traced deps) that
+   * runs without node_modules. See Dockerfile + docker-compose.yml.
+   */
+  output: "standalone",
+
+  /**
+   * Pull the i18n message catalogs (messages/fr.json, messages/en.json)
+   * into the standalone trace. i18n/request.ts dynamically imports
+   * `../messages/${locale}.json` — Next's tracer follows the template
+   * but `outputFileTracingIncludes` makes it explicit so a future
+   * locale-detection path can't silently leave a file out.
+   */
+  outputFileTracingIncludes: {
+    "/*": ["./messages/**/*.json"],
+  },
+
+  /**
    * Cache-Control policy.
    *
    * Why this exists:

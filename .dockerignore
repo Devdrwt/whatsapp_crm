@@ -1,0 +1,51 @@
+# Build artifacts
+.next/
+node_modules/
+out/
+coverage/
+
+# Source control
+.git/
+.github/
+.gitignore
+.gitattributes
+
+# Local config / secrets
+.env
+.env.local
+.env.*.local
+.env.test*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs (not needed inside the runtime image)
+docs/
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+AGENTS.md
+CLAUDE.md
+LICENSE
+.github/
+
+# Supabase migrations are applied via the SQL Editor, not from the container.
+supabase/
+
+# Test scaffolding
+vitest.config.ts
+*.test.ts
+*.test.tsx
+
+# Misc
+*.log
+.npm/
+.prettierignore
+.prettierrc
+.editorconfig

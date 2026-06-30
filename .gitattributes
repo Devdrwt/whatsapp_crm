@@ -1,0 +1,6 @@
+# Force LF for shell scripts and Docker files — these run inside Linux
+# containers; a CRLF on the shebang line silently breaks `/bin/sh`.
+*.sh           text eol=lf
+docker-entrypoint.sh text eol=lf
+Dockerfile     text eol=lf
+.dockerignore  text eol=lf
