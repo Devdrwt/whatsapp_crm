@@ -29,7 +29,11 @@ services:
       EMAIL_FROM: ${EMAIL_FROM:-Drwintech <onboarding@resend.dev>}
     ports:
       # Loopback only — host nginx reverse-proxies to this.
-      - "127.0.0.1:3200:3000"
+      # Port 4000 (not 3200 as originally chosen) because the VPS runs
+      # a bare-metal Next.js on 3200 (Site_Drwt_Frontend) and 3400/3500
+      # (root-owned next-server processes). 4000 is the first clearly
+      # free port outside the crowded 3xxx range.
+      - "127.0.0.1:4000:3000"
     networks: [web]
 
 networks:
