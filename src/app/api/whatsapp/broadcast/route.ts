@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendTemplateMessage } from '@/lib/whatsapp/meta-api'
-import { decrypt } from '@/lib/whatsapp/encryption'
+import { providerFromConfig } from '@/lib/whatsapp/provider'
 import {
   sanitizePhoneForMeta,
   isValidE164,
@@ -129,7 +128,22 @@ export async function POST(request: Request) {
       )
     }
 
-    const accessToken = decrypt(config.access_token)
+    const provider = providerFromConfig(config)
+
+    // Broadcasts are template-only by construction, and templates are a
+    // Meta Cloud API object. Refuse the whole batch up front rather than
+    // walking the recipient list to produce N identical failures — and,
+    // more to the point, bulk sending is exactly the behaviour that gets
+    // a WhatsApp Web session banned. The pilot transport does not do it.
+    if (provider.kind !== 'meta') {
+      return NextResponse.json(
+        {
+          error:
+            'Broadcasts require the Meta Cloud API — approved templates do not exist on the pilot transport, and bulk sending over WhatsApp Web is the fastest way to get a number banned.',
+        },
+        { status: 400 }
+      )
+    }
 
     const results: BroadcastResult[] = []
     let sentCount = 0
@@ -156,9 +170,7 @@ export async function POST(request: Request) {
 
       for (const variant of variants) {
         try {
-          const result = await sendTemplateMessage({
-            phoneNumberId: config.phone_number_id,
-            accessToken,
+          const result = await provider.sendTemplate({
             to: variant,
             templateName: template_name,
             language: template_language || 'en_US',

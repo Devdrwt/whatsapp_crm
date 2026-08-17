@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getMediaUrl, downloadMedia } from '@/lib/whatsapp/meta-api'
-import { decrypt } from '@/lib/whatsapp/encryption'
+import { providerFromConfig } from '@/lib/whatsapp/provider'
 import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 export async function GET(
@@ -51,21 +50,18 @@ export async function GET(
       )
     }
 
-    const accessToken = decrypt(config.access_token)
-
-    // Get the download URL from Meta
-    const mediaInfo = await getMediaUrl({ mediaId, accessToken })
-
-    // Download the binary data
-    const { buffer, contentType } = await downloadMedia({
-      downloadUrl: mediaInfo.url,
-      accessToken,
-    })
+    // Two very different fetches behind one call: Meta resolves the id to
+    // a short-lived CDN URL and downloads it, the gateway serves bytes it
+    // already decrypted at receive time. Either way the browser only ever
+    // sees this org-scoped proxy, never a provider URL.
+    const { buffer, contentType } = await providerFromConfig(config).fetchMedia(
+      mediaId
+    )
 
     return new Response(new Uint8Array(buffer), {
       status: 200,
       headers: {
-        'Content-Type': contentType || mediaInfo.mimeType || 'application/octet-stream',
+        'Content-Type': contentType || 'application/octet-stream',
         'Cache-Control': 'public, max-age=86400',
       },
     })

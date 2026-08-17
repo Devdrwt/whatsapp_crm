@@ -1,0 +1,11 @@
+{
+  // Emit config: same compiler options, minus the test files.
+  //
+  // The base tsconfig deliberately includes `*.test.ts` so `npm run
+  // typecheck` and the editor cover them. The Docker image copies the
+  // whole `src/`, so without this split the runtime image would ship
+  // compiled test files importing `vitest` — a devDependency that is not
+  // installed in the runner stage.
+  "extends": "./tsconfig.json",
+  "exclude": ["src/**/*.test.ts"]
+}

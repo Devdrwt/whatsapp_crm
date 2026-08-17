@@ -15,7 +15,7 @@ import type {
   AssignConversationStepConfig,
 } from '@/types'
 import { supabaseAdmin } from './admin-client'
-import { engineSendText, engineSendTemplate } from './meta-send'
+import { engineSendText, engineSendTemplate } from './provider-send'
 
 // ------------------------------------------------------------
 // Public API

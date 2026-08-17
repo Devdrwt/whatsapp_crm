@@ -7,6 +7,88 @@
 
 ---
 
+## PR 16 — Façade transport WhatsApp + side-car pilote Baileys
+**Branche** : `dev` · **Migration** : `020_whatsapp_provider_pilot.sql`
+
+Deux livrables, dont un seul est destiné à la production.
+
+**1. Façade `WhatsAppProvider` (structurel, utile dans tous les cas).**
+Les envois WhatsApp passaient en dur par `meta-api.ts` dans neuf
+fichiers, chacun reconstruisant le couple `phoneNumberId` +
+`accessToken` depuis `whatsapp_config`. Ajouter un second transport —
+ou demain un BSP, ou l'Embedded Signup — imposait de re-balayer les
+neuf. Le choix du transport est désormais résolu une fois par
+`providerFromConfig(config)`.
+
+**2. Side-car `wa-gateway` (Baileys) — USAGE PILOTE / INTERNE.**
+Transport WhatsApp Web non officiel, pour les démos et les tests
+bout-en-bout sans WABA. **Ni vendu, ni proposé, ni mentionné à un
+client** : il viole les CGU WhatsApp et peut faire bannir le numéro
+appairé. Voir `docs/pilote-baileys.md`.
+
+### Added
+- `src/lib/whatsapp/provider.ts` — interface `WhatsAppProvider`
+  (`sendText`, `sendTemplate`, `sendReaction`, `sendInteractive*`,
+  `verifyConnection`, `verifyMedia`, `fetchMedia`) + implémentations
+  Meta et Baileys. Les formes d'arguments sont celles de Meta moins
+  les deux champs d'identifiants, donc chaque appelant passe le même
+  littéral qu'avant.
+- `src/lib/whatsapp/baileys-gateway.ts` — client HTTP du side-car
+  (timeouts, erreurs typées `GatewayError` avec statut).
+- `src/lib/whatsapp/gateway-signature.ts` — HMAC-SHA256 partagé avec le
+  side-car, **fail closed** sans `WA_GATEWAY_SECRET`.
+- `src/app/api/admin/whatsapp-pilot/[orgId]/route.ts` — appairage
+  (QR ou code), état, dépairage. Réservé `super_admin`, 503 si le
+  gateway n'est pas configuré. Aucune UI, volontairement.
+- `services/wa-gateway/` — projet npm autonome : un socket Baileys par
+  org, credentials Signal sur volume, reconnexion à backoff, cache
+  média, ré-émission des événements **au format webhook Meta**.
+- 24 tests (`provider.test.ts`, `gateway-signature.test.ts`).
+- `docs/pilote-baileys.md` — cadre d'usage, garde-fous, limites.
+
+### Changed
+- `src/lib/automations/meta-send.ts` → `provider-send.ts`,
+  `src/lib/flows/meta-send.ts` → `provider-send.ts` (le nom mentait
+  désormais). Imports mis à jour dans `automations/engine.ts`,
+  `flows/engine.ts`, `ai-agent/responder.ts`.
+- Passés à la façade : `/api/whatsapp/send`, `/broadcast`, `/react`,
+  `/config`, `/media/[mediaId]`, `/webhook`, et les deux moteurs.
+- `/api/whatsapp/webhook` accepte désormais **deux** signatures
+  indépendantes : Meta (`x-hub-signature-256`, `META_APP_SECRET`) et
+  gateway (`x-wacrm-gateway-signature`, `WA_GATEWAY_SECRET`). Le
+  gateway ne détient pas l'App Secret, il ne peut donc pas contrefaire
+  du trafic Meta.
+- Le webhook rejette une charge signée par un transport mais visant une
+  org servie par l'autre — un gateway compromis ne peut pas injecter
+  dans une org Meta de production.
+- Auto-réparation des tokens CBC legacy conditionnée au provider Meta
+  (une ligne Baileys n'a pas de token à déchiffrer).
+- `/api/whatsapp/config` POST estampille `provider: 'meta'` : sauvegarder
+  des identifiants Meta ramène explicitement l'org sur le transport
+  officiel.
+- `tsconfig.json`, `eslint.config.mjs`, `.dockerignore` excluent
+  `services/` (projet séparé, avec son propre tsconfig).
+
+### Database
+- `020_whatsapp_provider_pilot.sql` (idempotente) —
+  `whatsapp_config.provider` (`'meta'` par défaut, CHECK
+  `meta|baileys`), `access_token` rendu nullable avec CHECK « une
+  ligne meta doit avoir un token », colonnes `session_status` /
+  `session_last_error` / `session_updated_at`.
+  **Ne change aucun comportement seule** : toutes les orgs existantes
+  restent en `'meta'`.
+
+### Limites assumées (transport pilote uniquement)
+- Broadcasts **refusés** (400) — l'envoi en masse est ce qui fait
+  bannir un numéro.
+- Templates **refusés** — objet propre à l'API Cloud.
+- Boutons / listes rendus en **menu texte numéroté**, avec remappage de
+  la réponse vers l'id d'option attendu par le moteur Flows (le runner
+  ne voit pas la différence). `WA_INTERACTIVE_MODE=native` pour les
+  vraies bulles, au risque qu'elles ne s'affichent pas.
+- Réactions limitées aux 2 000 derniers messages vus par le gateway.
+- Groupes ignorés ; média téléchargé à la réception (clés à usage unique).
+
 ## PR 14 — Durcissement sécurité (cross-tenant + cron timing)
 **Branche** : `dev` · **Pas de migration** (code uniquement)
 

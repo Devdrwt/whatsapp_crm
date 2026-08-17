@@ -16,7 +16,7 @@
  *   - Pure decision logic (which button matched, where to advance to,
  *     when to fallback) — here.
  *   - DB shape (table reads/writes) — here.
- *   - Meta API calls — `meta-send.ts` (engineSendInteractive*).
+ *   - WhatsApp sends — `provider-send.ts` (engineSendInteractive*).
  *   - Policy resolution (reprompt vs handoff vs end) — `fallback.ts`.
  *   - Type definitions — `types.ts`.
  *
@@ -37,7 +37,7 @@ import {
   engineSendInteractiveButtons,
   engineSendInteractiveList,
   engineSendText,
-} from "./meta-send";
+} from "./provider-send";
 import { decideFallback, resolveFallbackPolicy } from "./fallback";
 import {
   type CollectInputNodeConfig,

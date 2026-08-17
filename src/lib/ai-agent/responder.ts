@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/flows/admin-client";
-import { engineSendText } from "@/lib/flows/meta-send";
+import { engineSendText } from "@/lib/flows/provider-send";
 import { generateAgentReply, type HistoryMessage } from "./brain";
 import type { AiAgentModel } from "@/types";
 

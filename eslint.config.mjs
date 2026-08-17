@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The wa-gateway side-car is a standalone Node project with its own
+    // tsconfig and no Next.js in sight — linting it with the Next rules
+    // reports nothing useful.
+    "services/**",
   ]),
 ]);
 

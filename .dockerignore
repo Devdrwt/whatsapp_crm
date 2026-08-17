@@ -49,3 +49,6 @@ vitest.config.ts
 .prettierignore
 .prettierrc
 .editorconfig
+
+# wa-gateway side-car — built from its own Dockerfile with its own context.
+services/

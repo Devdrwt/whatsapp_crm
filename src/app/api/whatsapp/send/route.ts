@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendTextMessage, sendTemplateMessage } from '@/lib/whatsapp/meta-api'
+import { providerFromConfig } from '@/lib/whatsapp/provider'
 import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption'
 import { supabaseAdmin } from '@/lib/flows/admin-client'
 import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
@@ -122,17 +122,21 @@ export async function POST(request: Request) {
       )
     }
 
-    const accessToken = decrypt(config.access_token)
+    const provider = providerFromConfig(config)
 
     // Self-heal legacy CBC-encrypted tokens. Fire-and-forget: we
     // return from the send without waiting, so a failed upgrade just
     // means the next send tries again. The upgrade is idempotent —
     // concurrent sends both produce valid GCM ciphertexts of the same
     // plaintext, last write wins.
-    if (isLegacyFormat(config.access_token)) {
+    //
+    // Meta-only: a Baileys row has no `access_token` at all (its
+    // credentials are Signal keys held by the gateway), so guard on the
+    // provider before touching the column.
+    if (provider.kind === 'meta' && isLegacyFormat(config.access_token)) {
       void supabase
         .from('whatsapp_config')
-        .update({ access_token: encrypt(accessToken) })
+        .update({ access_token: encrypt(decrypt(config.access_token)) })
         .eq('id', config.id)
         .then(({ error }) => {
           if (error) {
@@ -185,9 +189,7 @@ export async function POST(request: Request) {
 
     const attempt = async (phone: string): Promise<string> => {
       if (message_type === 'template') {
-        const result = await sendTemplateMessage({
-          phoneNumberId: config.phone_number_id,
-          accessToken,
+        const result = await provider.sendTemplate({
           to: phone,
           templateName: template_name,
           params: template_params || [],
@@ -195,9 +197,7 @@ export async function POST(request: Request) {
         })
         return result.messageId
       }
-      const result = await sendTextMessage({
-        phoneNumberId: config.phone_number_id,
-        accessToken,
+      const result = await provider.sendText({
         to: phone,
         text: content_text,
         contextMessageId,
@@ -230,10 +230,12 @@ export async function POST(request: Request) {
 
       if (lastError) throw lastError
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown Meta API error'
-      console.error('Meta API send failed for all variants:', message)
+      const label = provider.kind === 'meta' ? 'Meta API' : 'WhatsApp gateway'
+      const message =
+        err instanceof Error ? err.message : `Unknown ${label} error`
+      console.error(`${label} send failed for all variants:`, message)
       return NextResponse.json(
-        { error: `Meta API error: ${message}` },
+        { error: `${label} error: ${message}` },
         { status: 502 }
       )
     }

@@ -44,3 +44,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# wa-gateway side-car (its own npm project, built in its own image)
+/services/wa-gateway/node_modules
+/services/wa-gateway/dist
+/services/wa-gateway/package-lock.json
