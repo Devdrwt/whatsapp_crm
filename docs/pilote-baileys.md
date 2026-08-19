@@ -190,6 +190,11 @@ curl -X DELETE https://<crm>/api/admin/whatsapp-pilot/<ORG_ID>
 Le `DELETE` déconnecte côté WhatsApp, supprime les credentials, l'état et
 le cache média, puis efface la ligne `whatsapp_config`.
 
+### 6.5 Recette
+
+La procédure de test complète — appairage, réception, émission, flows,
+garde-fous — est dans [recette-pilote-baileys.md](recette-pilote-baileys.md).
+
 ---
 
 ## 7. Exploitation
