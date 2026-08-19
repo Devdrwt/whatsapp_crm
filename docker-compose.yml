@@ -27,6 +27,13 @@ services:
       # invitation flow gracefully falls back to "Copy link". ---
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       EMAIL_FROM: ${EMAIL_FROM:-Drwintech <onboarding@resend.dev>}
+      # --- Baileys pilot side-car (internal only) — leave EMPTY in any
+      # deployment that serves clients. Unset means the app has no pilot
+      # transport at all: /api/admin/whatsapp-pilot answers 503 and the
+      # webhook's gateway signature check fails closed. ---
+      WA_GATEWAY_URL: ${WA_GATEWAY_URL:-}
+      WA_GATEWAY_TOKEN: ${WA_GATEWAY_TOKEN:-}
+      WA_GATEWAY_SECRET: ${WA_GATEWAY_SECRET:-}
     ports:
       # Loopback only — host nginx reverse-proxies to this.
       # Port 4000 (not 3200 as originally chosen) because the VPS runs
@@ -35,6 +42,45 @@ services:
       # free port outside the crowded 3xxx range.
       - "127.0.0.1:4000:3000"
     networks: [web]
+
+  # ============================================================
+  # wa-gateway — Baileys pilot side-car. INTERNAL ONLY.
+  # ============================================================
+  #
+  # Behind the `pilot` profile, so `docker compose up` does NOT start it.
+  # Bringing it up is an explicit act:
+  #
+  #   docker compose --profile pilot up -d
+  #
+  # It runs an unofficial WhatsApp Web client and can get the paired
+  # number banned. It must never run on a deployment that serves paying
+  # clients. See docs/pilote-baileys.md.
+  wa-gateway:
+    profiles: [pilot]
+    build: ./services/wa-gateway
+    image: ${WA_GATEWAY_IMAGE:-wacrm/wa-gateway:local}
+    restart: unless-stopped
+    environment:
+      PORT: 4100
+      WA_GATEWAY_TOKEN: ${WA_GATEWAY_TOKEN}
+      WA_GATEWAY_SECRET: ${WA_GATEWAY_SECRET}
+      # Reaches the app over the compose network, so the inbound webhook
+      # never leaves the host.
+      WA_WEBHOOK_URL: ${WA_WEBHOOK_URL:-http://app:3000/api/whatsapp/webhook}
+      # 'text' renders Flows menus as numbered lists (works everywhere);
+      # 'native' emits WhatsApp Web button/list shapes (unreliable).
+      WA_INTERACTIVE_MODE: ${WA_INTERACTIVE_MODE:-text}
+      LOG_LEVEL: ${WA_GATEWAY_LOG_LEVEL:-info}
+    volumes:
+      # Signal credentials live here. Losing this volume unpairs every
+      # session; copying it elsewhere clones the WhatsApp identity.
+      - wa-gateway-data:/data
+    # No `ports:` on purpose — the gateway is reachable only from `app`
+    # on the internal network, never from the host or the internet.
+    networks: [web]
+
+volumes:
+  wa-gateway-data:
 
 networks:
   web:

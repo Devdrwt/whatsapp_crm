@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { sendReactionMessage } from '@/lib/whatsapp/meta-api';
-import { decrypt } from '@/lib/whatsapp/encryption';
+import { providerFromConfig } from '@/lib/whatsapp/provider';
 import { sanitizePhoneForMeta } from '@/lib/whatsapp/phone-utils';
 import {
   checkRateLimit,
@@ -99,10 +98,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // WhatsApp config + access token
+    // WhatsApp config. `org_id` and `provider` are part of the select
+    // because providerFromConfig needs them to pick a transport — a
+    // narrower select would silently fall back to Meta for a Baileys org.
     const { data: config, error: configError } = await supabase
       .from('whatsapp_config')
-      .select('phone_number_id, access_token')
+      .select('org_id, provider, phone_number_id, access_token')
       .eq('org_id', orgId)
       .single();
 
@@ -113,23 +114,22 @@ export async function POST(request: Request) {
       );
     }
 
-    const accessToken = decrypt(config.access_token);
+    const provider = providerFromConfig(config);
     const sanitizedPhone = sanitizePhoneForMeta(contact.phone);
 
     try {
-      await sendReactionMessage({
-        phoneNumberId: config.phone_number_id,
-        accessToken,
+      await provider.sendReaction({
         to: sanitizedPhone,
         targetMessageId: targetMessage.message_id,
         emoji,
       });
     } catch (err) {
+      const label = provider.kind === 'meta' ? 'Meta API' : 'WhatsApp gateway';
       const message =
-        err instanceof Error ? err.message : 'Unknown Meta API error';
-      console.error('[whatsapp/react] Meta send failed:', message);
+        err instanceof Error ? err.message : `Unknown ${label} error`;
+      console.error(`[whatsapp/react] ${label} send failed:`, message);
       return NextResponse.json(
-        { error: `Meta API error: ${message}` },
+        { error: `${label} error: ${message}` },
         { status: 502 },
       );
     }

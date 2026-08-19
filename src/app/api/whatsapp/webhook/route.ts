@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption'
-import { getMediaUrl, downloadMedia } from '@/lib/whatsapp/meta-api'
+import { providerFromConfig, type WhatsAppProvider } from '@/lib/whatsapp/provider'
 import { normalizePhone, phonesMatch } from '@/lib/whatsapp/phone-utils'
 import { verifyMetaWebhookSignature } from '@/lib/whatsapp/webhook-signature'
+import {
+  verifyGatewaySignature,
+  GATEWAY_SIGNATURE_HEADER,
+} from '@/lib/whatsapp/gateway-signature'
 import { runAutomationsForTrigger } from '@/lib/automations/engine'
 import { dispatchInboundToFlows } from '@/lib/flows/engine'
 import { maybeRunAiAgent } from '@/lib/ai-agent/responder'
@@ -158,16 +162,32 @@ export async function GET(request: Request) {
 
 // POST - Receive messages
 export async function POST(request: Request) {
-  // Read raw body first so we can HMAC-verify the exact bytes Meta
+  // Read raw body first so we can HMAC-verify the exact bytes the sender
   // signed. request.json() would re-encode and break the signature.
   const rawBody = await request.text()
-  const signature = request.headers.get('x-hub-signature-256')
 
-  if (!verifyMetaWebhookSignature(rawBody, signature)) {
+  // Two independent senders reach this route, and each proves itself with
+  // its own key. Meta signs with the App Secret; the pilot gateway has no
+  // App Secret (and must not — that would let it forge Meta traffic) so it
+  // signs with WA_GATEWAY_SECRET under its own header. Both verifiers fail
+  // closed on a missing secret, so an instance that never configured the
+  // gateway simply has no second door.
+  const metaSignature = request.headers.get('x-hub-signature-256')
+  const gatewaySignature = request.headers.get(GATEWAY_SIGNATURE_HEADER)
+
+  const fromMeta = verifyMetaWebhookSignature(rawBody, metaSignature)
+  const fromGateway =
+    !fromMeta && verifyGatewaySignature(rawBody, gatewaySignature)
+
+  if (!fromMeta && !fromGateway) {
     // 401 (not 200) — we want Meta's delivery dashboard to show failures
     // loudly if a misconfiguration causes signatures to stop matching,
     // rather than silently eating events.
-    console.warn('[webhook] rejected request with invalid signature')
+    console.warn(
+      '[webhook] rejected request with invalid signature (meta header: %s, gateway header: %s)',
+      metaSignature ? 'present' : 'absent',
+      gatewaySignature ? 'present' : 'absent',
+    )
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
@@ -179,14 +199,25 @@ export async function POST(request: Request) {
   }
 
   // Process asynchronously so we can ack Meta within their timeout.
-  processWebhook(body).catch((error) => {
+  processWebhook(body, fromMeta ? 'meta' : 'baileys').catch((error) => {
     console.error('Error processing webhook:', error)
   })
 
   return NextResponse.json({ status: 'received' }, { status: 200 })
 }
 
-async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
+/**
+ * `source` is the transport whose signature actually validated, and it is
+ * enforced against each org's configured provider below. Without that
+ * check a signed payload from either sender could name any
+ * `phone_number_id` and inject inbound messages into any tenant — so a
+ * compromised pilot gateway would reach production Meta orgs. Pinning the
+ * two apart keeps the pilot's blast radius inside pilot orgs.
+ */
+async function processWebhook(
+  body: { entry?: WhatsAppWebhookEntry[] },
+  source: 'meta' | 'baileys',
+) {
   if (!body.entry) return
 
   for (const entry of body.entry) {
@@ -254,7 +285,20 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
         continue
       }
 
-      const decryptedAccessToken = decrypt(config.access_token)
+      // Refuse a payload signed by one transport but addressed to an org
+      // served by the other. Legitimate traffic never crosses: Meta only
+      // knows about numbers on a WABA, the gateway only about numbers it
+      // paired itself.
+      const configProvider = config.provider === 'baileys' ? 'baileys' : 'meta'
+      if (configProvider !== source) {
+        console.error(
+          `[webhook] ${source}-signed payload targets a "${configProvider}" org — dropping. phone_number_id:`,
+          phoneNumberId,
+        )
+        continue
+      }
+
+      const provider = providerFromConfig(config)
 
       for (let i = 0; i < value.messages.length; i++) {
         const message = value.messages[i]
@@ -265,7 +309,7 @@ async function processWebhook(body: { entry?: WhatsAppWebhookEntry[] }) {
           contact,
           config.user_id,
           config.org_id,
-          decryptedAccessToken
+          provider
         )
       }
     }
@@ -490,7 +534,7 @@ async function processMessage(
   contact: { profile: { name: string }; wa_id: string },
   userId: string,
   orgId: string,
-  accessToken: string
+  provider: WhatsAppProvider
 ) {
   const senderPhone = normalizePhone(message.from)
   const contactName = contact.profile.name
@@ -523,7 +567,7 @@ async function processMessage(
 
   // Parse message content based on type
   const { contentText, mediaUrl, mediaType, interactiveReplyId } =
-    await parseMessageContent(message, accessToken)
+    await parseMessageContent(message, provider)
 
   // Resolve swipe-reply context if present. A missing parent is fine —
   // we just store NULL and the UI renders the message without a quote.
@@ -725,7 +769,7 @@ async function processMessage(
 
 async function parseMessageContent(
   message: WhatsAppMessage,
-  accessToken: string
+  provider: WhatsAppProvider
 ): Promise<{
   contentText: string | null
   mediaUrl: string | null
@@ -739,19 +783,21 @@ async function parseMessageContent(
    */
   interactiveReplyId: string | null
 }> {
-  // getMediaUrl signature is (mediaId, accessToken) — earlier code had
-  // the args swapped, so every verification hit an invalid Meta URL and
-  // fell through to the catch block, leaving mediaUrl as null. That's
-  // why images showed up as empty bubbles in the inbox.
+  // Confirm the provider can actually serve the media before pointing a
+  // message row at the proxy. An earlier version passed swapped args to
+  // Meta, so every verification hit an invalid URL and fell through to
+  // the catch — which is why images showed up as empty bubbles in the
+  // inbox. The proxy path itself is provider-agnostic: it re-resolves the
+  // org's transport at request time.
   const verifyAndBuildUrl = async (
     mediaId: string
   ): Promise<string | null> => {
     try {
-      await getMediaUrl({ mediaId, accessToken })
+      await provider.verifyMedia(mediaId)
       return `/api/whatsapp/media/${mediaId}`
     } catch (error) {
       console.error(
-        `Failed to verify media ${mediaId} with Meta:`,
+        `Failed to verify media ${mediaId} with the ${provider.kind} provider:`,
         error instanceof Error ? error.message : error
       )
       return null

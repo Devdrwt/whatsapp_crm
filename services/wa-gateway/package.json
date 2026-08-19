@@ -1,0 +1,28 @@
+{
+  "name": "wa-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "description": "INTERNAL PILOT ONLY — WhatsApp Web (Baileys) side-car for wacrm. Not a product. See docs/pilote-baileys.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "baileys": "7.0.0-rc14",
+    "pino": "^9.6.0",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/qrcode": "^1.5.5",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.7"
+  }
+}

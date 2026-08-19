@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { verifyPhoneNumber } from '@/lib/whatsapp/meta-api'
-import { encrypt, decrypt } from '@/lib/whatsapp/encryption'
+import { providerFromConfig } from '@/lib/whatsapp/provider'
+import { encrypt } from '@/lib/whatsapp/encryption'
 import { getActiveOrgIdFromCookies } from '@/lib/orgs/active-org'
 
 // Lazy-initialised service-role client. We need it to detect a
@@ -54,7 +55,7 @@ export async function GET() {
 
     const { data: config, error: configError } = await supabase
       .from('whatsapp_config')
-      .select('phone_number_id, access_token, status')
+      .select('org_id, provider, phone_number_id, access_token, status')
       .eq('org_id', orgId)
       .maybeSingle()
 
@@ -77,11 +78,13 @@ export async function GET() {
       )
     }
 
-    // Try to decrypt the stored token with the current ENCRYPTION_KEY.
-    // If this fails, the key changed (or was never consistent across envs).
-    let accessToken: string
+    // Building the provider decrypts the stored Meta token with the
+    // current ENCRYPTION_KEY. If that throws, the key changed (or was
+    // never consistent across envs) and the operator needs the reset
+    // banner — this is the one failure the UI can talk the user through.
+    let provider
     try {
-      accessToken = decrypt(config.access_token)
+      provider = providerFromConfig(config)
     } catch (err) {
       console.error('[whatsapp/config GET] Token decryption failed:', err)
       return NextResponse.json(
@@ -96,21 +99,28 @@ export async function GET() {
       )
     }
 
-    // Validate credentials against Meta
+    // Validate against the transport: Meta verifies the credentials,
+    // the pilot gateway reports its socket state.
     try {
-      const phoneInfo = await verifyPhoneNumber({
-        phoneNumberId: config.phone_number_id,
-        accessToken,
+      const phoneInfo = await provider.verifyConnection()
+      return NextResponse.json({
+        connected: true,
+        provider: provider.kind,
+        phone_info: phoneInfo,
       })
-      return NextResponse.json({ connected: true, phone_info: phoneInfo })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown Meta API error'
-      console.error('[whatsapp/config GET] Meta API verification failed:', message)
+      const label = provider.kind === 'meta' ? 'Meta API' : 'WhatsApp gateway'
+      const message = err instanceof Error ? err.message : `Unknown ${label} error`
+      console.error(`[whatsapp/config GET] ${label} verification failed:`, message)
       return NextResponse.json(
         {
-          connected: false,
+          // Reason string kept as-is for both transports: the settings UI
+          // keys its banner off it, and a pilot-only rename would be
+          // churn in a client-facing component.
           reason: 'meta_api_error',
-          message: `Meta API rejected the credentials: ${message}`,
+          connected: false,
+          provider: provider.kind,
+          message: `${label} rejected the connection: ${message}`,
         },
         { status: 200 }
       )
@@ -233,6 +243,16 @@ export async function POST(request: Request) {
       const { error: updateError } = await supabase
         .from('whatsapp_config')
         .update({
+          // Saving Meta credentials is what moves an org onto the Meta
+          // transport — including moving it *back* off a pilot Baileys
+          // session. Stamping it explicitly (rather than relying on the
+          // column default) means the row can never end up with Meta
+          // credentials and a stale `provider = 'baileys'`, which would
+          // route sends to a gateway that no longer owns the number.
+          provider: 'meta',
+          session_status: null,
+          session_last_error: null,
+          session_updated_at: null,
           phone_number_id,
           waba_id: waba_id || null,
           access_token: encryptedAccessToken,
@@ -256,6 +276,7 @@ export async function POST(request: Request) {
         .insert({
           user_id: user.id,
           org_id: orgId,
+          provider: 'meta',
           phone_number_id,
           waba_id: waba_id || null,
           access_token: encryptedAccessToken,
