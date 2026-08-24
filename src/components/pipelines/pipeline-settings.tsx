@@ -230,7 +230,7 @@ export function PipelineSettings({
               <Button
                 onClick={handleDeletePipeline}
                 disabled={deleting}
-                className="bg-destructive text-white hover:bg-destructive/90"
+                variant="destructive-solid"
               >
                 {deleting ? t("deleting") : t("deletePipeline")}
               </Button>

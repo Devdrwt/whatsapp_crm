@@ -401,7 +401,8 @@ export function DealForm({
                     type="button"
                     onClick={() => handleStatusChange("lost")}
                     disabled={!!statusAction || deal.status === "lost"}
-                    className="flex-1 bg-destructive text-white hover:bg-destructive/90 disabled:opacity-50"
+                    variant="destructive-solid"
+                    className="flex-1 disabled:opacity-50"
                   >
                     {statusAction === "lost" ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -463,7 +464,7 @@ export function DealForm({
                       type="button"
                       onClick={handleDelete}
                       disabled={deleting}
-                      className="rounded bg-destructive px-2 py-1 font-medium text-white hover:bg-destructive/90 disabled:opacity-50"
+                      className="rounded bg-destructive px-2 py-1 font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
                     >
                       {deleting ? t("deleting") : t("deleteConfirmAction")}
                     </button>

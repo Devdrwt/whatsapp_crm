@@ -226,6 +226,28 @@ When asked to build or modify UI in this repository:
    strings in components.
 7. Run `npm run lint` and `npx tsc --noEmit` before declaring done.
 
+### Open migration: raw amber → `--warning`
+
+There is no amber in Tailwind's palette that belongs in this product, but
+there are roughly **90 usages of it across 19 files** — a complete warning
+system built by hand and never written down. The convention is
+consistent, which is why nobody noticed:
+
+| Ad-hoc pattern | Replace with |
+|---|---|
+| `text-amber-600 dark:text-amber-400` | `text-warning` |
+| `bg-amber-500/10` | `bg-warning-soft` |
+| `border-amber-500/30` · `/40` | `border-warning/30` · `/40` |
+| `bg-amber-600 hover:bg-amber-700 text-white` | `<Button variant="warning">` |
+
+The tokens now exist and the five button cases are migrated. The
+remaining alert and badge usages are **visually correct today** and were
+deliberately left alone rather than swept in a single pass nobody could
+visually verify. Migrate them opportunistically: when you touch a file
+for another reason, convert its amber and leave it clean.
+
+New code uses the tokens. No new `amber-*` class enters this codebase.
+
 ### Known weakness, stated plainly
 
 Inter + a geometric sans + an emerald accent on shadcn defaults is a

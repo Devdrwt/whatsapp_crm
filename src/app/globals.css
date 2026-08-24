@@ -27,6 +27,11 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-hover: var(--warning-hover);
+  --color-warning-soft: var(--warning-soft);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -90,6 +95,16 @@
   --accent: oklch(0.95 0.025 178);
   --accent-foreground: oklch(0.3 0.04 200);
   --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.99 0.01 27);
+  /* Warning — l'ambre était jusqu'ici réinventé à la main dans 19
+   * fichiers (bg-amber-500/10, text-amber-600 dark:text-amber-400).
+   * Ces valeurs reprennent cette convention pour que la migration
+   * soit visuellement neutre. Texte SOMBRE sur ambre : le blanc sur
+   * amber-600 plafonne à ~3,5:1 et échoue AA. */
+  --warning: oklch(0.7 0.15 70);
+  --warning-foreground: oklch(0.26 0.05 60);
+  --warning-hover: oklch(0.64 0.15 65);
+  --warning-soft: oklch(0.77 0.16 71 / 0.1);
   --border: oklch(0.92 0.006 240);
   --input: oklch(0.92 0.006 240);
   --ring: oklch(0.62 0.14 165);
@@ -132,6 +147,11 @@
   --accent: oklch(0.27 0.02 195);
   --accent-foreground: oklch(0.97 0.003 220);
   --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.99 0.01 25);
+  --warning: oklch(0.8 0.14 78);
+  --warning-foreground: oklch(0.24 0.05 60);
+  --warning-hover: oklch(0.86 0.13 82);
+  --warning-soft: oklch(0.77 0.16 71 / 0.14);
   --border: oklch(0.3 0.012 235);
   --input: oklch(0.3 0.012 235);
   --ring: oklch(0.7 0.14 165);

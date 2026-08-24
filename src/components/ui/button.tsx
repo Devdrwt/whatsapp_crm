@@ -17,6 +17,17 @@ const buttonVariants = cva(
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        // Solid red, for the final confirmation of an irreversible action
+        // only — the soft `destructive` above stays the default for
+        // routine delete affordances in lists and toolbars.
+        "destructive-solid":
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+        // Caution, not danger: suspending an org, resetting a config.
+        // Dark text on amber — white on amber-600 tops out around 3.5:1
+        // and fails AA, which is why every ad-hoc amber button so far was
+        // quietly inaccessible.
+        warning:
+          "bg-warning text-warning-foreground hover:bg-warning-hover focus-visible:border-warning/40 focus-visible:ring-warning/30",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

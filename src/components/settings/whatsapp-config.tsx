@@ -295,7 +295,8 @@ export function WhatsAppConfig() {
                   onClick={handleReset}
                   disabled={resetting}
                   size="sm"
-                  className="mt-3 bg-amber-600 hover:bg-amber-700 text-white"
+                  variant="warning"
+                  className="mt-3"
                 >
                   {resetting ? (
                     <>
