@@ -184,7 +184,11 @@ hairline borders, not from stacking blur.
 **Don't**
 
 - Don't add a second accent hue, or a per-tenant colour picker.
-- Don't introduce a gradient. There are none in this product.
+- Don't put a gradient on a surface, a button or a heading. Exactly two
+  exist and both are load-bearing: the brand mark in
+  `layout/brand.tsx` (`--primary` → teal, in OKLCH) and the dot grid on
+  the automations canvas (`radial-gradient` off `var(--border)`). Extend
+  that list only for another identity or pattern element.
 - Don't use emoji as section markers or status icons — Lucide icons,
   which are already a dependency.
 - Don't add ambient or scroll-triggered animation.
